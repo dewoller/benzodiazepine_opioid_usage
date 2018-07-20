@@ -1,0 +1,143 @@
+---
+title: "Barbituate 1"
+author:  "Mofi Islam and Dennis Wollersheim "
+date: "2018-04-30"
+output:
+  workflowr::wflow_html:
+    toc: false
+---
+
+
+```{r results='hide', message=FALSE, warning=FALSE}
+
+rm(list=ls())
+options(width = 200)
+show_code = FALSE
+source("lib/functions.R")
+source("lib/get_data.R")
+source("lib/generate_data_frames.R")
+library('tidyverse')
+
+get_data_from_cache(df_suffix = '_rr')
+#get_data_from_cache(df_suffix = '')
+
+
+```
+
+#Dataset summary
+
+
+```{r data_summary, warning=FALSE}
+print('scripts')
+df %>%group_by("state") %>% count()
+
+print('people')
+df_patient %>%group_by("state") %>% count()
+
+```
+
+#Methods  - find overlaps 
+##Condervative Assumptions 
+  * 7 day window at start and end of opioid presciption
+  * 2 doses / day
+
+```{r generate_benzo, warning=FALSE}
+
+df %>%
+  filter( is_benzo( type_code ) ) %>%
+  mutate( row = row_number()) %>%
+  group_by(pin) %>%
+  mutate( end_date = supply_date + floor(quantity/2)) %>%
+  select( pin, item_code, quantity, n_dose, supply_date, end_date, row) %>% 
+  nest( item_code, supply_date, end_date, quantity, n_dose, row, .key=benzo ) %>%
+  { . } -> df_benzo
+
+```
+
+```{r generate_opioid, warning=FALSE}
+
+df %>%
+  filter( !is_benzo( type_code ) ) %>%
+  mutate( row = row_number()) %>%
+  group_by(pin) %>%
+  mutate( end_date = supply_date + floor(quantity/2)) %>%
+  select( pin, item_code, quantity, n_dose, supply_date, end_date, row) %>% 
+  nest( item_code, supply_date, end_date, quantity, n_dose, row, .key=opioids ) %>%
+  { . } -> df_opioid
+
+```
+
+```{r join, warning=FALSE}
+
+df_benzo %>%
+  inner_join( df_opioid ) %>% 
+  { . } -> df_both
+
+```
+
+```{r intersect, warning=FALSE}
+library('IRanges')
+df_both %>%
+  rowwise() %>%
+  do( joined =  interval_inner_join( .$opioids, .$benzo, by=qw('supply_date end_date') )) %>%
+  ungroup() %>%
+  cbind( df_both ) %>%
+  as.tibble() %>%
+  select(pin, joined ) %>%
+  unnest() %>%
+  { . } -> df_intersect
+
+```
+
+```{r finishup, warning=FALSE}
+df_intersect %<>%
+  mutate( supply_year = year( supply_date.x))
+
+df %>%
+  filter( is_benzo( type_code ) ) %>%
+  mutate( row = row_number()) %>%
+  { . } -> df_benzo
+
+```
+
+#What do the group of double dippers look like
+##Questions
+  * do we want to compare them with the single dippers?
+
+```{r explore_overlap, warning=FALSE}
+
+
+df_intersect %>% 
+  distinct(pin) %>%
+  inner_join(df_patient) %>%
+  ggplot(aes(age, fill=sex)) + geom_bar() +
+  ggtitle( "Number of double dippers by gender and age group")
+
+df_intersect %>% 
+  distinct(pin) %>%
+  inner_join(df_patient_usage) %>%
+  inner_join(df_patient) %>%
+  ggplot(aes(age, fill=usage_category)) + geom_bar() +
+  ggtitle( "Number of double dippers by usage_category and age group")
+
+df_intersect %>% 
+  inner_join(df_patient_usage %>% filter( drug_type=='opioid')) %>%
+  inner_join(df_patient) %>%
+  ggplot(aes(supply_year, fill=usage_category)) + geom_bar() +
+  ggtitle( "Number of double dippers by usage_category and supply_year")
+
+df%>% 
+  ggplot(aes(supply_year, fill=drug_type)) + 
+  geom_bar() +
+  ggtitle( "Number of benzo/opioid scripts by supply_year")
+
+ ```
+
+
+
+
+
+
+
+
+
