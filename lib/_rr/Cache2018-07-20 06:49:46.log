@@ -1,0 +1,28 @@
+[1] "Loading data at 2018-07-20 06:49:46"
+"\n    SELECT pin, gender, age, state, lga, scheme, item_code, type_code, type_name, supply_date, quantity, unit_wt, ddd_mg_factor, days_multiplier from continuing.continuing_rr r JOIN continuing.item i USING (item_code) \n      JOIN public.generictype USING (type_code)\n    where (type_code < 10  \n    AND EXTRACT( YEAR FROM supply_date ) != '2017'\n--    AND state in ('NSW', 'VIC') AND (lga like '1%' OR lga like '2%')\n)"
+"\n    SELECT pin, gender, age, state, lga, scheme, item_code, type_code, type_name, supply_date, quantity, unit_wt, ddd_mg_factor, days_multiplier from continuing.continuing_rr r JOIN continuing.item i USING (item_code) \n      JOIN public.generictype USING (type_code)\n    where (type_code < 11  \n    AND EXTRACT( YEAR FROM supply_date ) != '2017'\n--    AND state in ('NSW', 'VIC') AND (lga like '1%' OR lga like '2%')\n)"
+
+> read.dta13('data/nsw_vic_populato_and_seifa_data.dta') 
+
+> read.dta13('data/nsw_vic_populato_and_seifa_data.dta') %>% 
++     tbl_df() 
+# A tibble: 0 x 0
+
+> read.dta13('data/nsw_vic_populato_and_seifa_data.dta') 
+[1] "/mnt/sda5/home/dewoller/mydoc/research/mofi/benzodiazepine/lib"
+[1] "/mnt/sda5/home/dewoller/mydoc/research/mofi/benzodiazepine/lib"
+[1] "/mnt/sda5/home/dewoller/mydoc/research/mofi/benzodiazepine"
+# A tibble: 968 x 6
+          pin sex   age   state lga   all_scheme 
+        <dbl> <fct> <fct> <chr> <chr> <chr>      
+ 1 5964312354 F     20-44 QLD   31000 PBS,UNDERCO
+ 2 9171165217 M     65+   VIC   24210 PBS        
+ 3 6744998740 M     20-44 QLD   33430 UNDERCO    
+ 4  143672936 F     45-64 VIC   23670 UNDERCO    
+ 5 5128512406 M     45-64 SA    40120 UNDERCO    
+ 6 5017111601 F     20-44 NSW   10050 UNDERCO    
+ 7 9016044514 F     20-44 VIC   27070 UNDERCO    
+ 8 6262903938 F     45-64 VIC   22670 UNDERCO    
+ 9 5126114046 M     20-44 QLD   34770 PBS,UNDERCO
+10 6730919219 M     20-44 VIC   23430 PBS        
+# ... with 958 more rows
