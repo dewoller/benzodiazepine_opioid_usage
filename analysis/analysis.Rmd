@@ -18,8 +18,8 @@ source("lib/get_data.R")
 source("lib/generate_data_frames.R")
 library('tidyverse')
 
-get_data_from_cache(df_suffix = '_rr')
-#get_data_from_cache(df_suffix = '')
+#get_data_from_cache(df_suffix = '_rr')
+get_data_from_cache(df_suffix = '')
 
 
 ```
