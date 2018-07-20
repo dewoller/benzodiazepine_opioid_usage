@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Mofi Islam and Dennis Wollersheim" />
+
+<meta name="date" content="2018-04-30" />
+
+<title>Barbituate 1</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.0.13/css/fa-svg-with-js.css" rel="stylesheet" />
+<script src="site_libs/font-awesome-5.0.13/js/fontawesome-all.min.js"></script>
+<script src="site_libs/font-awesome-5.0.13/js/fa-v4-shims.min.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">benzodiazepine</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="analysis.html">Analysis</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/jdblischak/workflowr">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Barbituate 1</h1>
+<h4 class="author"><em>Mofi Islam and Dennis Wollersheim</em></h4>
+<h4 class="date"><em>2018-04-30</em></h4>
+
+</div>
+
+
+<p><strong>Last updated:</strong> 2018-07-20</p>
+<strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
+<ul>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>R Markdown file:</strong> up-to-date </summary></p>
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</details>
+</li>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Environment:</strong> empty </summary></p>
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</details>
+</li>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Seed:</strong> <code>set.seed(20180719)</code> </summary></p>
+<p>The command <code>set.seed(20180719)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</details>
+</li>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Session information:</strong> recorded </summary></p>
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</details>
+</li>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> 148e3e9 </summary></p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+<pre><code>
+Ignored files:
+    Ignored:    data/cache/
+    Ignored:    docs/figure/
+
+Untracked files:
+    Untracked:  123/
+    Untracked:  analysis/try.Rmd
+    Untracked:  data/Australian_population_for_merging.dta
+    Untracked:  data/Victorian population data converted in four agegroup, downloaded 4 May 18.dta
+    Untracked:  data/nsw_vic_populato_and_seifa_data.dta
+    Untracked:  data/oddDrugs.csv
+    Untracked:  data_cache_test.R
+    Untracked:  explore/
+    Untracked:  lib/
+
+Unstaged changes:
+    Modified:   .gitignore
+    Modified:   analysis/_site.yml
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/license.Rmd
+
+</code></pre>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes. </details>
+</li>
+</ul>
+<details> <summary> <small><strong>Expand here to see past versions:</strong></small> </summary>
+<ul>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+File
+</th>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+<th style="text-align:left;">
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+148e3e9
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-07-20
+</td>
+<td style="text-align:left;">
+wflow_publish(“analysis/analysis.Rmd”)
+</td>
+</tr>
+</tbody>
+</table>
+</ul>
+<p></details></p>
+<hr />
+<pre class="r"><code>rm(list=ls())
+options(width = 200)
+show_code = FALSE
+source(&quot;lib/functions.R&quot;)
+source(&quot;lib/get_data.R&quot;)
+source(&quot;lib/generate_data_frames.R&quot;)
+library(&#39;tidyverse&#39;)
+
+get_data_from_cache(df_suffix = &#39;_rr&#39;)
+#get_data_from_cache(df_suffix = &#39;&#39;)</code></pre>
+<div id="dataset-summary" class="section level1">
+<h1>Dataset summary</h1>
+<pre class="r"><code>print(&#39;scripts&#39;)</code></pre>
+<pre><code>[1] &quot;scripts&quot;</code></pre>
+<pre class="r"><code>df %&gt;%group_by(&quot;state&quot;) %&gt;% count()</code></pre>
+<pre><code># A tibble: 1 x 2
+# Groups:   &quot;state&quot; [1]
+  `&quot;state&quot;`     n
+  &lt;chr&gt;     &lt;int&gt;
+1 state      8921</code></pre>
+<pre class="r"><code>print(&#39;people&#39;)</code></pre>
+<pre><code>[1] &quot;people&quot;</code></pre>
+<pre class="r"><code>df_patient %&gt;%group_by(&quot;state&quot;) %&gt;% count()</code></pre>
+<pre><code># A tibble: 1 x 2
+# Groups:   &quot;state&quot; [1]
+  `&quot;state&quot;`     n
+  &lt;chr&gt;     &lt;int&gt;
+1 state       968</code></pre>
+</div>
+<div id="methods---find-overlaps" class="section level1">
+<h1>Methods - find overlaps</h1>
+<div id="condervative-assumptions" class="section level2">
+<h2>Condervative Assumptions</h2>
+<ul>
+<li>7 day window at start and end of opioid presciption</li>
+<li>2 doses / day</li>
+</ul>
+<pre class="r"><code>df %&gt;%
+  filter( is_benzo( type_code ) ) %&gt;%
+  mutate( row = row_number()) %&gt;%
+  group_by(pin) %&gt;%
+  mutate( end_date = supply_date + floor(quantity/2)) %&gt;%
+  select( pin, item_code, quantity, n_dose, supply_date, end_date, row) %&gt;% 
+  nest( item_code, supply_date, end_date, quantity, n_dose, row, .key=benzo ) %&gt;%
+  { . } -&gt; df_benzo</code></pre>
+<pre class="r"><code>df %&gt;%
+  filter( !is_benzo( type_code ) ) %&gt;%
+  mutate( row = row_number()) %&gt;%
+  group_by(pin) %&gt;%
+  mutate( end_date = supply_date + floor(quantity/2)) %&gt;%
+  select( pin, item_code, quantity, n_dose, supply_date, end_date, row) %&gt;% 
+  nest( item_code, supply_date, end_date, quantity, n_dose, row, .key=opioids ) %&gt;%
+  { . } -&gt; df_opioid</code></pre>
+<pre class="r"><code>df_benzo %&gt;%
+  inner_join( df_opioid ) %&gt;% 
+  { . } -&gt; df_both</code></pre>
+<pre><code>Joining, by = &quot;pin&quot;</code></pre>
+<pre class="r"><code>library(&#39;IRanges&#39;)
+df_both %&gt;%
+  rowwise() %&gt;%
+  do( joined =  interval_inner_join( .$opioids, .$benzo, by=qw(&#39;supply_date end_date&#39;) )) %&gt;%
+  ungroup() %&gt;%
+  cbind( df_both ) %&gt;%
+  as.tibble() %&gt;%
+  select(pin, joined ) %&gt;%
+  unnest() %&gt;%
+  { . } -&gt; df_intersect</code></pre>
+<pre class="r"><code>df_intersect %&lt;&gt;%
+  mutate( supply_year = year( supply_date.x))
+
+df %&gt;%
+  filter( is_benzo( type_code ) ) %&gt;%
+  mutate( row = row_number()) %&gt;%
+  { . } -&gt; df_benzo</code></pre>
+</div>
+</div>
+<div id="what-do-the-group-of-double-dippers-look-like" class="section level1">
+<h1>What do the group of double dippers look like</h1>
+<div id="questions" class="section level2">
+<h2>Questions</h2>
+<ul>
+<li>do we want to compare them with the single dippers?</li>
+</ul>
+<pre class="r"><code>df_intersect %&gt;% 
+  distinct(pin) %&gt;%
+  inner_join(df_patient) %&gt;%
+  ggplot(aes(age, fill=sex)) + geom_bar() +
+  ggtitle( &quot;Number of double dippers by gender and age group&quot;)</code></pre>
+<pre><code>Joining, by = &quot;pin&quot;</code></pre>
+<p><img src="figure/analysis.Rmd/explore_overlap-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>df_intersect %&gt;% 
+  distinct(pin) %&gt;%
+  inner_join(df_patient_usage) %&gt;%
+  inner_join(df_patient) %&gt;%
+  ggplot(aes(age, fill=usage_category)) + geom_bar() +
+  ggtitle( &quot;Number of double dippers by usage_category and age group&quot;)</code></pre>
+<pre><code>Joining, by = &quot;pin&quot;
+Joining, by = &quot;pin&quot;</code></pre>
+<p><img src="figure/analysis.Rmd/explore_overlap-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>df_intersect %&gt;% 
+  inner_join(df_patient_usage %&gt;% filter( drug_type==&#39;opioid&#39;)) %&gt;%
+  inner_join(df_patient) %&gt;%
+  ggplot(aes(supply_year, fill=usage_category)) + geom_bar() +
+  ggtitle( &quot;Number of double dippers by usage_category and supply_year&quot;)</code></pre>
+<pre><code>Joining, by = &quot;pin&quot;
+Joining, by = &quot;pin&quot;</code></pre>
+<p><img src="figure/analysis.Rmd/explore_overlap-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>df%&gt;% 
+  ggplot(aes(supply_year, fill=drug_type)) + 
+  geom_bar() +
+  ggtitle( &quot;Number of benzo/opioid scripts by supply_year&quot;)</code></pre>
+<p><img src="figure/analysis.Rmd/explore_overlap-4.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="session-information" class="section level2">
+<h2>Session information</h2>
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.4.4 (2018-03-15)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 17.10
+
+Matrix products: default
+BLAS: /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3
+LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so
+
+locale:
+ [1] LC_CTYPE=en_AU.UTF-8       LC_NUMERIC=C               LC_TIME=en_AU.UTF-8        LC_COLLATE=en_AU.UTF-8     LC_MONETARY=en_AU.UTF-8    LC_MESSAGES=en_AU.UTF-8    LC_PAPER=en_AU.UTF-8      
+ [8] LC_NAME=C                  LC_ADDRESS=C               LC_TELEPHONE=C             LC_MEASUREMENT=en_AU.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats4    parallel  stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] bindrcpp_0.2.2      keyring_1.1.0       RPostgreSQL_0.6-2   DBI_1.0.0           forcats_0.3.0       dplyr_0.7.6         purrr_0.2.5         readr_1.1.1         tidyr_0.8.1        
+[10] tibble_1.4.2        ggplot2_3.0.0       tidyverse_1.2.1     IRanges_2.12.0      S4Vectors_0.16.0    BiocGenerics_0.24.0 fuzzyjoin_0.1.4     DataCache_0.9       wrapr_1.5.1        
+[19] readstata13_0.9.2   lubridate_1.7.4     knitr_1.20          stringr_1.3.1       magrittr_1.5        workflowr_1.1.1     nvimcom_0.9-72     
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_0.12.17      lattice_0.20-35   utf8_1.1.4        assertthat_0.2.0  rprojroot_1.3-2   digest_0.6.15     R6_2.2.2          cellranger_1.1.0  plyr_1.8.4        backports_1.1.2  
+[11] evaluate_0.10.1   httr_1.3.1        pillar_1.3.0      rlang_0.2.1       lazyeval_0.2.1    readxl_1.1.0      rstudioapi_0.7    whisker_0.3-2     R.utils_2.6.0     R.oo_1.22.0      
+[21] rmarkdown_1.10    labeling_0.3      munsell_0.5.0     broom_0.5.0       compiler_3.4.4    modelr_0.1.2      pkgconfig_2.0.1   htmltools_0.3.6   tidyselect_0.2.4  viridisLite_0.3.0
+[31] fansi_0.2.3       crayon_1.3.4      withr_2.1.2       R.methodsS3_1.7.1 grid_3.4.4        nlme_3.1-137      jsonlite_1.5      gtable_0.2.0      git2r_0.23.0      scales_0.5.0     
+[41] cli_1.0.0         stringi_1.2.3     xml2_1.2.0        tools_3.4.4       glue_1.3.0        hms_0.4.2         yaml_2.1.19       colorspace_1.3-2  rvest_0.3.2       bindr_0.1.1      
+[51] haven_1.1.2      </code></pre>
+</div>
+</div>
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+<hr>
+<p>
+  This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a>
+  analysis was created with
+  <a href="https://github.com/jdblischak/workflowr">workflowr</a> 1.1.1
+</p>
+<hr>
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
