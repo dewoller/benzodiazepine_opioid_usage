@@ -27,6 +27,8 @@ test_generate_data_frames = function() {
   get_data_from_cache('')
 
   clear_cache('_rr')
+
+  clear_cache('full')
   
 
 }

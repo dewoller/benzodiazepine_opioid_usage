@@ -20,6 +20,7 @@ safe_load("wrapr" )   # for the qc function
 safe_load("DataCache" )
 safe_load( 'fuzzyjoin')
 library('IRanges')
+safe_load("multidplyr")
 safe_load("tidyverse")
 
 
