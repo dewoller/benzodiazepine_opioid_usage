@@ -14,16 +14,19 @@ rm(list=ls())
 options(width = 200)
 show_code = FALSE
 source("lib/functions.R")
+source("lib/standardisation.R")
 source("lib/get_data.R")
 source("lib/generate_data_frames.R")
 library('tidyverse')
 
-#dataset="_rr"
 dataset=""
+dataset="_rr"
 
 get_data_from_cache(df_suffix = dataset)
 intersect_filename = paste0( 'data/df_intersect', dataset, '.rdata')
 
+df_population %>% distinct( lga, seifa ) -> df_seifa
+df_population %>% distinct( lga, urbanization ) -> df_urbanization
 
 df %<>% mutate( row=row_number())
 
@@ -47,14 +50,14 @@ df_patient_benzo = df_patient %>% filter( pin %in% df_benzo$pin)
 
 ```{r data_summary, echo=FALSE, warning=FALSE, results='asis'}
 cat("  \n###",  "Total Number of Scripts with either Benzo or Opioid\n")
-df %>%group_by(state) %>% count()
+df %>%group_by(state) %>% count() %>% kable()
 #
 cat("  \n###",  "Total Number of People with either Benzo or Opioid\n")
-df_patient %>%group_by(state) %>% count()
+df_patient %>%group_by(state) %>% count() %>% kable()
 #
 cat("  \n###",  "Total Number of People with Opioid \n")
 print('people')
-df_patient_opioid %>%group_by(state) %>% count()
+df_patient_opioid %>%group_by(state) %>% count() %>% kable()
 
 ```
 
@@ -173,13 +176,6 @@ df%>%
 # what type of users do we have
 ### number of users of each type, overall
 
-df %>%
-group_by( usage_type, type_name) %>%
-summarise(  quantity=sum(quantity) ) %>%
-ggplot( aes( usage_type, quantity, fill=type_name)) +
-geom_col()+ 
-ggtitle( "Total number of pills per usage and drug type")
-
 ```{r, warning=FALSE, echo=FALSE}
 
 df_patient %<>%
@@ -211,7 +207,7 @@ df %<>% mutate( usage_type = as.factor(
                                     'opioid_dd',
                                     ifelse(  row %in% df_intersect$row.y,
                                     'benzo_dd', 
-                                    paste( drug_type, 'alone') ))))
+                                    paste0( drug_type, '_alone') ))))
 
 df %>%
   group_by( usage_type, type_name) %>%
@@ -227,10 +223,105 @@ df %>%
   geom_line()+ 
   ggtitle( "Total number of pills per usage and year")
 
+
+df %>%
+  count( usage_type, type_name) %>%
+  ggplot( aes( usage_type, n, fill=type_name)) +
+  geom_col()+ 
+  ggtitle( "Total number of scripts per usage and drug type")
+
+df %>%
+  count( usage_type, supply_year) %>%
+  ggplot( aes( supply_year, n, color=usage_type, group=usage_type)) +
+  geom_line()+ 
+  ggtitle( "Total number of scripts per usage and year")
+
+
+
 ```
 
+### Percentage of population that participate in double dipping
+
+```{r, warning=FALSE}
+
+# number of dd  / total number per lga
+
+df %>%
+  count( usage_type, lga ) %>%
+  spread( usage_type, n, fill=0) %>%
+  mutate( opioid_dd_ratio = opioid_dd / (opioid_dd + opioid_alone),
+         benzo_dd_ratio = benzo_dd / (benzo_dd + benzodiazepine_alone)) %>%
+  select( lga, ends_with('ratio')) %>%
+  gather( drug, ratio, -lga) %>%
+  ggplot( aes(drug, ratio)) +
+  geom_boxplot( )  + 
+  ggtitle( "LGA total ratio pills to double dippers")
 
 
+cat("Percentage of double dippers scripts for each Seifa area")
+
+df %>%
+  inner_join( df_seifa ) %>%
+  count( usage_type, seifa ) %>%
+  spread( usage_type, n, fill=0) %>%
+  mutate( opioid_dd_ratio = opioid_dd / (opioid_dd + opioid_alone),
+         benzo_dd_ratio = benzo_dd / (benzo_dd + benzodiazepine_alone)) %>%
+  select( seifa, ends_with('ratio')) %>%
+  gather( drug, ratio, -seifa) %>%
+  kable()
+
+
+cat("Percentage of double dippers scripts for each Urbanization area")
+df %>%
+  inner_join( df_urbanization) %>%
+  count( usage_type, urbanization ) %>%
+  spread( usage_type, n, fill=0) %>%
+  mutate( opioid_dd_ratio = opioid_dd / (opioid_dd + opioid_alone),
+         benzo_dd_ratio = benzo_dd / (benzo_dd + benzodiazepine_alone)) %>%
+  select( urbanization, ends_with('ratio')) %>%
+  gather( drug, ratio, -urbanization) %>%
+  kable()
+
+cat("Percentage of double dippers scripts for each drug type ")
+df %>%
+  count( usage_type, type_name ) %>%
+  spread( usage_type, n, fill=0) %>%
+  mutate( opioid_dd_ratio = opioid_dd / (opioid_dd + opioid_alone),
+         benzo_dd_ratio = benzo_dd / (benzo_dd + benzodiazepine_alone)) %>%
+  select( type_name, ends_with('ratio')) %>%
+  gather( drug, ratio, -type_name) %>%
+  filter( !is.nan(ratio) & drug!='benzo_dd_ratio') %>%
+  select( -drug) %>%
+  kable()
+
+cat("Percentage of double dippers scripts for each drug type ")
+df %>%
+  count( quarter, usage_type, type_name ) %>%
+  spread( usage_type, n, fill=0) %>%
+  mutate( opioid_dd_ratio = opioid_dd / (opioid_dd + opioid_alone),
+         benzo_dd_ratio = benzo_dd / (benzo_dd + benzodiazepine_alone)) %>%
+  select( quarter, type_name, ends_with('ratio')) %>% 
+  gather( drug, ratio, -type_name, -quarter) %>%
+  filter( !is.nan(ratio) & drug!='benzo_dd_ratio') %>%
+  select( -drug) %>%
+  ggplot( aes( quarter, ratio, color=type_name ) ) +
+  geom_line()
+
+cat("Ratio of double dippers scripts for each state")
+df %>%
+  count( usage_type, state ) %>%
+  spread( usage_type, n, fill=0) %>%
+  mutate( opioid_dd_ratio = opioid_dd / (opioid_dd + opioid_alone),
+         benzo_dd_ratio = benzo_dd / (benzo_dd + benzodiazepine_alone)) %>%
+  select( state, ends_with('ratio')) %>%
+  gather( drug, ratio, -state) %>%
+  kable()
+
+```
+# DDD
+
+```{r}
+```
 
 
 
