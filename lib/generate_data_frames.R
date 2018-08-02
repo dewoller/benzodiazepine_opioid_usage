@@ -140,9 +140,7 @@ read.dta13('data/nsw_vic_populato_and_seifa_data.dta') %>%
     list( "df_patient_usage" = df_patient_usage, 
          "df_population" = df_population,
          "df_patient" = df_patient,
-#         "df_patient_scheme" = df_patient_scheme,
-         "df_patient_dose" = df_patient_dose,
-#         "base_map" =  get_australia_base_map(c(1,2,8)), 
+         "base_map" =  get_australia_base_map(), 
          "age_groups" = age_groups,
          "multiplier" = multiplier, 
          "df"=df

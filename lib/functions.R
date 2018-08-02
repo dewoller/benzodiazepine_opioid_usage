@@ -23,6 +23,11 @@ library('IRanges')
 safe_load("multidplyr")
 safe_load("tidyverse")
 
+safe_load("tmap", 'https://cloud.r-project.org')
+safe_load("tmaptools", 'https://cloud.r-project.org')
+safe_load("grid")
+library(tricolore) 
+is_theme_complete = function (x)  {TRUE}  # fix up bug in current tricolore library
 
 
 keep <- function(x, name) {assign(as.character(substitute(name)), x, pos = 1)}
@@ -156,9 +161,9 @@ get_australia_state_map <- function( df_lga_category ,
 
 
 # ------------------------------------------------------------------
-get_australia_base_map = function(states) {
+get_australia_base_map = function(states = NULL) {
 read_shape("~/mydoc/research/mofi/shapefiles/LGA11aAust.shp")  %>%
-  subset( STATE_CODE %in% states )  %>% 
+  filter( ifelse( is.null( states), TRUE,  STATE_CODE %in% states ))  %>% 
   simplify_shape(0.05)
 
 }
