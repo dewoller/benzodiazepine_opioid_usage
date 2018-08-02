@@ -58,7 +58,7 @@ my_dbWriteTable <- function ( df, table_name ) {
   drv <- dbDriver("PostgreSQL")
   con <- dbConnect(drv, dbname = "mofi",
           host = "localhost", port = 5432,
-          user = "dewoller", password = key_get('mofi', 'dewoller'))
+          user = "dewoller", password = Sys.getenv('PASSWD'))
   on.exit(dbDisconnect(con))
   dbWriteTable( con, table_name, df )
 }
