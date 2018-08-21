@@ -20,7 +20,7 @@ source("lib/generate_data_frames.R")
 library('tidyverse')
 
 dataset=""
-#dataset="_rr"
+dataset="_rr"
 
 get_data_from_cache(df_suffix = dataset)
 intersect_filename = paste0( 'data/df_intersect', dataset, '.rdata')
@@ -44,9 +44,24 @@ df_patient_benzo = df_patient %>% filter( pin %in% df_benzo$pin)
 
 
 ```
+# Methods
+
+  - we take all the people who have had benzo and opioid, and we intersect them
+  - for each prescription, we assume the following behaviour. 
+
+   | Type | Treatment|
+   |---|---|
+   |Patches| Number of days reccomended for the patch|
+   | Injections | 1 injection / day |
+   | tablets | 2 tablets /day |
+
+We estimate prescription comsumption window by assuming that the user takes the prescription daily from the time they fill their prescription until it runs out, given consumption factors the the table above, and the quantity of items in the prescription.
+
+Using the consumption window calculated above, we deem someone is taking opioids concurrently with benzodiazepine if they have an opioid window overlapping with benzodiazepine window, with at least 7 days of overlap. 
+
 
 #Dataset summary
-
+There are more opioid prescriptions  and users than Benzodiazepine users
 
 ```{r data_summary, echo=FALSE, warning=FALSE, results='asis'}
 cat("  \n###",  "Total Number of Scripts with either Benzo or Opioid\n")
@@ -105,8 +120,8 @@ if (file.exists( intersect_filename )) {
 #    { . } -> df_intersect
 #
 #
-
-  cluster <- create_cluster(4)
+  no_cores <- detectCores() - 1
+  cluster <- create_cluster(no_cores)
   df_benzo_nested %>%
     inner_join( df_opioid_nested ) %>% 
     partition(pin, cluster=cluster )  %>%
@@ -349,10 +364,6 @@ map_data %>%
               title = paste("Comparing Benzo, Opioid, and double dippers")
               ) 
 
-
-
-library(ggtern)
-library(tricolore)
 
 # simulate 243 ternary compositions
 P <- as.data.frame(prop.table(matrix(runif(3^6), ncol = 3), 1))
