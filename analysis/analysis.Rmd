@@ -110,12 +110,8 @@ if (file.exists( intersect_filename )) {
 #
 #  df_benzo_nested %>%
 #    inner_join( df_opioid_nested ) %>% 
-#    rowwise() %>%
+#    group_by(pin) %>%
 #    do( joined =  interval_inner_join( .$opioids, .$benzo, by=qw('supply_date end_date') )) %>%
-#    ungroup() %>%
-#    cbind( df_both ) %>%
-#    as.tibble() %>%
-#    select(pin, joined ) %>%
 #    unnest() %>%
 #    { . } -> df_intersect
 #
