@@ -17,17 +17,29 @@ safe_load("readstata13" )
 safe_load("wrapr" )   # for the qc function
 
 #safe_load("ordinal" )
-safe_load("DataCache" )
+safe_load("DataCache", dev='jbryer/DataCache' )
 safe_load( 'fuzzyjoin')
 library('IRanges')
-safe_load("multidplyr")
+safe_load("multidplyr", dev = "hadley/multidplyr")
 safe_load("tidyverse")
+
+
+
+# one of these need the newest version of libgdal
+
+# sudo add-apt-repository -y ppa:ubuntugis/ppa
+
+# agi libudunits2-dev libgdal-dev libudunits2-dev libgdal-dev libgeos-dev libproj-dev
+
 
 safe_load("tmap", 'https://cloud.r-project.org')
 safe_load("tmaptools", 'https://cloud.r-project.org')
 safe_load("grid")
-library(tricolore) 
+safe_load("ggtern")
+safe_load("tricolore") 
+
 is_theme_complete = function (x)  {TRUE}  # fix up bug in current tricolore library
+
 
 
 keep <- function(x, name) {assign(as.character(substitute(name)), x, pos = 1)}
@@ -162,7 +174,7 @@ get_australia_state_map <- function( df_lga_category ,
 
 # ------------------------------------------------------------------
 get_australia_base_map = function(states = NULL) {
-read_shape("~/mydoc/research/mofi/shapefiles/LGA11aAust.shp")  %>%
+read_shape("data/LGA11aAust.shp")  %>%
   filter( ifelse( is.null( states), TRUE,  STATE_CODE %in% states ))  %>% 
   simplify_shape(0.05)
 

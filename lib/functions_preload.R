@@ -1,12 +1,18 @@
 
 
-safe_load = function( package, repo ="http://cran.us.r-project.org" ) {
+safe_load = function( package, repo ="http://cran.us.r-project.org", dev=NA ) {
   
   if (!require(package, character.only=TRUE)) {
-    install.packages(package, repos = repo)
+    if (is.na( dev )) {
+      install.packages(package, repos = repo)
+    } else {
+      devtools::install_github( dev )
+      }
       require(package, character.only=TRUE)
+    }
+
   }
-}
+
 
 detach_all_packages <- function() {
   basic.packages.blank <-  c("stats", 
