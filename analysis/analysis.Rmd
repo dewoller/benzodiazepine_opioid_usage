@@ -19,8 +19,8 @@ source("lib/get_data.R")
 source("lib/generate_data_frames.R")
 library('tidyverse')
 
-dataset=""
 dataset="_rr"
+dataset=""
 
 get_data_from_cache(df_suffix = dataset)
 intersect_filename = paste0( 'data/df_intersect', dataset, '.rdata')
@@ -45,14 +45,15 @@ df_patient_benzo = df_patient %>% filter( pin %in% df_benzo$pin)
 
 ```
 # Methods
+##Condervative Assumptions 
 
   - we take all the people who have had benzo and opioid, and we intersect them
   - for each prescription, we assume the following behaviour. 
 
    | Type | Treatment|
    |---|---|
-   |Patches| Number of days reccomended for the patch|
-   | Injections | 1 injection / day |
+   |Patches| Continuious usage for number of days reccomended for each patch |
+   | Injections | Continious usage at the adult daily reccomended dose |
    | tablets | 2 tablets /day |
 
 We estimate prescription comsumption window by assuming that the user takes the prescription daily from the time they fill their prescription until it runs out, given consumption factors the the table above, and the quantity of items in the prescription.
@@ -77,9 +78,6 @@ df_patient_opioid %>%group_by(state) %>% count() %>% kable()
 ```
 
 #Methods  - find overlaps 
-##Condervative Assumptions 
-  * 7 day window at start and end of opioid presciption
-  * 2 doses / day
 
 ```{r generate_benzo, warning=FALSE}
 
@@ -91,7 +89,7 @@ if (file.exists( intersect_filename )) {
   df %>%
     filter( is_benzo( type_code ) ) %>%
     group_by(pin) %>%
-    mutate( end_date = supply_date + floor(quantity/2)) %>%
+    mutate( end_date = supply_date + floor(quantity * new_days_multiplier)) %>%
     select( pin, item_code, quantity, n_dose, supply_date, end_date, row) %>% 
     nest( item_code, supply_date, end_date, quantity, n_dose, row, .key=benzo ) %>%
     { . } -> df_benzo_nested
@@ -143,12 +141,25 @@ if (file.exists( intersect_filename )) {
 
 #cl <- makeCluster("thealfred.duckdns.org", user="dewoller", master="131.172.55.229", homogeneous=FALSE)
 
+
+```
+
+
+# break prescriptions into 4 distinct usage types;  
+# opioid_dd - opioid with a benzodiazepine overlapping
+# benzo_dd - benzodiazepine with an opioid overlapping
+# opioid_alone - opioid with no overlap
+# benzo_alone - benzodiazepine with no overlap
+
+
+```{r   }
+
 df %<>% mutate( usage_type = as.factor(
-                                       ifelse( row %in% df_intersect$row.x,
-                                              'opioid_dd',
-                                              ifelse(  row %in% df_intersect$row.y,
-                                                     'benzo_dd', 
-                                                     paste0( drug_type, '_alone') ))))
+                      ifelse( row %in% df_intersect$row.x,
+                            'opioid_dd',
+                            ifelse(  row %in% df_intersect$row.y,
+                            'benzo_dd', 
+                            paste0( drug_type, '_alone') ))))
 
  ```
 
@@ -160,6 +171,8 @@ We need to have some measure of dd intensity, we could use:
 ##Questions
   * how to normalise data;  
   * further research questions;  what about users that overlap with their own opioid prescriptions
+
+
 
 ```{r explore_overlap, warning=FALSE}
 

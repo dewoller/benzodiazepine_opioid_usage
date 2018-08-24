@@ -174,9 +174,10 @@ get_australia_state_map <- function( df_lga_category ,
 
 # ------------------------------------------------------------------
 get_australia_base_map = function(states = NULL) {
-read_shape("data/LGA11aAust.shp")  %>%
-  filter( ifelse( is.null( states), TRUE,  STATE_CODE %in% states ))  %>% 
-  simplify_shape(0.05)
+
+  read_shape("data/LGA11aAust.shp")  %>%
+    filter( ifelse( is.null( states), TRUE,  STATE_CODE %in% states ))  %>% 
+    simplify_shape(0.05)
 
 }
 
