@@ -562,6 +562,11 @@ clipboard <- function(x, sep="\t", row.names=FALSE, col.names=TRUE){
 }
 
 #-------------------------------------------------------------------------------------------
+ws <- function( ... ) {
+  wideScreen( ... )
+}
+
+#-------------------------------------------------------------------------------------------
 wideScreen <- function(howWide=Sys.getenv("COLUMNS")) {
   options(width=as.integer(howWide))
 }
