@@ -8,7 +8,7 @@ output:
 ---
 
 
-```{r results='hide', message=FALSE, warning=FALSE}
+```{r initial, results='hide', message=FALSE, warning=FALSE}
 
 rm(list=ls())
 options(width = 200)
@@ -157,7 +157,7 @@ if (file.exists( intersect_filename )) {
 # benzo_alone - benzodiazepine with no overlap
 
 
-```{r   }
+```{r  tag_original_transactions   }
 
 df %<>% mutate( usage_type = as.factor(
                       ifelse( row %in% df_intersect$row.x,
@@ -212,7 +212,7 @@ df%>%
 # what type of users do we have
 ### number of users of each type, overall
 
-```{r, warning=FALSE, echo=FALSE}
+```{r tag_users, warning=FALSE, echo=FALSE}
 
 df_patient %<>%
   mutate( is_benzo_user = (pin %in% df_patient_benzo$pin),
@@ -236,7 +236,7 @@ df_patient %>%
 
 ### Prescriptions that participate in double dipping
 
-```{r, warning=FALSE}
+```{r show_dd, warning=FALSE}
 
 df %>%
   group_by( usage_type, type_name) %>%
@@ -271,7 +271,7 @@ df %>%
 
 ### Percentage of population that participate in double dipping
 
-```{r, warning=FALSE}
+```{r show_dd_users, warning=FALSE}
 
 # number of dd  / total number per lga
 
@@ -349,7 +349,7 @@ df %>%
 ```
 # DDD
 
-```{r}
+```{r shiny}
 
 #Tricolore(euro_sectors, p1 = 'primary', p2 = 'secondary', p3 = 'tertiary', breaks = 20, hue = 0.3, chroma = 0.9, lightness = 0.8, contrast = 0.6, center = rep(1/3,3), spread = 1, show_data = TRUE, show_center = FALSE, legend = TRUE)
 
@@ -360,7 +360,7 @@ df %>%
 
 get_australia_base_map() -> base_map
 
-shiny::runApp('explore/shiny/', display.mode = "normal")
+#shiny::runApp('explore/shiny/', display.mode = "normal")
 
 
 df_lga %>%
