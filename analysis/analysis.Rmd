@@ -23,7 +23,7 @@ dataset="_rr"
 dataset=""
 
 get_data_from_cache(df_suffix = dataset)
-intersect_filename = paste0( 'data/df_intersect', dataset, '.rdata')
+intersect_filename = paste0( 'data/cache/df_intersect', dataset, '.rdata')
 
 df_population %>% distinct( lga, seifa ) -> df_seifa
 df_population %>% distinct( lga, urbanization ) -> df_urbanization
