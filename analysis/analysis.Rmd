@@ -74,6 +74,10 @@ df_patient %>%group_by(state) %>% count() %>% kable()
 cat("  \n###",  "Total Number of People with Opioid \n")
 print('people')
 df_patient_opioid %>%group_by(state) %>% count() %>% kable()
+#
+cat("  \n###",  "Total Number of People with Benzo \n")
+print('people')
+df_patient_benzo %>%group_by(state) %>% count() %>% kable()
 
 ```
 
@@ -97,7 +101,7 @@ if (file.exists( intersect_filename )) {
   df %>%
     filter( !is_benzo( type_code ) ) %>%
     group_by(pin) %>%
-    mutate( end_date = supply_date + floor(quantity/2)) %>%
+    mutate( end_date = supply_date + floor(quantity * new_days_multiplier)) %>%
     select( pin, item_code, quantity, n_dose, supply_date, end_date, row) %>% 
     nest( item_code, supply_date, end_date, quantity, n_dose, row, .key=opioids ) %>%
     { . } -> df_opioid_nested
@@ -116,6 +120,7 @@ if (file.exists( intersect_filename )) {
 #
   no_cores <- detectCores() - 1
   cluster <- create_cluster(no_cores)
+
   df_benzo_nested %>%
     inner_join( df_opioid_nested ) %>% 
     partition(pin, cluster=cluster )  %>%
