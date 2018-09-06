@@ -393,7 +393,7 @@ data("metro", package = "tmap")
 
 print( tric$legend , vp=viewport(x= 0.4, y= 0.1, width= 0.2, height= 0.1))
 
-library(gridExtra)
+library(ggpubr)
 
 ggarrange( tric$legend,map)
 
