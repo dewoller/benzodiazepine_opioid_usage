@@ -24,8 +24,8 @@ opts_chunk$set(echo = FALSE)
 
 ```{r initial, results='hide', message=FALSE, warning=FALSE}
 
-dataset=""
 dataset="_rr"
+dataset=""
 
 get_data_from_cache(dataset = dataset)
 intersect_filename = paste0( 'data/cache/df_intersect', dataset, '.rdata')
