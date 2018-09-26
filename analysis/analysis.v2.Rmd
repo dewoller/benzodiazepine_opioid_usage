@@ -1,0 +1,591 @@
+---
+title: "Benzo-opioid v2 analysis"
+author:  "Mofi Islam and Dennis Wollersheim "
+date: "2018-04-30"
+output:
+  workflowr::wflow_html:
+    toc: false
+---
+
+```{r pre_initial, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+
+rm(list=ls())
+options(width = 200)
+show_code = FALSE
+source("lib/functions.R")
+source("lib/standardisation.R")
+source("lib/get_data.R")
+source("lib/generate_data_frames.R")
+library('tidyverse')
+opts_chunk$set(echo = FALSE)
+
+```
+
+
+```{r initial, results='hide', message=FALSE, warning=FALSE}
+
+dataset=""
+dataset="_rr"
+
+get_data_from_cache(dataset = dataset)
+intersect_filename = paste0( 'data/cache/df_intersect', dataset, '.rdata')
+intersect_0_filename = paste0( 'data/cache/df_intersect_0', dataset, '.rdata')
+
+df_population %>% distinct( lga, seifa ) -> df_seifa
+df_population %>% distinct( lga, urbanization ) -> df_urbanization
+
+df %<>% mutate( row=row_number())
+
+df %>%
+  filter( is_benzo( type_code ) ) %>%
+  { . } -> df_benzo
+
+
+df %>%
+  filter( !is_benzo( type_code ) ) %>%
+  { . } -> df_opioid
+
+df_patient_opioid = df_patient %>% filter( pin %in% df_opioid$pin)
+df_patient_benzo = df_patient %>% filter( pin %in% df_benzo$pin)
+
+
+```
+# Methods
+
+The data is from the PBS prescribing data.  In this dataset, we have every opioid and benzodiazepine prescription for a 10% sample of the population, made in the period 2013-2016.  In a single prescription, we have a date of supply, a drug type and strength, and the number of pills.  Using the WHO DDD drug classification, we determine the total DDD for each prescription, and then we estimate the end day of the prescription to be the start day + totalDDD.
+
+
+t
+
+
+We determine that 
+We make the foloCondervative Assumptions 
+
+
+  - we take all the people who have had benzo and opioid, and we intersect them
+  - for each prescription, we assume the following behaviour. 
+
+   | Type | Treatment|
+   |---|---|
+   |Patches| Continuious usage for number of days reccomended for each patch |
+   | Injections | Continious usage at the adult daily reccomended dose |
+   | tablets | 2 tablets /day |
+
+We estimate prescription comsumption window by assuming that the user takes the prescription daily from the time they fill their prescription until it runs out, given consumption factors the the table above, and the quantity of items in the prescription.
+
+Using the consumption window calculated above, we deem someone is taking opioids concurrently with benzodiazepine if they have an opioid window overlapping with benzodiazepine window, with at least 7 days of overlap. 
+
+
+#Dataset summary
+There are more opioid prescriptions and users than Benzodiazepine users
+
+```{r data_summary, echo=FALSE, warning=FALSE, results='asis'}
+
+cat("  \n###",  "Total Number of Scripts with either Benzo or Opioid\n")
+df %>%group_by(state) %>% count() %>% kable()
+#
+cat("  \n###",  "Total Number of People with either Benzo or Opioid\n")
+df_patient %>%group_by(state) %>% count() %>% kable()
+#
+cat("  \n###",  "Total Number of People with Opioid \n")
+print('people')
+df_patient_opioid %>%group_by(state) %>% count() %>% kable()
+#
+cat("  \n###",  "Total Number of People with Benzo \n")
+print('people')
+df_patient_benzo %>%group_by(state) %>% count() %>% kable()
+
+```
+
+#Methods  - find overlaps 
+
+```{r generate_benzo, warning=FALSE}
+
+if (file.exists( intersect_filename) & 
+    file.exists( intersect_filename )) {
+  load( intersect_filename, verbose=TRUE )
+  load( intersect_0_filename, verbose=TRUE )
+} else {
+#
+
+  df %>%
+    filter( is_benzo( type_code ) ) %>%
+    group_by(pin) %>%
+    mutate( end_date = supply_date + pmax( 0, round(n_dose)-1)) %>%
+    select( pin, item_code, quantity, n_dose, supply_date, end_date, row) %>% 
+    nest( item_code, supply_date, end_date, quantity, n_dose, row, .key=benzo ) %>%
+    { . } -> df_benzo_nested
+#
+  df %>%
+    filter( !is_benzo( type_code ) ) %>%
+    group_by(pin) %>%
+    mutate( end_date = supply_date + pmax(0, round(n_dose)-1)) %>%
+    select( pin, item_code, quantity, n_dose, supply_date, end_date, row) %>% 
+    nest( item_code, supply_date, end_date, quantity, n_dose, row, .key=opioids ) %>%
+    { . } -> df_opioid_nested
+#
+  library('IRanges')
+
+#
+#
+#  df_benzo_nested %>%
+#    inner_join( df_opioid_nested ) %>% 
+#    group_by(pin) %>%
+#    do( joined =  interval_inner_join( .$opioids, .$benzo, by=qw('supply_date end_date') )) %>%
+#    unnest() %>%
+#    { . } -> df_intersect
+#
+#
+  no_cores <- detectCores() - 1
+  cluster <- create_cluster(no_cores)
+#
+  df_benzo_nested %>%
+    inner_join( df_opioid_nested ) %>% 
+    partition(pin, cluster=cluster )  %>%
+    { . } -> df_both
+#
+  cluster_library(df_both, c("tidyverse", "IRanges", "fuzzyjoin"))
+#
+
+
+  df_both %>%
+    do( joined = interval_inner_join( data.frame(.$opioids), 
+                                     data.frame(.$benzo), 
+                                     by=c('supply_date','end_date'),
+                                     minoverlap=7))  %>%
+  collect() %>%
+  ungroup() %>%
+  unnest() %>% 
+  mutate( supply_year = year( supply_date.x), 
+          diff= pmin( end_date.x, end_date.y ) - 
+            pmax( supply_date.x, supply_date.y )+1) %>%
+  ungroup() %>%
+   { . } -> df_intersect
+
+names(df_intersect) %>%
+  sub( '\\.x', '.opioid', . ) %>%
+  sub( '\\.y', '.benzo', . ) %>% 
+  { . } -> names( df_intersect)
+
+
+  df_both %>%
+    do( joined = interval_inner_join( data.frame(.$opioids), 
+                                     data.frame(.$benzo), 
+                                     by=c('supply_date','end_date'),
+                                     minoverlap=1))  %>%
+      collect() %>%
+      ungroup() %>%
+      unnest() %>% 
+      mutate( supply_year = year( supply_date.x), 
+             diff= pmin( end_date.x, end_date.y ) - 
+               pmax( supply_date.x, supply_date.y )+1) %>%
+      ungroup() %>%
+      { . } -> df_intersect_0
+
+    names(df_intersect_0) %>%
+      sub( '\\.x', '.opioid', . ) %>%
+      sub( '\\.y', '.benzo', . ) %>% 
+      { . } -> names( df_intersect_0)
+
+  rm(df_both)
+#
+
+  save(df_intersect, file=intersect_filename)
+  save(df_intersect_0, file=intersect_0_filename)
+
+}
+
+#cl <- makeCluster("thealfred.duckdns.org", user="dewoller", master="131.172.55.229", homogeneous=FALSE)
+
+```
+
+
+# break prescriptions into 4 distinct usage types;  
+ -  opioid_dd - opioid with a benzodiazepine overlapping
+ -  benzo_dd - benzodiazepine with an opioid overlapping
+ -  opioid_alone - opioid with no overlap
+ -  benzo_alone - benzodiazepine with no overlap
+
+
+```{r  tag_original_transactions   }
+
+df %<>% mutate( usage_type = as.factor(
+                      ifelse( row %in% df_intersect$row.opioid,
+                            'opioid_dd',
+                            ifelse(  row %in% df_intersect$row.benzo,
+                            'benzo_dd', 
+                            paste0( drug_type, '_alone') ))))
+
+
+df_patient %<>%
+  mutate( is_benzo_user = (pin %in% df_patient_benzo$pin),
+         user_type = as.factor(
+                               ifelse( pin %in% df_intersect$pin, 
+                                      '2_double-dipper', 
+                                      ifelse( is_benzo_user & (pin %in% df_patient_opioid$pin), 
+                                             '2_seperate_times', 
+                                             ifelse( is_benzo_user, 
+                                                    '1_benzodiazapine', 
+                                                    '1_opioid')))))
+
+
+
+ ```
+
+# answer mofi's questions
+## how many users, total and year wise, and cc users
+
+```{r mofi_question1}
+
+cat( "how many benzo users total")
+df_benzo %>% 
+  distinct( pin) %>%
+  count( ) %>%
+  kable()
+
+cat( "how many benzo users yearwise")
+df_benzo %>% 
+  distinct( pin, supply_year ) %>%
+  count( supply_year ) %>%
+  kable()
+
+cat( "how many opioid users total")
+df_opioid %>% 
+  distinct( pin) %>%
+  count( ) %>%
+  kable()
+
+cat( "how many opioid users yearwise")
+df_opioid %>% 
+  distinct( pin, supply_year ) %>%
+  count( supply_year ) %>%
+  kable()
+
+cat( "how many CC users total ")
+df_intersect %>% 
+  distinct( pin) %>%
+  count( ) %>%
+  kable()
+
+df_intersect %>% 
+  distinct( pin, supply_year ) %>%
+  count( supply_year ) %>%
+  kable()
+
+```
+
+
+## how many episodes of cc use
+
+```{r mofi_question2}
+
+cat( "how many cc episodes")
+df_intersect %>% 
+  count( ) %>%
+  kable()
+
+cat( "how many cc episodes yearwise")
+df_intersect %>% 
+  count( supply_year ) %>%
+  kable()
+
+```
+
+
+## overlap amount exploraiton
+
+```{r mofi_question3}
+
+cat( "average overlap for intersect 7")
+df_intersect %>% 
+  summarise( mean( diff )) %>%
+  kable()
+
+cat( "average overlap for intersect 1")
+df_intersect_0 %>% 
+  summarise( mean( diff )) %>%
+  kable()
+
+df_intersect_0 %>%
+  ggplot( aes( diff )) +
+  geom_histogram() +
+  ggtitle( "histogram of overlap ")
+
+```
+
+
+## geographic variation
+
+
+```{r mofi_question4}
+df_population_all = get_population_df() 
+df_population_2015 = df_population_all %>% filter( supply_year==2015)
+
+cat( "state variation")
+df_patient %>% 
+  count( state ) %>%
+  f_join_population( c('state'), df_population. = df_population_2015) %>%
+  mutate( pct = round( n / population, 10 )) %>%
+  kable()
+
+cat( "seifa variation")
+df_patient %>% 
+  count( lga ) %>%
+  f_join_population( rollup_level=c('lga', 'seifa'), join_key=c('lga'),
+                    df_population. = df_population_2015) %>%
+  group_by( seifa ) %>%
+  summarise( n=sum(n), population=sum(population)) %>%
+  mutate( pct = round( n / population*100, 10 )) %>%
+  kable()
+
+
+cat( "urbanisation variation")
+df_patient %>% 
+  count( lga ) %>%
+  f_join_population( rollup_level=c('lga', 'urbanization'), join_key=c('lga'),
+                    df_population. = df_population_2015) %>%
+  group_by( urbanization ) %>%
+  summarise( n=sum(n), population=sum(population)) %>%
+  mutate( pct = round( n / population*100, 10 )) %>%
+  kable()
+
+cat( "urbanisation by state variation")
+df_patient %>% 
+  count( state, lga ) %>%
+  f_join_population( rollup_level=c('lga', 'urbanization', 'state'), join_key=c('lga', 'state'),
+                    df_population. = df_population_2015) %>%
+  group_by( state, urbanization) %>%
+  summarise( n=sum(n), population=sum(population)) %>%
+  mutate( pct = round( n / population*100, 10 )) %>%
+  kable()
+
+cat( "state by state variation")
+df_patient %>% 
+  count( state, lga ) %>%
+  f_join_population( rollup_level=c('lga', 'seifa', 'state'), join_key=c('lga', 'state'),
+                    df_population. = df_population_2015) %>%
+  group_by( state, seifa) %>%
+  summarise( n=sum(n), population=sum(population)) %>%
+  mutate( pct = round( n / population*100, 10 )) %>%
+  ggplot( aes( seifa, pct, fill=state, color=state, group=state )) +
+  geom_col()
+
+
+```
+
+
+
+```{r explore_overlap, warning=FALSE}
+
+
+df_intersect %>% 
+  distinct(pin) %>%
+  inner_join(df_patient) %>%
+  ggplot(aes(age, fill=sex)) + geom_bar() +
+  ggtitle( "Number of double dippers by gender and age group")
+
+df_intersect %>% 
+  distinct(pin) %>%
+  inner_join(df_patient_usage) %>%
+  inner_join(df_patient) %>%
+  ggplot(aes(age, fill=usage_category)) + geom_bar() +
+  ggtitle( "Number of double dippers by opioid usage_category and age group")
+
+df_intersect %>% 
+  inner_join(df_patient_usage %>% filter( drug_type=='opioid')) %>%
+  inner_join(df_patient) %>%
+  ggplot(aes(supply_year, fill=usage_category)) + geom_bar() +
+  ggtitle( "Number of double dippers by opioid usage_category and supply_year")
+
+df%>% 
+  ggplot(aes(supply_year, fill=drug_type)) + 
+  geom_bar() +
+  ggtitle( "Number of benzo and/or opioid scripts by supply_year")
+
+
+```
+
+# what type of users do we have
+### number of users of each type, overall
+
+```{r tag_users, warning=FALSE, echo=FALSE}
+df_patient %>%
+  ggplot( aes(sex, fill=user_type)) +
+  geom_bar()+ 
+  ggtitle( "Number of benzo only, opioid only, and both users ") +
+  facet_wrap( ~age ) 
+
+```
+
+### Prescriptions that participate in double dipping
+
+```{r show_dd, warning=FALSE}
+
+df %>%
+  group_by( usage_type, type_name) %>%
+  summarise(  quantity=sum(quantity) ) %>%
+  ggplot( aes( usage_type, quantity, fill=type_name)) +
+  geom_col()+ 
+  ggtitle( "Total number of pills per usage and drug type")
+
+df %>%
+  group_by( usage_type, supply_year) %>%
+  summarise(  quantity=sum(quantity) ) %>%
+  ggplot( aes( supply_year, quantity, color=usage_type, group=usage_type)) +
+  geom_line()+ 
+  ggtitle( "Total number of pills per usage and year")
+
+
+df %>%
+  count( usage_type, type_name) %>%
+  ggplot( aes( usage_type, n, fill=type_name)) +
+  geom_col()+ 
+  ggtitle( "Total number of scripts per usage and drug type")
+
+df %>%
+  count( usage_type, supply_year) %>%
+  ggplot( aes( supply_year, n, color=usage_type, group=usage_type)) +
+  geom_line()+ 
+  ggtitle( "Total number of scripts per usage and year")
+
+
+
+```
+
+### Percentage of population that participate in double dipping
+
+```{r show_dd_users, warning=FALSE}
+
+# number of dd  / total number per lga
+
+df %>%
+  count( usage_type, lga ) %>%
+  spread( usage_type, n, fill=0) %>%
+  mutate( opioid_dd_ratio = opioid_dd / (opioid_dd + opioid_alone),
+         benzo_dd_ratio = benzo_dd / (benzo_dd + benzodiazepine_alone)) %>%
+  select( lga, ends_with('ratio')) %>%
+  gather( drug, ratio, -lga) %>%
+  ggplot( aes(drug, ratio)) +
+  geom_boxplot( )  + 
+  ggtitle( "LGA total ratio pills to double dippers")
+
+
+cat("Percentage of double dippers scripts for each Seifa area")
+
+df %>%
+  inner_join( df_seifa ) %>%
+  count( usage_type, seifa ) %>%
+  spread( usage_type, n, fill=0) %>%
+  mutate( opioid_dd_ratio = opioid_dd / (opioid_dd + opioid_alone),
+         benzo_dd_ratio = benzo_dd / (benzo_dd + benzodiazepine_alone)) %>%
+  select( seifa, ends_with('ratio')) %>%
+  gather( drug, ratio, -seifa) %>%
+  kable()
+
+
+cat("Percentage of double dippers scripts for each Urbanization area")
+df %>%
+  inner_join( df_urbanization) %>%
+  count( usage_type, urbanization ) %>%
+  spread( usage_type, n, fill=0) %>%
+  mutate( opioid_dd_ratio = opioid_dd / (opioid_dd + opioid_alone),
+         benzo_dd_ratio = benzo_dd / (benzo_dd + benzodiazepine_alone)) %>%
+  select( urbanization, ends_with('ratio')) %>%
+  gather( drug, ratio, -urbanization) %>%
+  kable()
+
+cat("Percentage of double dippers scripts for each drug type ")
+df %>%
+  count( usage_type, type_name ) %>%
+  spread( usage_type, n, fill=0) %>%
+  mutate( opioid_dd_ratio = opioid_dd / (opioid_dd + opioid_alone),
+         benzo_dd_ratio = benzo_dd / (benzo_dd + benzodiazepine_alone)) %>%
+  select( type_name, ends_with('ratio')) %>%
+  gather( drug, ratio, -type_name) %>%
+  filter( !is.nan(ratio) & drug!='benzo_dd_ratio') %>%
+  select( -drug) %>%
+  kable()
+
+cat("Percentage of double dippers scripts for each drug type ")
+df %>%
+  count( quarter, usage_type, type_name ) %>%
+  spread( usage_type, n, fill=0) %>%
+  mutate( opioid_dd_ratio = opioid_dd / (opioid_dd + opioid_alone),
+         benzo_dd_ratio = benzo_dd / (benzo_dd + benzodiazepine_alone)) %>%
+  select( quarter, type_name, ends_with('ratio')) %>% 
+  gather( drug, ratio, -type_name, -quarter) %>%
+  filter( !is.nan(ratio) & drug!='benzo_dd_ratio') %>%
+  select( -drug) %>%
+  ggplot( aes( quarter, ratio, color=type_name ) ) +
+  geom_line()
+
+cat("Ratio of double dippers scripts for each state")
+df %>%
+  count( usage_type, state ) %>%
+  spread( usage_type, n, fill=0) %>%
+  mutate( opioid_dd_ratio = opioid_dd / (opioid_dd + opioid_alone),
+         benzo_dd_ratio = benzo_dd / (benzo_dd + benzodiazepine_alone)) %>%
+  select( state, ends_with('ratio')) %>%
+  gather( drug, ratio, -state) %>%
+  kable()
+
+```
+# DDD
+
+```{r shiny}
+
+#Tricolore(euro_sectors, p1 = 'primary', p2 = 'secondary', p3 = 'tertiary', breaks = 20, hue = 0.3, chroma = 0.9, lightness = 0.8, contrast = 0.6, center = rep(1/3,3), spread = 1, show_data = TRUE, show_center = FALSE, legend = TRUE)
+
+df %>%
+  count( usage_type, lga ) %>%
+  spread( usage_type, n, fill=0) %>% 
+  { . } -> df_lga
+
+get_australia_base_map() -> base_map
+
+#shiny::runApp('explore/shiny/', display.mode = "normal")
+
+
+df_lga %>%
+  Tricolore( p1 = 'benzo_dd', p2='benzodiazepine_alone', p3='opioid_alone', center=NA) %>% 
+  { . } -> tc
+
+df_lga$srgb = tc$hexsrgb
+
+
+map_data = left_join( base_map, df_lga, by=c("LGA_CODE11" = "lga"))
+
+map_data %>%
+  tm_shape( ) + 
+  tm_polygons( col='srgb', 
+              title = paste("Comparing Benzo, Opioid, and double dippers")
+              ) 
+
+
+# simulate 243 ternary compositions
+P <- as.data.frame(prop.table(matrix(runif(3^6), ncol = 3), 1))
+# color-code each composition and return a corresponding color key
+tric <- Tricolore(P, 'V1', 'V2', 'V3')
+# the color-coded compositions
+head(tric$hexsrgb)
+
+
+library(tmap)
+data("metro", package = "tmap")
+ tm_shape(metro) + tm_bubbles(size = "pop2030") + tm_format_World() + tm_style_cobalt() 
+
+print( tric$legend , vp=viewport(x= 0.4, y= 0.1, width= 0.2, height= 0.1))
+
+library(ggpubr)
+
+ggarrange( tric$legend,map)
+
+
+
+```
+
+
+
+
+
+
