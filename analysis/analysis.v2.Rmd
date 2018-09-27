@@ -52,28 +52,9 @@ df_patient_benzo = df_patient %>% filter( pin %in% df_benzo$pin)
 ```
 # Methods
 
-The data is from the PBS prescribing data.  In this dataset, we have every opioid and benzodiazepine prescription for a 10% sample of the population, made in the period 2013-2016.  In a single prescription, we have a date of supply, a drug type and strength, and the number of pills.  Using the WHO DDD drug classification, we determine the total DDD for each prescription, and then we estimate the end day of the prescription to be the start day + totalDDD.
+The data is from the PBS prescribing data.  In this dataset, we have every opioid and benzodiazepine prescription for a 10% sample of the population, made in the period 2013-2016.  In a single prescription, we have a date of supply, a drug type and strength, and the number of pills.  Using the WHO DDD drug classification, we determine the total DDD for each prescription, and then we estimate the end day of the prescription to be the start day + totalDDD, rounded to the nearest day.  This start and end data comprise the prescription period. 
 
-
-t
-
-
-We determine that 
-We make the foloCondervative Assumptions 
-
-
-  - we take all the people who have had benzo and opioid, and we intersect them
-  - for each prescription, we assume the following behaviour. 
-
-   | Type | Treatment|
-   |---|---|
-   |Patches| Continuious usage for number of days reccomended for each patch |
-   | Injections | Continious usage at the adult daily reccomended dose |
-   | tablets | 2 tablets /day |
-
-We estimate prescription comsumption window by assuming that the user takes the prescription daily from the time they fill their prescription until it runs out, given consumption factors the the table above, and the quantity of items in the prescription.
-
-Using the consumption window calculated above, we deem someone is taking opioids concurrently with benzodiazepine if they have an opioid window overlapping with benzodiazepine window, with at least 7 days of overlap. 
+Using these prescription periods, we look for individuals with overlapping benzodiazepine and opioid prescriptions.  For most of the analysis, we look for benzodiazepine / opioid pairs that overlap for at least 7 days.   
 
 
 #Dataset summary
@@ -314,59 +295,67 @@ df_intersect_0 %>%
 ```
 
 
-## geographic variation
+## geographic variation for CC users
+Notes:
+  1) we multiply the percentage numbers by 10 to take into account the 10% sample
+  1) not standardised
 
 
-```{r mofi_question4}
+```{r mofi_question4, warning=FALSE}
 df_population_all = get_population_df() 
 df_population_2015 = df_population_all %>% filter( supply_year==2015)
 
 cat( "state variation")
 df_patient %>% 
+  filter( user_type=='2_double-dipper') %>%
   count( state ) %>%
   f_join_population( c('state'), df_population. = df_population_2015) %>%
-  mutate( pct = round( n / population, 10 )) %>%
+  mutate( pct = round( n*10 / population, 10 )) %>%
   kable()
 
 cat( "seifa variation")
 df_patient %>% 
+  filter( user_type=='2_double-dipper') %>%
   count( lga ) %>%
   f_join_population( rollup_level=c('lga', 'seifa'), join_key=c('lga'),
                     df_population. = df_population_2015) %>%
   group_by( seifa ) %>%
   summarise( n=sum(n), population=sum(population)) %>%
-  mutate( pct = round( n / population*100, 10 )) %>%
+  mutate( pct = round( n*10 / population*100, 10 )) %>%
   kable()
 
 
 cat( "urbanisation variation")
 df_patient %>% 
+  filter( user_type=='2_double-dipper') %>%
   count( lga ) %>%
   f_join_population( rollup_level=c('lga', 'urbanization'), join_key=c('lga'),
                     df_population. = df_population_2015) %>%
   group_by( urbanization ) %>%
   summarise( n=sum(n), population=sum(population)) %>%
-  mutate( pct = round( n / population*100, 10 )) %>%
+  mutate( pct = round( n*10 / population*100, 10 )) %>%
   kable()
 
 cat( "urbanisation by state variation")
 df_patient %>% 
+  filter( user_type=='2_double-dipper') %>%
   count( state, lga ) %>%
   f_join_population( rollup_level=c('lga', 'urbanization', 'state'), join_key=c('lga', 'state'),
                     df_population. = df_population_2015) %>%
   group_by( state, urbanization) %>%
   summarise( n=sum(n), population=sum(population)) %>%
-  mutate( pct = round( n / population*100, 10 )) %>%
+  mutate( pct = round( n*10 / population*100, 10 )) %>%
   kable()
 
 cat( "state by state variation")
 df_patient %>% 
+  filter( user_type=='2_double-dipper') %>%
   count( state, lga ) %>%
   f_join_population( rollup_level=c('lga', 'seifa', 'state'), join_key=c('lga', 'state'),
                     df_population. = df_population_2015) %>%
   group_by( state, seifa) %>%
   summarise( n=sum(n), population=sum(population)) %>%
-  mutate( pct = round( n / population*100, 10 )) %>%
+  mutate( pct = round( n*10 / population*100, 10 )) %>%
   ggplot( aes( seifa, pct, fill=state, color=state, group=state )) +
   geom_col()
 
