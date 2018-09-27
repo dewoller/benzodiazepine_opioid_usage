@@ -316,10 +316,10 @@ df_patient %>%
   f_join_population( c('state'), df_population. = df_population_2015) %>%
   select( state, `2_double-dipper`, everything()) %>%
   mutate( 
-         pct_benzo = round( `2_double-dipper`*10 / `1_benzodiazapine`, 5),
-         pct_opioid = round( `2_double-dipper`*10 / `1_opioid`, 5),
-         `pct_seperate-times` = round( `2_double-dipper`*10 / `2_seperate_times`, 5),
-         pct_pop = round( `2_double-dipper`*10 / population, 5)
+         pct_benzo = round( `2_double-dipper`*100 / `1_benzodiazapine`, 5),
+         pct_opioid = round( `2_double-dipper`*100 / `1_opioid`, 5),
+         `pct_seperate-times` = round( `2_double-dipper`*100 / `2_seperate_times`, 5),
+         pct_pop = round( `2_double-dipper`*1000 / population, 5)
          ) %>%
   kable()
 
@@ -333,10 +333,10 @@ df_patient %>%
   group_by( seifa ) %>%
   summarise_at( c("2_double-dipper","1_benzodiazapine","1_opioid","2_seperate_times","population"), sum, na.rm=TRUE) %>%
   mutate( 
-         pct_benzo = round( `2_double-dipper`*10 / `1_benzodiazapine`, 5),
-         pct_opioid = round( `2_double-dipper`*10 / `1_opioid`, 5),
-         `pct_seperate-times` = round( `2_double-dipper`*10 / `2_seperate_times`, 5),
-         pct_pop = round( `2_double-dipper`*10 / population, 5)
+         pct_benzo = round( `2_double-dipper`*100 / `1_benzodiazapine`, 5),
+         pct_opioid = round( `2_double-dipper`*100 / `1_opioid`, 5),
+         `pct_seperate-times` = round( `2_double-dipper`*100 / `2_seperate_times`, 5),
+         pct_pop = round( `2_double-dipper`*1000 / population, 5)
          ) %>%
   kable()
 
@@ -350,10 +350,10 @@ df_patient %>%
   group_by( urbanization ) %>%
   summarise_at( c("2_double-dipper","1_benzodiazapine","1_opioid","2_seperate_times","population"), sum, na.rm=TRUE) %>%
   mutate( 
-         pct_benzo = round( `2_double-dipper`*10 / `1_benzodiazapine`, 5),
-         pct_opioid = round( `2_double-dipper`*10 / `1_opioid`, 5),
-         `pct_seperate-times` = round( `2_double-dipper`*10 / `2_seperate_times`, 5),
-         pct_pop = round( `2_double-dipper`*10 / population, 5)
+         pct_benzo = round( `2_double-dipper`*100 / `1_benzodiazapine`, 5),
+         pct_opioid = round( `2_double-dipper`*100 / `1_opioid`, 5),
+         `pct_seperate-times` = round( `2_double-dipper`*100 / `2_seperate_times`, 5),
+         pct_pop = round( `2_double-dipper`*1000 / population, 5)
          ) %>%
   kable()
 
@@ -367,10 +367,10 @@ df_patient %>%
   group_by( state, urbanization ) %>%
   summarise_at( c("2_double-dipper","1_benzodiazapine","1_opioid","2_seperate_times","population"), sum, na.rm=TRUE) %>%
   mutate( 
-         pct_benzo = round( `2_double-dipper`*10 / `1_benzodiazapine`, 5),
-         pct_opioid = round( `2_double-dipper`*10 / `1_opioid`, 5),
-         `pct_seperate-times` = round( `2_double-dipper`*10 / `2_seperate_times`, 5),
-         pct_pop = round( `2_double-dipper`*10 / population, 5)
+         pct_benzo = round( `2_double-dipper`*100 / `1_benzodiazapine`, 5),
+         pct_opioid = round( `2_double-dipper`*100 / `1_opioid`, 5),
+         `pct_seperate-times` = round( `2_double-dipper`*100 / `2_seperate_times`, 5),
+         pct_pop = round( `2_double-dipper`*1000 / population, 5)
          ) %>%
   kable()
 
@@ -384,10 +384,10 @@ df_patient %>%
   group_by( state, seifa ) %>%
   summarise_at( c("2_double-dipper","1_benzodiazapine","1_opioid","2_seperate_times","population"), sum, na.rm=TRUE) %>%
   mutate( 
-         pct_benzo = round( `2_double-dipper`*10 / `1_benzodiazapine`, 5),
-         pct_opioid = round( `2_double-dipper`*10 / `1_opioid`, 5),
-         `pct_seperate-times` = round( `2_double-dipper`*10 / `2_seperate_times`, 5),
-         pct_pop = round( `2_double-dipper`*10 / population, 5)
+         pct_benzo = round( `2_double-dipper`*100 / `1_benzodiazapine`, 5),
+         pct_opioid = round( `2_double-dipper`*100 / `1_opioid`, 5),
+         `pct_seperate-times` = round( `2_double-dipper`*100 / `2_seperate_times`, 5),
+         pct_pop = round( `2_double-dipper`*1000 / population, 5)
          ) %>%
   ggplot( aes( seifa, pct_opioid, fill=state, color=state, group=state )) +
   geom_col()
