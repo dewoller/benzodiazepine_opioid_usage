@@ -228,12 +228,11 @@ div.section {
 </div>
 
 
-<p><strong>Last updated:</strong> 2018-09-06</p>
+<p><strong>Last updated:</strong> 2018-09-18</p>
 <strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
 <ul>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>R Markdown file:</strong> up-to-date </summary></p>
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p><details> <summary> <strong style="color:red;">✖</strong> <strong>R Markdown file:</strong> uncommitted changes </summary> The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </details>
 </li>
 <li>
@@ -252,13 +251,14 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/tree/31aa02ed184972aba167dd85f020b0794bc98ef3" target="_blank">31aa02e</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/tree/7ff9833642dc5f7c956c9271cdf2a19a85962f96" target="_blank">7ff9833</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
-    Ignored:    analysis/figure/
     Ignored:    data/cache/
-    Ignored:    docs/figure/
+
+Unstaged changes:
+    Modified:   analysis/analysis.Rmd
 
 </code></pre>
 Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes. </details>
@@ -287,6 +287,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/dewoller/benzodiazepine_opioid_usage/7ff9833642dc5f7c956c9271cdf2a19a85962f96/docs/analysis.html" target="_blank">7ff9833</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-06
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -581,37 +598,6 @@ wflow_publish(“analysis/analysis.Rmd”)
 </ul>
 <p></details></p>
 <hr />
-<pre class="r"><code>rm(list=ls())
-options(width = 200)
-show_code = FALSE
-source(&quot;lib/functions.R&quot;)
-source(&quot;lib/standardisation.R&quot;)
-source(&quot;lib/get_data.R&quot;)
-source(&quot;lib/generate_data_frames.R&quot;)
-library(&#39;tidyverse&#39;)
-
-dataset=&quot;_rr&quot;
-dataset=&quot;&quot;
-
-get_data_from_cache(df_suffix = dataset)
-intersect_filename = paste0( &#39;data/cache/df_intersect&#39;, dataset, &#39;.rdata&#39;)
-
-df_population %&gt;% distinct( lga, seifa ) -&gt; df_seifa
-df_population %&gt;% distinct( lga, urbanization ) -&gt; df_urbanization
-
-df %&lt;&gt;% mutate( row=row_number())
-
-df %&gt;%
-  filter( is_benzo( type_code ) ) %&gt;%
-  { . } -&gt; df_benzo
-
-
-df %&gt;%
-  filter( !is_benzo( type_code ) ) %&gt;%
-  { . } -&gt; df_opioid
-
-df_patient_opioid = df_patient %&gt;% filter( pin %in% df_opioid$pin)
-df_patient_benzo = df_patient %&gt;% filter( pin %in% df_benzo$pin)</code></pre>
 <div id="methods" class="section level1">
 <h1>Methods</h1>
 <div id="condervative-assumptions" class="section level2">
@@ -661,35 +647,35 @@ df_patient_benzo = df_patient %&gt;% filter( pin %in% df_benzo$pin)</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">ACT</td>
-<td align="right">93363</td>
+<td align="right">84</td>
 </tr>
 <tr class="even">
 <td align="left">NSW</td>
-<td align="right">2263956</td>
+<td align="right">2760</td>
 </tr>
 <tr class="odd">
 <td align="left">NT</td>
-<td align="right">31697</td>
+<td align="right">7</td>
 </tr>
 <tr class="even">
 <td align="left">QLD</td>
-<td align="right">1761369</td>
+<td align="right">1622</td>
 </tr>
 <tr class="odd">
 <td align="left">SA</td>
-<td align="right">700859</td>
+<td align="right">808</td>
 </tr>
 <tr class="even">
 <td align="left">TAS</td>
-<td align="right">247103</td>
+<td align="right">194</td>
 </tr>
 <tr class="odd">
 <td align="left">VIC</td>
-<td align="right">2115422</td>
+<td align="right">2450</td>
 </tr>
 <tr class="even">
 <td align="left">WA</td>
-<td align="right">748117</td>
+<td align="right">996</td>
 </tr>
 </tbody>
 </table>
@@ -706,35 +692,35 @@ df_patient_benzo = df_patient %&gt;% filter( pin %in% df_benzo$pin)</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">ACT</td>
-<td align="right">11859</td>
+<td align="right">14</td>
 </tr>
 <tr class="even">
 <td align="left">NSW</td>
-<td align="right">232882</td>
+<td align="right">278</td>
 </tr>
 <tr class="odd">
 <td align="left">NT</td>
-<td align="right">5229</td>
+<td align="right">3</td>
 </tr>
 <tr class="even">
 <td align="left">QLD</td>
-<td align="right">169598</td>
+<td align="right">216</td>
 </tr>
 <tr class="odd">
 <td align="left">SA</td>
-<td align="right">61068</td>
+<td align="right">66</td>
 </tr>
 <tr class="even">
 <td align="left">TAS</td>
-<td align="right">19270</td>
+<td align="right">22</td>
 </tr>
 <tr class="odd">
 <td align="left">VIC</td>
-<td align="right">210681</td>
+<td align="right">273</td>
 </tr>
 <tr class="even">
 <td align="left">WA</td>
-<td align="right">84912</td>
+<td align="right">96</td>
 </tr>
 </tbody>
 </table>
@@ -752,35 +738,35 @@ df_patient_benzo = df_patient %&gt;% filter( pin %in% df_benzo$pin)</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">ACT</td>
-<td align="right">9992</td>
+<td align="right">12</td>
 </tr>
 <tr class="even">
 <td align="left">NSW</td>
-<td align="right">197521</td>
+<td align="right">231</td>
 </tr>
 <tr class="odd">
 <td align="left">NT</td>
-<td align="right">4613</td>
+<td align="right">2</td>
 </tr>
 <tr class="even">
 <td align="left">QLD</td>
-<td align="right">143153</td>
+<td align="right">189</td>
 </tr>
 <tr class="odd">
 <td align="left">SA</td>
-<td align="right">52210</td>
+<td align="right">60</td>
 </tr>
 <tr class="even">
 <td align="left">TAS</td>
-<td align="right">16261</td>
+<td align="right">18</td>
 </tr>
 <tr class="odd">
 <td align="left">VIC</td>
-<td align="right">177843</td>
+<td align="right">218</td>
 </tr>
 <tr class="even">
 <td align="left">WA</td>
-<td align="right">72710</td>
+<td align="right">87</td>
 </tr>
 </tbody>
 </table>
@@ -798,35 +784,35 @@ df_patient_benzo = df_patient %&gt;% filter( pin %in% df_benzo$pin)</code></pre>
 <tbody>
 <tr class="odd">
 <td align="left">ACT</td>
-<td align="right">4394</td>
+<td align="right">6</td>
 </tr>
 <tr class="even">
 <td align="left">NSW</td>
-<td align="right">90051</td>
+<td align="right">104</td>
 </tr>
 <tr class="odd">
 <td align="left">NT</td>
-<td align="right">1644</td>
+<td align="right">1</td>
 </tr>
 <tr class="even">
 <td align="left">QLD</td>
-<td align="right">73956</td>
+<td align="right">83</td>
 </tr>
 <tr class="odd">
 <td align="left">SA</td>
-<td align="right">25506</td>
+<td align="right">25</td>
 </tr>
 <tr class="even">
 <td align="left">TAS</td>
-<td align="right">8458</td>
+<td align="right">11</td>
 </tr>
 <tr class="odd">
 <td align="left">VIC</td>
-<td align="right">88498</td>
+<td align="right">132</td>
 </tr>
 <tr class="even">
 <td align="left">WA</td>
-<td align="right">32709</td>
+<td align="right">36</td>
 </tr>
 </tbody>
 </table>
@@ -834,67 +820,8 @@ df_patient_benzo = df_patient %&gt;% filter( pin %in% df_benzo$pin)</code></pre>
 </div>
 <div id="methods---find-overlaps" class="section level1">
 <h1>Methods - find overlaps</h1>
-<pre class="r"><code>if (file.exists( intersect_filename )) {
-  load( intersect_filename, verbose=TRUE )
-} else {
-#
-
-  df %&gt;%
-    filter( is_benzo( type_code ) ) %&gt;%
-    group_by(pin) %&gt;%
-    mutate( end_date = supply_date + floor(quantity * new_days_multiplier)) %&gt;%
-    select( pin, item_code, quantity, n_dose, supply_date, end_date, row) %&gt;% 
-    nest( item_code, supply_date, end_date, quantity, n_dose, row, .key=benzo ) %&gt;%
-    { . } -&gt; df_benzo_nested
-#
-  df %&gt;%
-    filter( !is_benzo( type_code ) ) %&gt;%
-    group_by(pin) %&gt;%
-    mutate( end_date = supply_date + floor(quantity * new_days_multiplier)) %&gt;%
-    select( pin, item_code, quantity, n_dose, supply_date, end_date, row) %&gt;% 
-    nest( item_code, supply_date, end_date, quantity, n_dose, row, .key=opioids ) %&gt;%
-    { . } -&gt; df_opioid_nested
-#
-  library(&#39;IRanges&#39;)
-
-#
-#
-#  df_benzo_nested %&gt;%
-#    inner_join( df_opioid_nested ) %&gt;% 
-#    group_by(pin) %&gt;%
-#    do( joined =  interval_inner_join( .$opioids, .$benzo, by=qw(&#39;supply_date end_date&#39;) )) %&gt;%
-#    unnest() %&gt;%
-#    { . } -&gt; df_intersect
-#
-#
-  no_cores &lt;- detectCores() - 1
-  cluster &lt;- create_cluster(no_cores)
-
-  df_benzo_nested %&gt;%
-    inner_join( df_opioid_nested ) %&gt;% 
-    partition(pin, cluster=cluster )  %&gt;%
-    { . } -&gt; df_both
-#
-  cluster_library(df_both, c(&quot;tidyverse&quot;, &quot;IRanges&quot;, &quot;fuzzyjoin&quot;))
-#
-
-  df_both %&gt;%
-    do( joined = interval_inner_join( data.frame(.$opioids), 
-                                     data.frame(.$benzo), 
-                                     by=c(&#39;supply_date&#39;,&#39;end_date&#39;) ))  %&gt;%
-      collect() %&gt;%
-      ungroup() %&gt;%
-      unnest() %&gt;% 
-      mutate( supply_year = year( supply_date.x)) %&gt;%
-      { . } -&gt; df_intersect
-#
-
-  save(df_intersect, file=intersect_filename)
-
-}</code></pre>
 <pre><code>Loading objects:
   df_intersect</code></pre>
-<pre class="r"><code>#cl &lt;- makeCluster(&quot;thealfred.duckdns.org&quot;, user=&quot;dewoller&quot;, master=&quot;131.172.55.229&quot;, homogeneous=FALSE)</code></pre>
 </div>
 <div id="break-prescriptions-into-4-distinct-usage-types" class="section level1">
 <h1>break prescriptions into 4 distinct usage types;</h1>
@@ -910,12 +837,6 @@ df_patient_benzo = df_patient %&gt;% filter( pin %in% df_benzo$pin)</code></pre>
 </div>
 <div id="benzo_alone---benzodiazepine-with-no-overlap" class="section level1">
 <h1>benzo_alone - benzodiazepine with no overlap</h1>
-<pre class="r"><code>df %&lt;&gt;% mutate( usage_type = as.factor(
-                      ifelse( row %in% df_intersect$row.x,
-                            &#39;opioid_dd&#39;,
-                            ifelse(  row %in% df_intersect$row.y,
-                            &#39;benzo_dd&#39;, 
-                            paste0( drug_type, &#39;_alone&#39;) ))))</code></pre>
 </div>
 <div id="what-do-the-group-of-double-dippers-look-like" class="section level1">
 <h1>What do the group of double dippers look like</h1>
@@ -927,11 +848,6 @@ df_patient_benzo = df_patient %&gt;% filter( pin %in% df_benzo$pin)</code></pre>
 </li>
 <li>further research questions; what about users that overlap with their own opioid prescriptions</li>
 </ul>
-<pre class="r"><code>df_intersect %&gt;% 
-  distinct(pin) %&gt;%
-  inner_join(df_patient) %&gt;%
-  ggplot(aes(age, fill=sex)) + geom_bar() +
-  ggtitle( &quot;Number of double dippers by gender and age group&quot;)</code></pre>
 <pre><code>Joining, by = &quot;pin&quot;</code></pre>
 <p><img src="figure/analysis.Rmd/explore_overlap-1.png" width="672" style="display: block; margin: auto;" /></p>
 <details> <summary><em>Expand here to see past versions of explore_overlap-1.png:</em></summary>
@@ -950,6 +866,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/7ff9833642dc5f7c956c9271cdf2a19a85962f96/docs/figure/analysis.Rmd/explore_overlap-1.png" target="_blank">7ff9833</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-06
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/24fa29df7e61e8b6c63bb6ef7553a0b0c1cbf558/docs/figure/analysis.Rmd/explore_overlap-1.png" target="_blank">24fa29d</a>
@@ -975,12 +902,6 @@ Dennis Wollersheim
 </tbody>
 </table>
 <p></details></p>
-<pre class="r"><code>df_intersect %&gt;% 
-  distinct(pin) %&gt;%
-  inner_join(df_patient_usage) %&gt;%
-  inner_join(df_patient) %&gt;%
-  ggplot(aes(age, fill=usage_category)) + geom_bar() +
-  ggtitle( &quot;Number of double dippers by opioid usage_category and age group&quot;)</code></pre>
 <pre><code>Joining, by = &quot;pin&quot;
 Joining, by = &quot;pin&quot;</code></pre>
 <p><img src="figure/analysis.Rmd/explore_overlap-2.png" width="672" style="display: block; margin: auto;" /></p>
@@ -1000,6 +921,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/7ff9833642dc5f7c956c9271cdf2a19a85962f96/docs/figure/analysis.Rmd/explore_overlap-2.png" target="_blank">7ff9833</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-06
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/e7dd803dc6e2e6bdbd10683206c86eb8b8fded67/docs/figure/analysis.Rmd/explore_overlap-2.png" target="_blank">e7dd803</a>
@@ -1036,11 +968,6 @@ Dennis Wollersheim
 </tbody>
 </table>
 <p></details></p>
-<pre class="r"><code>df_intersect %&gt;% 
-  inner_join(df_patient_usage %&gt;% filter( drug_type==&#39;opioid&#39;)) %&gt;%
-  inner_join(df_patient) %&gt;%
-  ggplot(aes(supply_year, fill=usage_category)) + geom_bar() +
-  ggtitle( &quot;Number of double dippers by opioid usage_category and supply_year&quot;)</code></pre>
 <pre><code>Joining, by = &quot;pin&quot;
 Joining, by = &quot;pin&quot;</code></pre>
 <p><img src="figure/analysis.Rmd/explore_overlap-3.png" width="672" style="display: block; margin: auto;" /></p>
@@ -1060,6 +987,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/7ff9833642dc5f7c956c9271cdf2a19a85962f96/docs/figure/analysis.Rmd/explore_overlap-3.png" target="_blank">7ff9833</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-06
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/e7dd803dc6e2e6bdbd10683206c86eb8b8fded67/docs/figure/analysis.Rmd/explore_overlap-3.png" target="_blank">e7dd803</a>
@@ -1095,12 +1033,7 @@ Dennis Wollersheim
 </tr>
 </tbody>
 </table>
-<p></details></p>
-<pre class="r"><code>df%&gt;% 
-  ggplot(aes(supply_year, fill=drug_type)) + 
-  geom_bar() +
-  ggtitle( &quot;Number of benzo and/or opioid scripts by supply_year&quot;)</code></pre>
-<p><img src="figure/analysis.Rmd/explore_overlap-4.png" width="672" style="display: block; margin: auto;" /></p>
+<p></details> <img src="figure/analysis.Rmd/explore_overlap-4.png" width="672" style="display: block; margin: auto;" /></p>
 <details> <summary><em>Expand here to see past versions of explore_overlap-4.png:</em></summary>
 <table style="border-collapse:separate; border-spacing:5px;">
 <thead>
@@ -1117,6 +1050,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/7ff9833642dc5f7c956c9271cdf2a19a85962f96/docs/figure/analysis.Rmd/explore_overlap-4.png" target="_blank">7ff9833</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-06
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/e7dd803dc6e2e6bdbd10683206c86eb8b8fded67/docs/figure/analysis.Rmd/explore_overlap-4.png" target="_blank">e7dd803</a>
@@ -1160,62 +1104,195 @@ Dennis Wollersheim
 <div id="number-of-users-of-each-type-overall" class="section level3">
 <h3>number of users of each type, overall</h3>
 <p><img src="figure/analysis.Rmd/tag_users-1.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of tag_users-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/7ff9833642dc5f7c956c9271cdf2a19a85962f96/docs/figure/analysis.Rmd/tag_users-1.png" target="_blank">7ff9833</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-06
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 </div>
 <div id="prescriptions-that-participate-in-double-dipping" class="section level3">
 <h3>Prescriptions that participate in double dipping</h3>
-<pre class="r"><code>df %&gt;%
-  group_by( usage_type, type_name) %&gt;%
-  summarise(  quantity=sum(quantity) ) %&gt;%
-  ggplot( aes( usage_type, quantity, fill=type_name)) +
-  geom_col()+ 
-  ggtitle( &quot;Total number of pills per usage and drug type&quot;)</code></pre>
 <p><img src="figure/analysis.Rmd/show_dd-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>df %&gt;%
-  group_by( usage_type, supply_year) %&gt;%
-  summarise(  quantity=sum(quantity) ) %&gt;%
-  ggplot( aes( supply_year, quantity, color=usage_type, group=usage_type)) +
-  geom_line()+ 
-  ggtitle( &quot;Total number of pills per usage and year&quot;)</code></pre>
-<p><img src="figure/analysis.Rmd/show_dd-2.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>df %&gt;%
-  count( usage_type, type_name) %&gt;%
-  ggplot( aes( usage_type, n, fill=type_name)) +
-  geom_col()+ 
-  ggtitle( &quot;Total number of scripts per usage and drug type&quot;)</code></pre>
-<p><img src="figure/analysis.Rmd/show_dd-3.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>df %&gt;%
-  count( usage_type, supply_year) %&gt;%
-  ggplot( aes( supply_year, n, color=usage_type, group=usage_type)) +
-  geom_line()+ 
-  ggtitle( &quot;Total number of scripts per usage and year&quot;)</code></pre>
-<p><img src="figure/analysis.Rmd/show_dd-4.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of show_dd-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/7ff9833642dc5f7c956c9271cdf2a19a85962f96/docs/figure/analysis.Rmd/show_dd-1.png" target="_blank">7ff9833</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-06
+</td>
+</tr>
+</tbody>
+</table>
+<p></details> <img src="figure/analysis.Rmd/show_dd-2.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of show_dd-2.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/7ff9833642dc5f7c956c9271cdf2a19a85962f96/docs/figure/analysis.Rmd/show_dd-2.png" target="_blank">7ff9833</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-06
+</td>
+</tr>
+</tbody>
+</table>
+<p></details> <img src="figure/analysis.Rmd/show_dd-3.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of show_dd-3.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/7ff9833642dc5f7c956c9271cdf2a19a85962f96/docs/figure/analysis.Rmd/show_dd-3.png" target="_blank">7ff9833</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-06
+</td>
+</tr>
+</tbody>
+</table>
+<p></details> <img src="figure/analysis.Rmd/show_dd-4.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of show_dd-4.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/7ff9833642dc5f7c956c9271cdf2a19a85962f96/docs/figure/analysis.Rmd/show_dd-4.png" target="_blank">7ff9833</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-06
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 </div>
 <div id="percentage-of-population-that-participate-in-double-dipping" class="section level3">
 <h3>Percentage of population that participate in double dipping</h3>
-<pre class="r"><code># number of dd  / total number per lga
-
-df %&gt;%
-  count( usage_type, lga ) %&gt;%
-  spread( usage_type, n, fill=0) %&gt;%
-  mutate( opioid_dd_ratio = opioid_dd / (opioid_dd + opioid_alone),
-         benzo_dd_ratio = benzo_dd / (benzo_dd + benzodiazepine_alone)) %&gt;%
-  select( lga, ends_with(&#39;ratio&#39;)) %&gt;%
-  gather( drug, ratio, -lga) %&gt;%
-  ggplot( aes(drug, ratio)) +
-  geom_boxplot( )  + 
-  ggtitle( &quot;LGA total ratio pills to double dippers&quot;)</code></pre>
 <p><img src="figure/analysis.Rmd/show_dd_users-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>cat(&quot;Percentage of double dippers scripts for each Seifa area&quot;)</code></pre>
+<details> <summary><em>Expand here to see past versions of show_dd_users-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/7ff9833642dc5f7c956c9271cdf2a19a85962f96/docs/figure/analysis.Rmd/show_dd_users-1.png" target="_blank">7ff9833</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-06
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre><code>Percentage of double dippers scripts for each Seifa area</code></pre>
-<pre class="r"><code>df %&gt;%
-  inner_join( df_seifa ) %&gt;%
-  count( usage_type, seifa ) %&gt;%
-  spread( usage_type, n, fill=0) %&gt;%
-  mutate( opioid_dd_ratio = opioid_dd / (opioid_dd + opioid_alone),
-         benzo_dd_ratio = benzo_dd / (benzo_dd + benzodiazepine_alone)) %&gt;%
-  select( seifa, ends_with(&#39;ratio&#39;)) %&gt;%
-  gather( drug, ratio, -seifa) %&gt;%
-  kable()</code></pre>
 <pre><code>Joining, by = &quot;lga&quot;</code></pre>
 <table>
 <thead>
@@ -1229,66 +1306,46 @@ df %&gt;%
 <tr class="odd">
 <td align="left">Least</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.1550879</td>
+<td align="right">0.0659722</td>
 </tr>
 <tr class="even">
 <td align="left">Moderate</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.1654300</td>
+<td align="right">0.1521487</td>
 </tr>
 <tr class="odd">
 <td align="left">High</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.1601349</td>
+<td align="right">0.3024194</td>
 </tr>
 <tr class="even">
 <td align="left">Very High</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.1665486</td>
+<td align="right">0.2147488</td>
 </tr>
 <tr class="odd">
-<td align="left">NA</td>
-<td align="left">opioid_dd_ratio</td>
-<td align="right">0.0377358</td>
-</tr>
-<tr class="even">
 <td align="left">Least</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.3005975</td>
+<td align="right">0.0758929</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td align="left">Moderate</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.2950608</td>
-</tr>
-<tr class="even">
-<td align="left">High</td>
-<td align="left">benzo_dd_ratio</td>
-<td align="right">0.2825151</td>
+<td align="right">0.3472222</td>
 </tr>
 <tr class="odd">
-<td align="left">Very High</td>
+<td align="left">High</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.2227988</td>
+<td align="right">0.5075594</td>
 </tr>
 <tr class="even">
-<td align="left">NA</td>
+<td align="left">Very High</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.2857143</td>
+<td align="right">0.1961102</td>
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>cat(&quot;Percentage of double dippers scripts for each Urbanization area&quot;)</code></pre>
 <pre><code>Percentage of double dippers scripts for each Urbanization area</code></pre>
-<pre class="r"><code>df %&gt;%
-  inner_join( df_urbanization) %&gt;%
-  count( usage_type, urbanization ) %&gt;%
-  spread( usage_type, n, fill=0) %&gt;%
-  mutate( opioid_dd_ratio = opioid_dd / (opioid_dd + opioid_alone),
-         benzo_dd_ratio = benzo_dd / (benzo_dd + benzodiazepine_alone)) %&gt;%
-  select( urbanization, ends_with(&#39;ratio&#39;)) %&gt;%
-  gather( drug, ratio, -urbanization) %&gt;%
-  kable()</code></pre>
 <pre><code>Joining, by = &quot;lga&quot;</code></pre>
 <table>
 <thead>
@@ -1302,37 +1359,26 @@ df %&gt;%
 <tr class="odd">
 <td align="left">Rural</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.1492184</td>
+<td align="right">0.0714286</td>
 </tr>
 <tr class="even">
 <td align="left">Urban</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.1637168</td>
+<td align="right">0.2258065</td>
 </tr>
 <tr class="odd">
 <td align="left">Rural</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.3419099</td>
+<td align="right">0.1041667</td>
 </tr>
 <tr class="even">
 <td align="left">Urban</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.2623295</td>
+<td align="right">0.3075843</td>
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>cat(&quot;Percentage of double dippers scripts for each drug type &quot;)</code></pre>
 <pre><code>Percentage of double dippers scripts for each drug type </code></pre>
-<pre class="r"><code>df %&gt;%
-  count( usage_type, type_name ) %&gt;%
-  spread( usage_type, n, fill=0) %&gt;%
-  mutate( opioid_dd_ratio = opioid_dd / (opioid_dd + opioid_alone),
-         benzo_dd_ratio = benzo_dd / (benzo_dd + benzodiazepine_alone)) %&gt;%
-  select( type_name, ends_with(&#39;ratio&#39;)) %&gt;%
-  gather( drug, ratio, -type_name) %&gt;%
-  filter( !is.nan(ratio) &amp; drug!=&#39;benzo_dd_ratio&#39;) %&gt;%
-  select( -drug) %&gt;%
-  kable()</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -1343,66 +1389,75 @@ df %&gt;%
 <tbody>
 <tr class="odd">
 <td align="left">Bupre</td>
-<td align="right">0.0642026</td>
+<td align="right">0.0564854</td>
 </tr>
 <tr class="even">
 <td align="left">Fentanyl</td>
-<td align="right">0.1030564</td>
+<td align="right">0.1048387</td>
 </tr>
 <tr class="odd">
 <td align="left">Hydromorphone</td>
-<td align="right">0.1868602</td>
+<td align="right">0.2857143</td>
 </tr>
 <tr class="even">
 <td align="left">Methadone</td>
-<td align="right">0.3399757</td>
+<td align="right">0.0000000</td>
 </tr>
 <tr class="odd">
 <td align="left">Morphine</td>
-<td align="right">0.2455434</td>
+<td align="right">0.3229358</td>
 </tr>
 <tr class="even">
 <td align="left">Oxycodone and Oxy+Nalox</td>
-<td align="right">0.1980100</td>
+<td align="right">0.2201876</td>
 </tr>
 <tr class="odd">
 <td align="left">Para_Codeine</td>
-<td align="right">0.1697245</td>
+<td align="right">0.1755932</td>
 </tr>
 <tr class="even">
 <td align="left">Tapentadol</td>
-<td align="right">0.1597066</td>
+<td align="right">0.0357143</td>
 </tr>
 <tr class="odd">
 <td align="left">Tramadol</td>
-<td align="right">0.1464038</td>
+<td align="right">0.0737636</td>
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>cat(&quot;Percentage of double dippers scripts for each drug type &quot;)</code></pre>
 <pre><code>Percentage of double dippers scripts for each drug type </code></pre>
-<pre class="r"><code>df %&gt;%
-  count( quarter, usage_type, type_name ) %&gt;%
-  spread( usage_type, n, fill=0) %&gt;%
-  mutate( opioid_dd_ratio = opioid_dd / (opioid_dd + opioid_alone),
-         benzo_dd_ratio = benzo_dd / (benzo_dd + benzodiazepine_alone)) %&gt;%
-  select( quarter, type_name, ends_with(&#39;ratio&#39;)) %&gt;% 
-  gather( drug, ratio, -type_name, -quarter) %&gt;%
-  filter( !is.nan(ratio) &amp; drug!=&#39;benzo_dd_ratio&#39;) %&gt;%
-  select( -drug) %&gt;%
-  ggplot( aes( quarter, ratio, color=type_name ) ) +
-  geom_line()</code></pre>
 <p><img src="figure/analysis.Rmd/show_dd_users-2.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>cat(&quot;Ratio of double dippers scripts for each state&quot;)</code></pre>
+<details> <summary><em>Expand here to see past versions of show_dd_users-2.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/7ff9833642dc5f7c956c9271cdf2a19a85962f96/docs/figure/analysis.Rmd/show_dd_users-2.png" target="_blank">7ff9833</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-06
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre><code>Ratio of double dippers scripts for each state</code></pre>
-<pre class="r"><code>df %&gt;%
-  count( usage_type, state ) %&gt;%
-  spread( usage_type, n, fill=0) %&gt;%
-  mutate( opioid_dd_ratio = opioid_dd / (opioid_dd + opioid_alone),
-         benzo_dd_ratio = benzo_dd / (benzo_dd + benzodiazepine_alone)) %&gt;%
-  select( state, ends_with(&#39;ratio&#39;)) %&gt;%
-  gather( drug, ratio, -state) %&gt;%
-  kable()</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -1415,82 +1470,82 @@ df %&gt;%
 <tr class="odd">
 <td align="left">ACT</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.1396341</td>
+<td align="right">0.0476190</td>
 </tr>
 <tr class="even">
 <td align="left">NSW</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.1480038</td>
+<td align="right">0.2311366</td>
 </tr>
 <tr class="odd">
 <td align="left">NT</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.1130257</td>
+<td align="right">0.0000000</td>
 </tr>
 <tr class="even">
 <td align="left">QLD</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.1760033</td>
+<td align="right">0.1157982</td>
 </tr>
 <tr class="odd">
 <td align="left">SA</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.1753441</td>
+<td align="right">0.2055427</td>
 </tr>
 <tr class="even">
 <td align="left">TAS</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.1922270</td>
+<td align="right">0.0819672</td>
 </tr>
 <tr class="odd">
 <td align="left">VIC</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.1789682</td>
+<td align="right">0.1987138</td>
 </tr>
 <tr class="even">
 <td align="left">WA</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.1519223</td>
+<td align="right">0.0509091</td>
 </tr>
 <tr class="odd">
 <td align="left">ACT</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.2588347</td>
+<td align="right">0.0952381</td>
 </tr>
 <tr class="even">
 <td align="left">NSW</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.2686895</td>
+<td align="right">0.3633634</td>
 </tr>
 <tr class="odd">
 <td align="left">NT</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.2641876</td>
+<td align="right">0.0000000</td>
 </tr>
 <tr class="even">
 <td align="left">QLD</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.2883193</td>
+<td align="right">0.2058111</td>
 </tr>
 <tr class="odd">
 <td align="left">SA</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.3091935</td>
+<td align="right">0.3440000</td>
 </tr>
 <tr class="even">
 <td align="left">TAS</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.3540538</td>
+<td align="right">0.0972222</td>
 </tr>
 <tr class="odd">
 <td align="left">VIC</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.2652759</td>
+<td align="right">0.2346369</td>
 </tr>
 <tr class="even">
 <td align="left">WA</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.2871856</td>
+<td align="right">0.1754386</td>
 </tr>
 <tr class="odd">
 <td align="left"># DDD</td>
@@ -1499,59 +1554,111 @@ df %&gt;%
 </tr>
 </tbody>
 </table>
-<pre class="r"><code>#Tricolore(euro_sectors, p1 = &#39;primary&#39;, p2 = &#39;secondary&#39;, p3 = &#39;tertiary&#39;, breaks = 20, hue = 0.3, chroma = 0.9, lightness = 0.8, contrast = 0.6, center = rep(1/3,3), spread = 1, show_data = TRUE, show_center = FALSE, legend = TRUE)
-
-df %&gt;%
-  count( usage_type, lga ) %&gt;%
-  spread( usage_type, n, fill=0) %&gt;% 
-  { . } -&gt; df_lga
-
-get_australia_base_map() -&gt; base_map
-
-#shiny::runApp(&#39;explore/shiny/&#39;, display.mode = &quot;normal&quot;)
-
-
-df_lga %&gt;%
-  Tricolore( p1 = &#39;benzo_dd&#39;, p2=&#39;benzodiazepine_alone&#39;, p3=&#39;opioid_alone&#39;, center=NA) %&gt;% 
-  { . } -&gt; tc</code></pre>
 <pre><code>Warning: Ignoring unknown aesthetics: z</code></pre>
-<pre class="r"><code>df_lga$srgb = tc$hexsrgb
-
-
-map_data = left_join( base_map, df_lga, by=c(&quot;LGA_CODE11&quot; = &quot;lga&quot;))</code></pre>
 <pre><code>Warning: Column `LGA_CODE11`/`lga` joining factor and character vector, coercing into character vector</code></pre>
-<pre class="r"><code>map_data %&gt;%
-  tm_shape( ) + 
-  tm_polygons( col=&#39;srgb&#39;, 
-              title = paste(&quot;Comparing Benzo, Opioid, and double dippers&quot;)
-              ) </code></pre>
 <pre><code>Linking to GEOS 3.5.1, GDAL 2.2.1, proj.4 4.9.3</code></pre>
 <p><img src="figure/analysis.Rmd/shiny-1.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code># simulate 243 ternary compositions
-P &lt;- as.data.frame(prop.table(matrix(runif(3^6), ncol = 3), 1))
-# color-code each composition and return a corresponding color key
-tric &lt;- Tricolore(P, &#39;V1&#39;, &#39;V2&#39;, &#39;V3&#39;)</code></pre>
+<details> <summary><em>Expand here to see past versions of shiny-1.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/7ff9833642dc5f7c956c9271cdf2a19a85962f96/docs/figure/analysis.Rmd/shiny-1.png" target="_blank">7ff9833</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-06
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre><code>Warning: Ignoring unknown aesthetics: z</code></pre>
-<pre class="r"><code># the color-coded compositions
-head(tric$hexsrgb)</code></pre>
 <pre><code>[1] &quot;#B66D68FF&quot; &quot;#6B7598FF&quot; &quot;#958600FF&quot; &quot;#6C7A51FF&quot; &quot;#7D687DFF&quot; &quot;#A06CABFF&quot;</code></pre>
-<pre class="r"><code>library(tmap)
-data(&quot;metro&quot;, package = &quot;tmap&quot;)
- tm_shape(metro) + tm_bubbles(size = &quot;pop2030&quot;) + tm_format_World() + tm_style_cobalt() </code></pre>
 <pre><code>Warning in tm_format_World(): tm_format_World is deprecated as of tmap version 2.0. Please use tm_format(&quot;World&quot;, ...) instead</code></pre>
 <pre><code>Warning in tm_style_cobalt(): tm_style_white is deprecated as of tmap version 2.0. Please use tm_style(&quot;cobalt&quot;, ...) instead</code></pre>
 <pre><code>Note that tm_style(&quot;cobalt&quot;) resets all options set with tm_layout, tm_view, tm_format, or tm_legend. It is therefore recommended to place the tm_style element prior to the other tm_layout/tm_view/tm_format/tm_legend elements.</code></pre>
-<pre class="r"><code>print( tric$legend , vp=viewport(x= 0.4, y= 0.1, width= 0.2, height= 0.1))</code></pre>
 <p><img src="figure/analysis.Rmd/shiny-2.png" width="672" style="display: block; margin: auto;" /></p>
-<pre class="r"><code>library(ggpubr)
-
-ggarrange( tric$legend,map)</code></pre>
+<details> <summary><em>Expand here to see past versions of shiny-2.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/7ff9833642dc5f7c956c9271cdf2a19a85962f96/docs/figure/analysis.Rmd/shiny-2.png" target="_blank">7ff9833</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-06
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 <pre><code>Warning: Package `gridGraphics` is required to handle base-R plots. Substituting empty plot.</code></pre>
 <p><img src="figure/analysis.Rmd/shiny-3.png" width="672" style="display: block; margin: auto;" /></p>
+<details> <summary><em>Expand here to see past versions of shiny-3.png:</em></summary>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/7ff9833642dc5f7c956c9271cdf2a19a85962f96/docs/figure/analysis.Rmd/shiny-3.png" target="_blank">7ff9833</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-06
+</td>
+</tr>
+</tbody>
+</table>
+<p></details></p>
 </div>
 <div id="session-information" class="section level2">
 <h2>Session information</h2>
-<pre class="r"><code>sessionInfo()</code></pre>
 <pre><code>R version 3.4.4 (2018-03-15)
 Platform: x86_64-pc-linux-gnu (64-bit)
 Running under: Ubuntu 17.10

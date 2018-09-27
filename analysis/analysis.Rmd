@@ -7,8 +7,7 @@ output:
     toc: false
 ---
 
-
-```{r initial, results='hide', message=FALSE, warning=FALSE}
+```{r pre_initial, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
 
 rm(list=ls())
 options(width = 200)
@@ -18,9 +17,15 @@ source("lib/standardisation.R")
 source("lib/get_data.R")
 source("lib/generate_data_frames.R")
 library('tidyverse')
+opts_chunk$set(echo = FALSE)
 
-dataset="_rr"
+```
+
+
+```{r initial, results='hide', message=FALSE, warning=FALSE}
+
 dataset=""
+dataset="_rr"
 
 get_data_from_cache(df_suffix = dataset)
 intersect_filename = paste0( 'data/cache/df_intersect', dataset, '.rdata')
@@ -65,6 +70,7 @@ Using the consumption window calculated above, we deem someone is taking opioids
 There are more opioid prescriptions  and users than Benzodiazepine users
 
 ```{r data_summary, echo=FALSE, warning=FALSE, results='asis'}
+
 cat("  \n###",  "Total Number of Scripts with either Benzo or Opioid\n")
 df %>%group_by(state) %>% count() %>% kable()
 #
