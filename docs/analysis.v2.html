@@ -228,7 +228,7 @@ div.section {
 </div>
 
 
-<p><strong>Last updated:</strong> 2018-09-26</p>
+<p><strong>Last updated:</strong> 2018-09-27</p>
 <strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
 <ul>
 <li>
@@ -252,7 +252,7 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/tree/e42354488ed55f30ebeaaaa6135090f9815d5e60" target="_blank">e423544</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/tree/eabbe4c31f6ee7f2de2941964feffddf06254305" target="_blank">eabbe4c</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
@@ -289,6 +289,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/eabbe4c31f6ee7f2de2941964feffddf06254305/analysis/analysis.v2.Rmd" target="_blank">eabbe4c</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-27
+</td>
+<td style="text-align:left;">
+wflow_publish(“analysis/analysis.v2.Rmd”)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/dewoller/benzodiazepine_opioid_usage/d495659dc55a18ca6a537dda7387dfcbf8377741/docs/analysis.v2.html" target="_blank">d495659</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-27
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -347,37 +381,8 @@ wflow_publish(“analysis/analysis.v2.Rmd”)
 <hr />
 <div id="methods" class="section level1">
 <h1>Methods</h1>
-<p>The data is from the PBS prescribing data. In this dataset, we have every opioid and benzodiazepine prescription for a 10% sample of the population, made in the period 2013-2016. In a single prescription, we have a date of supply, a drug type and strength, and the number of pills. Using the WHO DDD drug classification, we determine the total DDD for each prescription, and then we estimate the end day of the prescription to be the start day + totalDDD.</p>
-<p>t</p>
-<p>We determine that We make the foloCondervative Assumptions</p>
-<ul>
-<li>we take all the people who have had benzo and opioid, and we intersect them</li>
-<li>for each prescription, we assume the following behaviour.</li>
-</ul>
-<table>
-<thead>
-<tr class="header">
-<th>Type</th>
-<th>Treatment</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>Patches</td>
-<td>Continuious usage for number of days reccomended for each patch</td>
-</tr>
-<tr class="even">
-<td>Injections</td>
-<td>Continious usage at the adult daily reccomended dose</td>
-</tr>
-<tr class="odd">
-<td>tablets</td>
-<td>2 tablets /day</td>
-</tr>
-</tbody>
-</table>
-<p>We estimate prescription comsumption window by assuming that the user takes the prescription daily from the time they fill their prescription until it runs out, given consumption factors the the table above, and the quantity of items in the prescription.</p>
-<p>Using the consumption window calculated above, we deem someone is taking opioids concurrently with benzodiazepine if they have an opioid window overlapping with benzodiazepine window, with at least 7 days of overlap.</p>
+<p>The data is from the PBS prescribing data. In this dataset, we have every opioid and benzodiazepine prescription for a 10% sample of the population, made in the period 2013-2016. In a single prescription, we have a date of supply, a drug type and strength, and the number of pills. Using the WHO DDD drug classification, we determine the total DDD for each prescription, and then we estimate the end day of the prescription to be the start day + totalDDD, rounded to the nearest day. This start and end data comprise the prescription period.</p>
+<p>Using these prescription periods, we look for individuals with overlapping benzodiazepine and opioid prescriptions. For most of the analysis, we look for benzodiazepine / opioid pairs that overlap for at least 7 days.</p>
 </div>
 <div id="dataset-summary" class="section level1">
 <h1>Dataset summary</h1>
@@ -567,8 +572,10 @@ wflow_publish(“analysis/analysis.v2.Rmd”)
 </div>
 <div id="methods---find-overlaps" class="section level1">
 <h1>Methods - find overlaps</h1>
-<pre><code>Initialising 3 core cluster.</code></pre>
-<pre><code>Joining, by = &quot;pin&quot;</code></pre>
+<pre><code>Loading objects:
+  df_intersect
+Loading objects:
+  df_intersect_0</code></pre>
 </div>
 <div id="break-prescriptions-into-4-distinct-usage-types" class="section level1">
 <h1>break prescriptions into 4 distinct usage types;</h1>
@@ -795,6 +802,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/d495659dc55a18ca6a537dda7387dfcbf8377741/docs/figure/analysis.v2.Rmd/mofi_question3-1.png" target="_blank">d495659</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-27
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/2de9790950783322355cc6e80cc16f06db2ed7e8/docs/figure/analysis.v2.Rmd/mofi_question3-1.png" target="_blank">2de9790</a>
 </td>
 <td style="text-align:left;">
@@ -808,10 +826,10 @@ Dennis Wollersheim
 </table>
 <p></details></p>
 </div>
-<div id="geographic-variation" class="section level2">
-<h2>geographic variation</h2>
+<div id="geographic-variation-for-cc-users" class="section level2">
+<h2>geographic variation for CC users</h2>
+<p>Notes: 1) we multiply the percentage numbers by 10 to take into account the 10% sample 1) not standardised</p>
 <pre><code>state variation</code></pre>
-<pre><code>Warning: Column `state` joining character vector and factor, coercing into character vector</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -824,56 +842,55 @@ Dennis Wollersheim
 <tbody>
 <tr class="odd">
 <td align="left">ACT</td>
-<td align="right">11859</td>
+<td align="right">400</td>
 <td align="right">390706</td>
-<td align="right">0.0303527</td>
+<td align="right">0.0102379</td>
 </tr>
 <tr class="even">
 <td align="left">NSW</td>
-<td align="right">232882</td>
+<td align="right">9123</td>
 <td align="right">7617684</td>
-<td align="right">0.0305712</td>
+<td align="right">0.0119761</td>
 </tr>
 <tr class="odd">
 <td align="left">NT</td>
-<td align="right">5229</td>
+<td align="right">128</td>
 <td align="right">240543</td>
-<td align="right">0.0217383</td>
+<td align="right">0.0053213</td>
 </tr>
 <tr class="even">
 <td align="left">QLD</td>
-<td align="right">169598</td>
+<td align="right">7866</td>
 <td align="right">4778854</td>
-<td align="right">0.0354893</td>
+<td align="right">0.0164600</td>
 </tr>
 <tr class="odd">
 <td align="left">SA</td>
-<td align="right">61068</td>
+<td align="right">3345</td>
 <td align="right">2564031</td>
-<td align="right">0.0238172</td>
+<td align="right">0.0130459</td>
 </tr>
 <tr class="even">
 <td align="left">TAS</td>
-<td align="right">19270</td>
+<td align="right">1222</td>
 <td align="right">516586</td>
-<td align="right">0.0373026</td>
+<td align="right">0.0236553</td>
 </tr>
 <tr class="odd">
 <td align="left">VIC</td>
-<td align="right">210681</td>
+<td align="right">8044</td>
 <td align="right">5937481</td>
-<td align="right">0.0354832</td>
+<td align="right">0.0135478</td>
 </tr>
 <tr class="even">
 <td align="left">WA</td>
-<td align="right">84912</td>
+<td align="right">3337</td>
 <td align="right">1698660</td>
-<td align="right">0.0499876</td>
+<td align="right">0.0196449</td>
 </tr>
 </tbody>
 </table>
 <pre><code>seifa variation</code></pre>
-<pre><code>Warning: Column `lga` joining character vector and factor, coercing into character vector</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -886,38 +903,31 @@ Dennis Wollersheim
 <tbody>
 <tr class="odd">
 <td align="left">Least</td>
-<td align="right">92587</td>
-<td align="right">2800122</td>
-<td align="right">3.3065345</td>
+<td align="right">5058</td>
+<td align="right">2756732</td>
+<td align="right">1.834781</td>
 </tr>
 <tr class="even">
 <td align="left">Moderate</td>
-<td align="right">140603</td>
-<td align="right">3933108</td>
-<td align="right">3.5748573</td>
+<td align="right">6670</td>
+<td align="right">3931495</td>
+<td align="right">1.696556</td>
 </tr>
 <tr class="odd">
 <td align="left">High</td>
-<td align="right">271637</td>
-<td align="right">7624147</td>
-<td align="right">3.5628510</td>
+<td align="right">11848</td>
+<td align="right">7617218</td>
+<td align="right">1.555424</td>
 </tr>
 <tr class="even">
 <td align="left">Very High</td>
-<td align="right">281063</td>
-<td align="right">9350761</td>
-<td align="right">3.0057767</td>
-</tr>
-<tr class="odd">
-<td align="left">NA</td>
-<td align="right">25</td>
-<td align="right">3240</td>
-<td align="right">0.7716049</td>
+<td align="right">9493</td>
+<td align="right">9345571</td>
+<td align="right">1.015775</td>
 </tr>
 </tbody>
 </table>
 <pre><code>urbanisation variation</code></pre>
-<pre><code>Warning: Column `lga` joining character vector and factor, coercing into character vector</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -930,28 +940,19 @@ Dennis Wollersheim
 <tbody>
 <tr class="odd">
 <td align="left">Rural</td>
-<td align="right">58821</td>
-<td align="right">1781237</td>
-<td align="right">3.3022557</td>
+<td align="right">3169</td>
+<td align="right">1724115</td>
+<td align="right">1.838044</td>
 </tr>
 <tr class="even">
 <td align="left">Urban</td>
-<td align="right">727069</td>
+<td align="right">29900</td>
 <td align="right">21926901</td>
-<td align="right">3.3158767</td>
-</tr>
-<tr class="odd">
-<td align="left">NA</td>
-<td align="right">25</td>
-<td align="right">3240</td>
-<td align="right">0.7716049</td>
+<td align="right">1.363622</td>
 </tr>
 </tbody>
 </table>
 <pre><code>urbanisation by state variation</code></pre>
-<pre><code>Warning: Column `lga` joining character vector and factor, coercing into character vector
-
-Warning: Column `state` joining character vector and factor, coercing into character vector</code></pre>
 <table>
 <thead>
 <tr class="header">
@@ -966,86 +967,83 @@ Warning: Column `state` joining character vector and factor, coercing into chara
 <tr class="odd">
 <td align="left">ACT</td>
 <td align="left">Urban</td>
-<td align="right">11599</td>
+<td align="right">392</td>
 <td align="right">390706</td>
-<td align="right">2.9687284</td>
+<td align="right">1.0033120</td>
 </tr>
 <tr class="even">
 <td align="left">NSW</td>
 <td align="left">Rural</td>
-<td align="right">17991</td>
-<td align="right">535005</td>
-<td align="right">3.3627723</td>
+<td align="right">937</td>
+<td align="right">531828</td>
+<td align="right">1.7618478</td>
 </tr>
 <tr class="odd">
 <td align="left">NSW</td>
 <td align="left">Urban</td>
-<td align="right">213035</td>
+<td align="right">8124</td>
 <td align="right">7081146</td>
-<td align="right">3.0084820</td>
+<td align="right">1.1472719</td>
 </tr>
 <tr class="even">
 <td align="left">NT</td>
 <td align="left">Rural</td>
-<td align="right">726</td>
-<td align="right">75783</td>
-<td align="right">0.9579985</td>
+<td align="right">19</td>
+<td align="right">48575</td>
+<td align="right">0.3911477</td>
 </tr>
 <tr class="odd">
 <td align="left">NT</td>
 <td align="left">Urban</td>
-<td align="right">3020</td>
+<td align="right">73</td>
 <td align="right">156654</td>
-<td align="right">1.9278154</td>
+<td align="right">0.4659951</td>
 </tr>
 <tr class="even">
 <td align="left">QLD</td>
 <td align="left">Rural</td>
-<td align="right">4209</td>
-<td align="right">139270</td>
-<td align="right">3.0221871</td>
+<td align="right">222</td>
+<td align="right">134024</td>
+<td align="right">1.6564197</td>
 </tr>
 <tr class="odd">
 <td align="left">QLD</td>
 <td align="left">Urban</td>
-<td align="right">164915</td>
+<td align="right">7625</td>
 <td align="right">4618728</td>
-<td align="right">3.5705718</td>
+<td align="right">1.6508874</td>
 </tr>
 <tr class="even">
 <td align="left">TAS</td>
 <td align="left">Rural</td>
-<td align="right">5320</td>
-<td align="right">153118</td>
-<td align="right">3.4744445</td>
+<td align="right">366</td>
+<td align="right">152335</td>
+<td align="right">2.4025995</td>
 </tr>
 <tr class="odd">
 <td align="left">TAS</td>
 <td align="left">Urban</td>
-<td align="right">13864</td>
+<td align="right">851</td>
 <td align="right">361159</td>
-<td align="right">3.8387525</td>
+<td align="right">2.3563029</td>
 </tr>
 <tr class="even">
 <td align="left">VIC</td>
 <td align="left">Rural</td>
-<td align="right">11943</td>
-<td align="right">300754</td>
-<td align="right">3.9710195</td>
+<td align="right">649</td>
+<td align="right">300002</td>
+<td align="right">2.1633189</td>
 </tr>
 <tr class="odd">
 <td align="left">VIC</td>
 <td align="left">Urban</td>
-<td align="right">196635</td>
+<td align="right">7281</td>
 <td align="right">5636727</td>
-<td align="right">3.4884606</td>
+<td align="right">1.2917070</td>
 </tr>
 </tbody>
 </table>
 <pre><code>state by state variation</code></pre>
-<pre><code>Warning: Column `lga` joining character vector and factor, coercing into character vector
-
-Warning: Column `state` joining character vector and factor, coercing into character vector</code></pre>
 <p><img src="figure/analysis.v2.Rmd/mofi_question4-1.png" width="672" style="display: block; margin: auto;" /></p>
 <details> <summary><em>Expand here to see past versions of mofi_question4-1.png:</em></summary>
 <table style="border-collapse:separate; border-spacing:5px;">
@@ -1063,6 +1061,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/d495659dc55a18ca6a537dda7387dfcbf8377741/docs/figure/analysis.v2.Rmd/mofi_question4-1.png" target="_blank">d495659</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-27
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/2de9790950783322355cc6e80cc16f06db2ed7e8/docs/figure/analysis.v2.Rmd/mofi_question4-1.png" target="_blank">2de9790</a>
@@ -1095,6 +1104,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/d495659dc55a18ca6a537dda7387dfcbf8377741/docs/figure/analysis.v2.Rmd/explore_overlap-1.png" target="_blank">d495659</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-27
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/2de9790950783322355cc6e80cc16f06db2ed7e8/docs/figure/analysis.v2.Rmd/explore_overlap-1.png" target="_blank">2de9790</a>
@@ -1130,6 +1150,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/d495659dc55a18ca6a537dda7387dfcbf8377741/docs/figure/analysis.v2.Rmd/explore_overlap-2.png" target="_blank">d495659</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-27
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/2de9790950783322355cc6e80cc16f06db2ed7e8/docs/figure/analysis.v2.Rmd/explore_overlap-2.png" target="_blank">2de9790</a>
 </td>
 <td style="text-align:left;">
@@ -1163,6 +1194,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/d495659dc55a18ca6a537dda7387dfcbf8377741/docs/figure/analysis.v2.Rmd/explore_overlap-3.png" target="_blank">d495659</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-27
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/2de9790950783322355cc6e80cc16f06db2ed7e8/docs/figure/analysis.v2.Rmd/explore_overlap-3.png" target="_blank">2de9790</a>
 </td>
 <td style="text-align:left;">
@@ -1191,6 +1233,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/d495659dc55a18ca6a537dda7387dfcbf8377741/docs/figure/analysis.v2.Rmd/explore_overlap-4.png" target="_blank">d495659</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-27
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/2de9790950783322355cc6e80cc16f06db2ed7e8/docs/figure/analysis.v2.Rmd/explore_overlap-4.png" target="_blank">2de9790</a>
@@ -1230,6 +1283,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/d495659dc55a18ca6a537dda7387dfcbf8377741/docs/figure/analysis.v2.Rmd/tag_users-1.png" target="_blank">d495659</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-27
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/2de9790950783322355cc6e80cc16f06db2ed7e8/docs/figure/analysis.v2.Rmd/tag_users-1.png" target="_blank">2de9790</a>
 </td>
 <td style="text-align:left;">
@@ -1264,6 +1328,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/d495659dc55a18ca6a537dda7387dfcbf8377741/docs/figure/analysis.v2.Rmd/show_dd-1.png" target="_blank">d495659</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-27
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/2de9790950783322355cc6e80cc16f06db2ed7e8/docs/figure/analysis.v2.Rmd/show_dd-1.png" target="_blank">2de9790</a>
 </td>
 <td style="text-align:left;">
@@ -1292,6 +1367,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/d495659dc55a18ca6a537dda7387dfcbf8377741/docs/figure/analysis.v2.Rmd/show_dd-2.png" target="_blank">d495659</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-27
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/2de9790950783322355cc6e80cc16f06db2ed7e8/docs/figure/analysis.v2.Rmd/show_dd-2.png" target="_blank">2de9790</a>
@@ -1324,6 +1410,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/d495659dc55a18ca6a537dda7387dfcbf8377741/docs/figure/analysis.v2.Rmd/show_dd-3.png" target="_blank">d495659</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-27
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/2de9790950783322355cc6e80cc16f06db2ed7e8/docs/figure/analysis.v2.Rmd/show_dd-3.png" target="_blank">2de9790</a>
 </td>
 <td style="text-align:left;">
@@ -1352,6 +1449,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/d495659dc55a18ca6a537dda7387dfcbf8377741/docs/figure/analysis.v2.Rmd/show_dd-4.png" target="_blank">d495659</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-27
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/2de9790950783322355cc6e80cc16f06db2ed7e8/docs/figure/analysis.v2.Rmd/show_dd-4.png" target="_blank">2de9790</a>
@@ -1386,6 +1494,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/d495659dc55a18ca6a537dda7387dfcbf8377741/docs/figure/analysis.v2.Rmd/show_dd_users-1.png" target="_blank">d495659</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-27
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/2de9790950783322355cc6e80cc16f06db2ed7e8/docs/figure/analysis.v2.Rmd/show_dd_users-1.png" target="_blank">2de9790</a>
@@ -1563,6 +1682,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/d495659dc55a18ca6a537dda7387dfcbf8377741/docs/figure/analysis.v2.Rmd/show_dd_users-2.png" target="_blank">d495659</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-27
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/2de9790950783322355cc6e80cc16f06db2ed7e8/docs/figure/analysis.v2.Rmd/show_dd_users-2.png" target="_blank">2de9790</a>
 </td>
 <td style="text-align:left;">
@@ -1694,6 +1824,17 @@ Date
 <tbody>
 <tr>
 <td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/d495659dc55a18ca6a537dda7387dfcbf8377741/docs/figure/analysis.v2.Rmd/shiny-1.png" target="_blank">d495659</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-27
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
 <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/2de9790950783322355cc6e80cc16f06db2ed7e8/docs/figure/analysis.v2.Rmd/shiny-1.png" target="_blank">2de9790</a>
 </td>
 <td style="text-align:left;">
@@ -1707,7 +1848,7 @@ Dennis Wollersheim
 </table>
 <p></details></p>
 <pre><code>Warning: Ignoring unknown aesthetics: z</code></pre>
-<pre><code>[1] &quot;#A27351FF&quot; &quot;#008C95FF&quot; &quot;#786E8FFF&quot; &quot;#21B600FF&quot; &quot;#4A924AFF&quot; &quot;#876880FF&quot;</code></pre>
+<pre><code>[1] &quot;#B66D68FF&quot; &quot;#6B7598FF&quot; &quot;#958600FF&quot; &quot;#6C7A51FF&quot; &quot;#7D687DFF&quot; &quot;#A06CABFF&quot;</code></pre>
 <pre><code>Warning in tm_format_World(): tm_format_World is deprecated as of tmap version 2.0. Please use tm_format(&quot;World&quot;, ...) instead</code></pre>
 <pre><code>Warning in tm_style_cobalt(): tm_style_white is deprecated as of tmap version 2.0. Please use tm_style(&quot;cobalt&quot;, ...) instead</code></pre>
 <pre><code>Note that tm_style(&quot;cobalt&quot;) resets all options set with tm_layout, tm_view, tm_format, or tm_legend. It is therefore recommended to place the tm_style element prior to the other tm_layout/tm_view/tm_format/tm_legend elements.</code></pre>
@@ -1728,6 +1869,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/d495659dc55a18ca6a537dda7387dfcbf8377741/docs/figure/analysis.v2.Rmd/shiny-2.png" target="_blank">d495659</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-27
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/2de9790950783322355cc6e80cc16f06db2ed7e8/docs/figure/analysis.v2.Rmd/shiny-2.png" target="_blank">2de9790</a>
@@ -1760,6 +1912,17 @@ Date
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/d495659dc55a18ca6a537dda7387dfcbf8377741/docs/figure/analysis.v2.Rmd/shiny-3.png" target="_blank">d495659</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-09-27
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/2de9790950783322355cc6e80cc16f06db2ed7e8/docs/figure/analysis.v2.Rmd/shiny-3.png" target="_blank">2de9790</a>
