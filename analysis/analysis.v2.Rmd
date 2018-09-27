@@ -297,8 +297,10 @@ df_intersect_0 %>%
 
 ## geographic variation for CC users
 Notes:
+
   1) we multiply the percentage numbers by 10 to take into account the 10% sample
-  1) not standardised
+  1) the geographic figures are not standardised
+  2) we print the percentage of double dippers as a proportion of the total # of benzo users alone, # of opioid users alone, the percentage of users who use opioids and benzo, at seperate times, and finally, as a proportion of the total population
 
   - 3 different percentages, for each 
 
