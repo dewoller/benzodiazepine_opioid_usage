@@ -300,63 +300,96 @@ Notes:
   1) we multiply the percentage numbers by 10 to take into account the 10% sample
   1) not standardised
 
+  - 3 different percentages, for each 
 
 ```{r mofi_question4, warning=FALSE}
 df_population_all = get_population_df() 
 df_population_2015 = df_population_all %>% filter( supply_year==2015)
 
+df_patient %>%
+  count( lga, user_type ) 
+
 cat( "state variation")
-df_patient %>% 
-  filter( user_type=='2_double-dipper') %>%
-  count( state ) %>%
+df_patient %>%
+  count( state, user_type ) %>% 
+  spread( user_type, n )  %>%
   f_join_population( c('state'), df_population. = df_population_2015) %>%
-  mutate( pct = round( n*10 / population, 10 )) %>%
+  select( state, `2_double-dipper`, everything()) %>%
+  mutate( 
+         pct_benzo = round( `2_double-dipper`*10 / `1_benzodiazapine`, 5),
+         pct_opioid = round( `2_double-dipper`*10 / `1_opioid`, 5),
+         `pct_seperate-times` = round( `2_double-dipper`*10 / `2_seperate_times`, 5),
+         pct_pop = round( `2_double-dipper`*10 / population, 5)
+         ) %>%
   kable()
 
 cat( "seifa variation")
-df_patient %>% 
-  filter( user_type=='2_double-dipper') %>%
-  count( lga ) %>%
+df_patient %>%
+  count( lga, user_type ) %>% 
+  spread( user_type, n )  %>%
   f_join_population( rollup_level=c('lga', 'seifa'), join_key=c('lga'),
                     df_population. = df_population_2015) %>%
+  select( lga, seifa, `2_double-dipper`, everything()) %>%
   group_by( seifa ) %>%
-  summarise( n=sum(n), population=sum(population)) %>%
-  mutate( pct = round( n*10 / population*100, 10 )) %>%
+  summarise_at( c("2_double-dipper","1_benzodiazapine","1_opioid","2_seperate_times","population"), sum, na.rm=TRUE) %>%
+  mutate( 
+         pct_benzo = round( `2_double-dipper`*10 / `1_benzodiazapine`, 5),
+         pct_opioid = round( `2_double-dipper`*10 / `1_opioid`, 5),
+         `pct_seperate-times` = round( `2_double-dipper`*10 / `2_seperate_times`, 5),
+         pct_pop = round( `2_double-dipper`*10 / population, 5)
+         ) %>%
   kable()
 
-
 cat( "urbanisation variation")
-df_patient %>% 
-  filter( user_type=='2_double-dipper') %>%
-  count( lga ) %>%
+df_patient %>%
+  count( lga, user_type ) %>% 
+  spread( user_type, n )  %>%
   f_join_population( rollup_level=c('lga', 'urbanization'), join_key=c('lga'),
                     df_population. = df_population_2015) %>%
+  select( lga, urbanization, `2_double-dipper`, everything()) %>%
   group_by( urbanization ) %>%
-  summarise( n=sum(n), population=sum(population)) %>%
-  mutate( pct = round( n*10 / population*100, 10 )) %>%
+  summarise_at( c("2_double-dipper","1_benzodiazapine","1_opioid","2_seperate_times","population"), sum, na.rm=TRUE) %>%
+  mutate( 
+         pct_benzo = round( `2_double-dipper`*10 / `1_benzodiazapine`, 5),
+         pct_opioid = round( `2_double-dipper`*10 / `1_opioid`, 5),
+         `pct_seperate-times` = round( `2_double-dipper`*10 / `2_seperate_times`, 5),
+         pct_pop = round( `2_double-dipper`*10 / population, 5)
+         ) %>%
   kable()
 
 cat( "urbanisation by state variation")
-df_patient %>% 
-  filter( user_type=='2_double-dipper') %>%
-  count( state, lga ) %>%
-  f_join_population( rollup_level=c('lga', 'urbanization', 'state'), join_key=c('lga', 'state'),
+df_patient %>%
+  count( state, lga, user_type ) %>% 
+  spread( user_type, n )  %>%
+  f_join_population( rollup_level=c('state','lga', 'urbanization'), join_key=c('state','lga'),
                     df_population. = df_population_2015) %>%
-  group_by( state, urbanization) %>%
-  summarise( n=sum(n), population=sum(population)) %>%
-  mutate( pct = round( n*10 / population*100, 10 )) %>%
+  select( state, lga, urbanization, `2_double-dipper`, everything()) %>%
+  group_by( state, urbanization ) %>%
+  summarise_at( c("2_double-dipper","1_benzodiazapine","1_opioid","2_seperate_times","population"), sum, na.rm=TRUE) %>%
+  mutate( 
+         pct_benzo = round( `2_double-dipper`*10 / `1_benzodiazapine`, 5),
+         pct_opioid = round( `2_double-dipper`*10 / `1_opioid`, 5),
+         `pct_seperate-times` = round( `2_double-dipper`*10 / `2_seperate_times`, 5),
+         pct_pop = round( `2_double-dipper`*10 / population, 5)
+         ) %>%
   kable()
 
-cat( "state by state variation")
-df_patient %>% 
-  filter( user_type=='2_double-dipper') %>%
-  count( state, lga ) %>%
-  f_join_population( rollup_level=c('lga', 'seifa', 'state'), join_key=c('lga', 'state'),
+cat( "state by state variation as a percentage of overall opioid users")
+df_patient %>%
+  count( state, lga, user_type ) %>% 
+  spread( user_type, n )  %>%
+  f_join_population( rollup_level=c('state','lga', 'seifa'), join_key=c('state','lga'),
                     df_population. = df_population_2015) %>%
-  group_by( state, seifa) %>%
-  summarise( n=sum(n), population=sum(population)) %>%
-  mutate( pct = round( n*10 / population*100, 10 )) %>%
-  ggplot( aes( seifa, pct, fill=state, color=state, group=state )) +
+  select( state, lga, seifa, `2_double-dipper`, everything()) %>%
+  group_by( state, seifa ) %>%
+  summarise_at( c("2_double-dipper","1_benzodiazapine","1_opioid","2_seperate_times","population"), sum, na.rm=TRUE) %>%
+  mutate( 
+         pct_benzo = round( `2_double-dipper`*10 / `1_benzodiazapine`, 5),
+         pct_opioid = round( `2_double-dipper`*10 / `1_opioid`, 5),
+         `pct_seperate-times` = round( `2_double-dipper`*10 / `2_seperate_times`, 5),
+         pct_pop = round( `2_double-dipper`*10 / population, 5)
+         ) %>%
+  ggplot( aes( seifa, pct_opioid, fill=state, color=state, group=state )) +
   geom_col()
 
 
