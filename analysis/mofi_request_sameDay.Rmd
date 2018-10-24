@@ -188,6 +188,7 @@ df_intersect_0 %>%
 
 cat("  \n###Next day prescribing incidence by gender",  "\n")
 df_intersect_0 %>%
+  distinct( pin, supply_date.opioid , supply_year) %>%
   filter( supply_date.opioid != supply_date.benzo ) %>%
   inner_join( df_patient ) %>%
   count( supply_year, sex ) %>%
