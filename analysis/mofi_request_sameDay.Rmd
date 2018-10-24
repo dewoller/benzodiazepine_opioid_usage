@@ -1,0 +1,209 @@
+---
+title: "Benzo-opioid v2 analysis"
+author:  "Mofi Islam and Dennis Wollersheim "
+date: "2018-04-30"
+output:
+  workflowr::wflow_html:
+    toc: false
+---
+
+```{r pre_initial, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+
+rm(list=ls())
+options(width = 200)
+show_code = FALSE
+source("lib/functions.R")
+source("lib/standardisation.R")
+source("lib/get_data.R")
+source("lib/generate_data_frames.R")
+library('tidyverse')
+opts_chunk$set(echo = FALSE)
+
+```
+
+
+```{r initial, results='hide', message=FALSE, warning=FALSE}
+
+#dataset="_rr"
+dataset=""
+
+get_data_from_cache(dataset = dataset)
+intersect_filename = paste0( 'data/cache/df_intersect', dataset, '.rdata')
+intersect_0_filename = paste0( 'data/cache/df_intersect_0', dataset, '.rdata')
+
+df_population %>% distinct( lga, seifa ) -> df_seifa
+df_population %>% distinct( lga, urbanization ) -> df_urbanization
+
+df %<>% mutate( row=row_number())
+
+df %>%
+  filter( is_benzo( type_code ) ) %>%
+  { . } -> df_benzo
+
+
+df %>%
+  filter( !is_benzo( type_code ) ) %>%
+  { . } -> df_opioid
+
+df_patient_opioid = df_patient %>% filter( pin %in% df_opioid$pin)
+df_patient_benzo = df_patient %>% filter( pin %in% df_benzo$pin)
+
+
+```
+# Methods
+
+The data is from the PBS prescribing data.  In this dataset, we have every opioid and benzodiazepine prescription for a 10% sample of the population, made in the period 2013-2016.  In a single prescription, we have a date of supply, a drug type and strength, and the number of pills.  Using the WHO DDD drug classification, we determine the total DDD for each prescription, and then we estimate the end day of the prescription to be the start day + totalDDD, rounded to the nearest day.  This start and end data comprise the prescription period. 
+
+Using these prescription periods, we look for individuals with overlapping benzodiazepine and opioid prescriptions.  For most of the analysis, we look for benzodiazepine / opioid pairs that overlap for at least 7 days.   
+
+
+```{r generate_benzo, warning=FALSE}
+
+if (file.exists( intersect_filename) & 
+    file.exists( intersect_filename )) {
+  load( intersect_filename, verbose=TRUE )
+  load( intersect_0_filename, verbose=TRUE )
+} else {
+#
+
+  df %>%
+    filter( is_benzo( type_code ) ) %>%
+    group_by(pin) %>%
+    mutate( end_date = supply_date + pmax( 0, round(n_dose)-1)) %>%
+    select( pin, item_code, quantity, n_dose, supply_date, end_date, row) %>% 
+    nest( item_code, supply_date, end_date, quantity, n_dose, row, .key=benzo ) %>%
+    { . } -> df_benzo_nested
+#
+  df %>%
+    filter( !is_benzo( type_code ) ) %>%
+    group_by(pin) %>%
+    mutate( end_date = supply_date + pmax(0, round(n_dose)-1)) %>%
+    select( pin, item_code, quantity, n_dose, supply_date, end_date, row) %>% 
+    nest( item_code, supply_date, end_date, quantity, n_dose, row, .key=opioids ) %>%
+    { . } -> df_opioid_nested
+#
+  library('IRanges')
+
+#
+#
+#  df_benzo_nested %>%
+#    inner_join( df_opioid_nested ) %>% 
+#    group_by(pin) %>%
+#    do( joined =  interval_inner_join( .$opioids, .$benzo, by=qw('supply_date end_date') )) %>%
+#    unnest() %>%
+#    { . } -> df_intersect
+#
+#
+  no_cores <- detectCores() - 1
+  cluster <- create_cluster(no_cores)
+#
+  df_benzo_nested %>%
+    inner_join( df_opioid_nested ) %>% 
+    partition(pin, cluster=cluster )  %>%
+    { . } -> df_both
+#
+  cluster_library(df_both, c("tidyverse", "IRanges", "fuzzyjoin"))
+#
+
+
+  df_both %>%
+    do( joined = interval_inner_join( data.frame(.$opioids), 
+                                     data.frame(.$benzo), 
+                                     by=c('supply_date','end_date'),
+                                     minoverlap=7))  %>%
+  collect() %>%
+  ungroup() %>%
+  unnest() %>% 
+  mutate( supply_year = year( supply_date.x), 
+          diff= pmin( end_date.x, end_date.y ) - 
+            pmax( supply_date.x, supply_date.y )+1) %>%
+  ungroup() %>%
+   { . } -> df_intersect
+
+names(df_intersect) %>%
+  sub( '\\.x', '.opioid', . ) %>%
+  sub( '\\.y', '.benzo', . ) %>% 
+  { . } -> names( df_intersect)
+
+
+  df_both %>%
+    do( joined = interval_inner_join( data.frame(.$opioids), 
+                                     data.frame(.$benzo), 
+                                     by=c('supply_date','end_date'),
+                                     minoverlap=1))  %>%
+      collect() %>%
+      ungroup() %>%
+      unnest() %>% 
+      mutate( supply_year = year( supply_date.x), 
+             diff= pmin( end_date.x, end_date.y ) - 
+               pmax( supply_date.x, supply_date.y )+1) %>%
+      ungroup() %>%
+      { . } -> df_intersect_0
+
+    names(df_intersect_0) %>%
+      sub( '\\.x', '.opioid', . ) %>%
+      sub( '\\.y', '.benzo', . ) %>% 
+      { . } -> names( df_intersect_0)
+
+  rm(df_both)
+#
+
+  save(df_intersect, file=intersect_filename)
+  save(df_intersect_0, file=intersect_0_filename)
+
+}
+
+#cl <- makeCluster("thealfred.duckdns.org", user="dewoller", master="131.172.55.229", homogeneous=FALSE)
+
+```
+#Dataset summary
+There are more opioid prescriptions and users than Benzodiazepine users
+
+```{r data_summary, echo=FALSE, warning=FALSE, results='asis'}
+
+
+cat("  \n###Same day prescribing incidence by gender",  "\n")
+
+df_intersect_0 %>%
+  filter( supply_date.opioid == supply_date.benzo ) %>%
+  inner_join( df_patient ) %>%
+  count( supply_year, sex ) %>%
+  group_by( supply_year ) %>%
+  mutate( total = sum( n )) %>%
+  ungroup() %>%
+  spread( sex, n ) %>%
+  kable()
+
+cat("  \n###Same day prescribing incidence by age group",  "\n")
+df_intersect_0 %>%
+  filter( supply_date.opioid == supply_date.benzo ) %>%
+  inner_join( df_patient ) %>%
+  count( supply_year, age ) %>%
+  group_by( supply_year ) %>%
+  mutate( total = sum( n )) %>%
+  ungroup() %>%
+  spread( age, n ) %>%
+  kable()
+
+cat("  \n###Next day prescribing incidence by gender",  "\n")
+df_intersect_0 %>%
+  filter( supply_date.opioid != supply_date.benzo ) %>%
+  inner_join( df_patient ) %>%
+  count( supply_year, sex ) %>%
+  group_by( supply_year ) %>%
+  mutate( total = sum( n )) %>%
+  ungroup() %>%
+  spread( sex, n ) %>%
+  kable()
+
+cat("  \n###Next day prescribing incidence by age group",  "\n")
+df_intersect_0 %>%
+  filter( supply_date.opioid != supply_date.benzo ) %>%
+  inner_join( df_patient ) %>%
+  count( supply_year, age ) %>%
+  group_by( supply_year ) %>%
+  mutate( total = sum( n )) %>%
+  ungroup() %>%
+  spread( age, n ) %>%
+  kable()
+``` 
