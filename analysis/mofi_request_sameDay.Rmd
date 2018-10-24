@@ -163,9 +163,9 @@ There are more opioid prescriptions and users than Benzodiazepine users
 
 
 cat("  \n###Same day prescribing incidence by gender",  "\n")
-
 df_intersect_0 %>%
   filter( supply_date.opioid == supply_date.benzo ) %>%
+  distinct( pin, supply_date.opioid , supply_year) %>%
   inner_join( df_patient ) %>%
   count( supply_year, sex ) %>%
   group_by( supply_year ) %>%
@@ -177,6 +177,7 @@ df_intersect_0 %>%
 cat("  \n###Same day prescribing incidence by age group",  "\n")
 df_intersect_0 %>%
   filter( supply_date.opioid == supply_date.benzo ) %>%
+  distinct( pin, supply_date.opioid , supply_year) %>%
   inner_join( df_patient ) %>%
   count( supply_year, age ) %>%
   group_by( supply_year ) %>%
