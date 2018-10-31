@@ -101,78 +101,47 @@ get_lga_size_df<- function ( state_id ) {
 get_population_df<- function ( state_id = 0 ) {
   df_seifa = get_seifa_df( state_id)
   query = paste(
-          "
-            SELECT supply_year, lga, age, sex, sum(population) as population
-            FROM abs_population_asgs_2011 p
-            WHERE "
+                "WITH base as (
+                SELECT supply_year, lga, age, sex, sum(population) as population
+                FROM abs_population_asgs_2011 p
+                WHERE 
+                "
             , get_lga_restriction( state_id )
-            , " group by 1,2,3,4  -- group and summarise out the 5 year age group levels
-          UNION
-            SELECT supply_year, lga, age, sex, population
-            FROM abs_population_asgs_2011_projection_2016
-            WHERE "
+            ,   " 
+                group by 1,2,3,4  
+                UNION
+                SELECT supply_year, lga, age, sex, population
+                FROM abs_population_asgs_2011_projection_2016
+                WHERE 
+                "
+            , get_lga_restriction( state_id ),
+                " 
+                UNION
+                SELECT supply_year, lga, age, sex, sum(population) as population
+                FROM abs_population_asgs_2011_projection_2016_57560
+                WHERE 
+                "
             , get_lga_restriction( state_id )
+            ,   " group by 1,2,3,4  
+                 UNION
+                SELECT supply_year, lga, age, sex, sum(population) as population
+                FROM abs_population_asgs_2011_projection_2016_56020 
+                WHERE 
+                "
+            , get_lga_restriction( state_id )
+            ,   " group by 1,2,3,4  "
+            ,   ") SELECT * 
+                FROM base LEFT JOIN lga_full_2011 USING (lga)"
           , sep = ''
         )
+  #cat( query )
 
   df_population <- my_db_get_query( query ) %>%
     left_join( df_seifa, by = "lga") %>%
     mutate( state = get_state_code_from_lga( lga ) ) %>%
-    mutate( state = get_state_code_from_lga( lga ) ) %>%
-    mutate_at( qw( "supply_year lga age sex state"), funs( factor(.) ) ) %>%
     ungroup() %>%
     as.tibble()
   return( df_population )
-}
-
-
-#  -------------------------------------------------
-get_population_grouped_old <- function( rollup_level = c() )  {
-  # get population grouped by certain rollup_level
-  # expects global df_population containing supply_year and population details
-  # calculates persondays and population for each grouping (eg seifa, lga )
-  # if no supply_year in rollup_level, get yearly average
-
-  if (length( intersect( rollup_level, c("supply_year"))) > 0) {
-	df_population %>%
-			filter( is_valid_supply_year(supply_year) ) %>%
-			group_by_( .dots=rollup_level ) %>%
-			summarize( person_days = sum(population * my_year_length(supply_year)),
-					   population=sum(population)  )
-  } else {
-    rollup_level_1 = c(rollup_level, "supply_year")
-    df_population %>%
-      filter( is_valid_supply_year(supply_year) ) %>%
-      group_by_( .dots=rollup_level_1 ) %>%
-      summarize( person_days = sum(population * my_year_length(supply_year)),
-                population=sum(population)  ) %>%
-      ungroup() %>%
-      group_by_( .dots=rollup_level ) %>%
-      summarize( person_days = mean( person_days) ,
-                population=mean(population)  )
-  }
-}
-
-#  -------------------------------------------------
-join_population_grouped_old <- function( dataset, rollup_level=c(), join_key = rollup_level, df_population. = df_population )  {
-
-  pop_names = names(df_population.)
-  # can only join and group on what we have available, 
-  # allows some looseness on rollup_level vars
-  available_rollup_vars = intersect( pop_names, rollup_level)
-  join_key = intersect(pop_names, join_key )
-
-  if ( length( available_rollup_vars ) == 0 )  {
-    # fallback to average total database population if no variables to join with
-    dataset %>% 
-      mutate(temp=1) %>% 
-      inner_join( get_population_grouped( ) %>% mutate(temp=1)
-                 ,by="temp") %>%
-      select(-temp) 
-  } else {
-    dataset %>%
-      inner_join( get_population_grouped( available_rollup_vars, df_population. ),  by=join_key)
-  }
 }
 
 #  -------------------------------------------------
@@ -249,27 +218,6 @@ get_seifa_df <- function( state_id ) {
   #
   return( df_seifa )
 }
-
-
-#  -------------------------------------------------
-calculate_ddd <- function( dataset, ds_group_by , location_join, location_select = c()) {
-  # given a dataset with n_dose, group it by location_join
-  # one a location levels (empty, State or lga) and optionally supply_year)
-  # and  
-  # and calculate the ddd by joining it with df_populaiton on the 
-  # intersection of location_join and names( df_population)
-
-  dataset  %>%  # group by everything we want to group by to get total doses
-    group_by_( .dots=c( location_join, ds_group_by )) %>%
-      summarise( n_dose=sum(n_dose)) %>%
-      # join up with population on the all the same variables
-      join_population_grouped( location_join ) %>%
-      mutate( ddd = (n_dose * 1000 * 10) / (person_days)) %>%  # calculate DDD
-      select_( .dots=c( location_join, ds_group_by, location_select, "ddd" )) %>%
-      ungroup()
-}
-
-
 
 
 # -------------------------------------------------
