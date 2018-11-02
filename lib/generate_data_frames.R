@@ -54,7 +54,6 @@ generate_data_frames = function( dataset='_rr' ) {
   table = paste0( 'continuing', dataset )
   df <- get_continuing_df( table, benzo=TRUE )  %>%
     filter( lga != '.' ) %>%
-    mutate( lga = ifelse( lga == '56020','53800', lga )) %>%  
     mutate(drug_type=as.factor( ifelse(is_benzo(type_code), 'benzodiazepine', 'opioid')),
            quarter = quarter(supply_date, with_year = TRUE), 
            supply_year = as.factor(year(supply_date)) 
