@@ -37,26 +37,30 @@ test_generate_data_frames = function() {
 get_data_from_cache = function( dataset ='_rr') {
   data_id = paste0(cache_file_prefix, 
                   ifelse( dataset=='', 'full', dataset) )
-
-  data.cache( generate_data_frames, 
+  tic( 'get data from cache or generate' )
+  rv=data.cache( generate_data_frames, 
              frequency=yearly, 
              cache.name=data_id,
              cache.dir=cache_directory_name,
              envir=parent.frame(1), 
              wait=FALSE,
              dataset )
-
+  toc()
+  rv
 }
 
 # generate all the data
-generate_data_frames = function( dataset='_rr' ) {
+generate_data_frames = function( dataset='_rr' ) 
+{
 
+  tic( "Getting data from database")
   table = paste0( 'continuing', dataset )
   df <- get_continuing_df( table, benzo=TRUE )  %>%
     mutate(drug_type=as.factor( ifelse(is_benzo(type_code), 'benzodiazepine', 'opioid')),
            quarter = quarter(supply_date, with_year = TRUE), 
            supply_year = as.factor(year(supply_date)) 
            )
+  toc()
 
   if (dataset == '_rr' ) {
      multiplier = 8459157/9480
@@ -70,13 +74,16 @@ generate_data_frames = function( dataset='_rr' ) {
                                         "65+"), 
                         class = "factor")
 
+  tic( "Getting Population")
 
   df_population = get_population_df()
 
   df_population %>% 
     distinct( lga, seifa,  urbanization, state, lga_name ) %>% 
     { . } ->  df_lga
+  toc()
 
+  tic( "Getting patients")
   df %>% 
       distinct (pin, sex, age, state, lga) %>% 
       mutate( sex = as.factor(sex)) %>%
@@ -88,7 +95,9 @@ generate_data_frames = function( dataset='_rr' ) {
 
     # doses by year, type and patient
     # for calculation of DDD
+    toc()
 
+    tic( "Getting doses")
     df%>%  
       group_by(pin,  supply_year, drug_type) %>%
       summarise(
@@ -100,11 +109,13 @@ generate_data_frames = function( dataset='_rr' ) {
       {.} -> df_patient_dose
 
     #
+    toc()
+    tic( "Getting usage")
     df%>%
       group_by(pin, drug_type) %>%
       summarise( 
                 n_quarter = n_distinct( quarter ),
-                usage_category= cut( n_quarter, 
+                usage_ticegory= cut( n_quarter, 
                                     c(-1, 1,7,13, 999999), 
                                     labels = qw("one-off short-term long-term regular"),
                                     ordered_result=TRUE
@@ -113,7 +124,9 @@ generate_data_frames = function( dataset='_rr' ) {
       {.} -> df_patient_usage
 
 
-   df %<>% mutate( row=row_number())
+    toc()
+    tic ("seperating out benzo/opioid usages")
+    df %<>% mutate( row=row_number())
 
     df %>%
       filter( is_benzo( type_code ) ) %>%
@@ -124,8 +137,11 @@ generate_data_frames = function( dataset='_rr' ) {
       filter( !is_benzo( type_code ) ) %>%
       { . } -> df_opioid
 
+    toc()
+    tic ("seperating out benzo/opioid patients")
     df_patient_opioid = df_patient %>% filter( pin %in% df_opioid$pin)
     df_patient_benzo = df_patient %>% filter( pin %in% df_benzo$pin)
+    toc()
 
 
 

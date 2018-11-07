@@ -31,13 +31,15 @@ find_overlap <- function ( df, dataset, start_day_difference = NA, min_overlap =
 #################################################################################
 #################################################################################
 
-get_intersect <- function( df, save_filename ) {
-
+get_intersect <- function( df, save_filename ) 
+{
+  tic( 'get intersect total' )
   if (file.exists( save_filename) ) {
     load( save_filename, verbose=TRUE )
   } else {
     #
 
+    tic( 'create nested datasets' )
     df %>%
       filter( is_benzo( type_code ) ) %>%
       group_by(pin) %>%
@@ -54,6 +56,8 @@ get_intersect <- function( df, save_filename ) {
       nest( item_code, supply_date, end_date, quantity, n_dose, row, .key=opioids ) %>%
       { . } -> df_opioid_nested
     #
+    toc()
+    tic( 'find intersection' )
     library('IRanges')
 
     no_cores <- detectCores() - 1
@@ -81,14 +85,17 @@ get_intersect <- function( df, save_filename ) {
             pmax( supply_date.x, supply_date.y )+1) %>%
     ungroup() %>%
     { . } -> df_intersect
+    toc()
 
     names(df_intersect) %>%
       sub( '\\.x', '.opioid', . ) %>%
       sub( '\\.y', '.benzo', . ) %>% 
       { . } -> names( df_intersect)
-
+    tic( 'save intersection dataset')
     save(df_intersect, file=save_filename)
+    toc()
   }
+  toc()
   df_intersect
 }
 

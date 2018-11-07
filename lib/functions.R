@@ -22,6 +22,7 @@ safe_load( 'fuzzyjoin')
 library('IRanges')
 safe_load("multidplyr", dev = "hadley/multidplyr")
 safe_load("tidyverse")
+safe_load("tictoc")
 
 
 
