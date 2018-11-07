@@ -24,9 +24,7 @@
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
-<link href="site_libs/font-awesome-5.0.13/css/fa-svg-with-js.css" rel="stylesheet" />
-<script src="site_libs/font-awesome-5.0.13/js/fontawesome-all.min.js"></script>
-<script src="site_libs/font-awesome-5.0.13/js/fa-v4-shims.min.js"></script>
+<link href="site_libs/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -94,9 +92,6 @@ img {
 }
 .tabbed-pane {
   padding-top: 12px;
-}
-.html-widget {
-  margin-bottom: 20px;
 }
 button.code-folding-btn:focus {
   outline: none;
@@ -228,12 +223,11 @@ div.section {
 </div>
 
 
-<p><strong>Last updated:</strong> 2018-07-25</p>
+<p><strong>Last updated:</strong> 2018-08-28</p>
 <strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
 <ul>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>R Markdown file:</strong> up-to-date </summary></p>
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p><details> <summary> <strong style="color:red;">✖</strong> <strong>R Markdown file:</strong> uncommitted changes </summary> The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </details>
 </li>
 <li>
@@ -252,11 +246,15 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/tree/55a56f3558a96b629877f977ad8eae7f9c45260c" target="_blank">55a56f3</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/tree/49495a9223bda043486e540adb56a4606c87caf8" target="_blank">49495a9</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
+    Ignored:    analysis/figure/
     Ignored:    data/cache/
+
+Unstaged changes:
+    Modified:   analysis/analysis.Rmd
 
 </code></pre>
 Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes. </details>
@@ -285,6 +283,142 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/49495a9223bda043486e540adb56a4606c87caf8/analysis/analysis.Rmd" target="_blank">49495a9</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-08-25
+</td>
+<td style="text-align:left;">
+label r code sections
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/fac1f238b165257c4b0a1de7f8fe9ee9e5fdd109/analysis/analysis.Rmd" target="_blank">fac1f23</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-08-25
+</td>
+<td style="text-align:left;">
+fixed bug in date+pills calculation code; added sanity checks
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/cbf2fd432860811a103cf021c0d2e4197c1a5fb4/analysis/analysis.Rmd" target="_blank">cbf2fd4</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-08-25
+</td>
+<td style="text-align:left;">
+moved intersect cache files to intersect
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/ba80fc7bef6092bc0543aa9122b20448bd7b8b64/analysis/analysis.Rmd" target="_blank">ba80fc7</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-08-25
+</td>
+<td style="text-align:left;">
+changed intersection to take tablet n into account
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/7eadecb9c8f6215a211ff0c7f15cd438844538ef/analysis/analysis.Rmd" target="_blank">7eadecb</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-08-21
+</td>
+<td style="text-align:left;">
+comments edit
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/9584023a4949a56b83283cae05c3ee3f84228144/analysis/analysis.Rmd" target="_blank">9584023</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-08-21
+</td>
+<td style="text-align:left;">
+So that code runs on secondary machine
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/44e48f83fe6294549e9dce889bc66b563efcf709/analysis/analysis.Rmd" target="_blank">44e48f8</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-08-03
+</td>
+<td style="text-align:left;">
+Added shiny app to explore tricolore map
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/dewoller/benzodiazepine_opioid_usage/6b416ba72935da233cdf94fc2baa59e1d388bd28/docs/analysis.html" target="_blank">6b416ba</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-07-25
+</td>
+<td style="text-align:left;">
+Build site.
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -435,11 +569,11 @@ source(&quot;lib/get_data.R&quot;)
 source(&quot;lib/generate_data_frames.R&quot;)
 library(&#39;tidyverse&#39;)
 
+dataset=&quot;_rr&quot;
 dataset=&quot;&quot;
-#dataset=&quot;_rr&quot;
 
 get_data_from_cache(df_suffix = dataset)
-intersect_filename = paste0( &#39;data/df_intersect&#39;, dataset, &#39;.rdata&#39;)
+intersect_filename = paste0( &#39;data/cache/df_intersect&#39;, dataset, &#39;.rdata&#39;)
 
 df_population %&gt;% distinct( lga, seifa ) -&gt; df_seifa
 df_population %&gt;% distinct( lga, urbanization ) -&gt; df_urbanization
@@ -457,8 +591,43 @@ df %&gt;%
 
 df_patient_opioid = df_patient %&gt;% filter( pin %in% df_opioid$pin)
 df_patient_benzo = df_patient %&gt;% filter( pin %in% df_benzo$pin)</code></pre>
+<div id="methods" class="section level1">
+<h1>Methods</h1>
+<div id="condervative-assumptions" class="section level2">
+<h2>Condervative Assumptions</h2>
+<ul>
+<li>we take all the people who have had benzo and opioid, and we intersect them</li>
+<li>for each prescription, we assume the following behaviour.</li>
+</ul>
+<table>
+<thead>
+<tr class="header">
+<th align="left">Type</th>
+<th align="left">Treatment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Patches</td>
+<td align="left">Continuious usage for number of days reccomended for each patch</td>
+</tr>
+<tr class="even">
+<td align="left">Injections</td>
+<td align="left">Continious usage at the adult daily reccomended dose</td>
+</tr>
+<tr class="odd">
+<td align="left">tablets</td>
+<td align="left">2 tablets /day</td>
+</tr>
+</tbody>
+</table>
+<p>We estimate prescription comsumption window by assuming that the user takes the prescription daily from the time they fill their prescription until it runs out, given consumption factors the the table above, and the quantity of items in the prescription.</p>
+<p>Using the consumption window calculated above, we deem someone is taking opioids concurrently with benzodiazepine if they have an opioid window overlapping with benzodiazepine window, with at least 7 days of overlap.</p>
+</div>
+</div>
 <div id="dataset-summary" class="section level1">
 <h1>Dataset summary</h1>
+<p>There are more opioid prescriptions and users than Benzodiazepine users</p>
 <div id="total-number-of-scripts-with-either-benzo-or-opioid" class="section level3">
 <h3>Total Number of Scripts with either Benzo or Opioid</h3>
 <table>
@@ -595,15 +764,55 @@ df_patient_benzo = df_patient %&gt;% filter( pin %in% df_benzo$pin)</code></pre>
 </tbody>
 </table>
 </div>
+<div id="total-number-of-people-with-benzo" class="section level3">
+<h3>Total Number of People with Benzo</h3>
+<p>[1] “people”</p>
+<table>
+<thead>
+<tr class="header">
+<th align="left">state</th>
+<th align="right">n</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">ACT</td>
+<td align="right">4394</td>
+</tr>
+<tr class="even">
+<td align="left">NSW</td>
+<td align="right">90051</td>
+</tr>
+<tr class="odd">
+<td align="left">NT</td>
+<td align="right">1644</td>
+</tr>
+<tr class="even">
+<td align="left">QLD</td>
+<td align="right">73956</td>
+</tr>
+<tr class="odd">
+<td align="left">SA</td>
+<td align="right">25506</td>
+</tr>
+<tr class="even">
+<td align="left">TAS</td>
+<td align="right">8458</td>
+</tr>
+<tr class="odd">
+<td align="left">VIC</td>
+<td align="right">88498</td>
+</tr>
+<tr class="even">
+<td align="left">WA</td>
+<td align="right">32709</td>
+</tr>
+</tbody>
+</table>
+</div>
 </div>
 <div id="methods---find-overlaps" class="section level1">
 <h1>Methods - find overlaps</h1>
-<div id="condervative-assumptions" class="section level2">
-<h2>Condervative Assumptions</h2>
-<ul>
-<li>7 day window at start and end of opioid presciption</li>
-<li>2 doses / day</li>
-</ul>
 <pre class="r"><code>if (file.exists( intersect_filename )) {
   load( intersect_filename, verbose=TRUE )
 } else {
@@ -612,7 +821,7 @@ df_patient_benzo = df_patient %&gt;% filter( pin %in% df_benzo$pin)</code></pre>
   df %&gt;%
     filter( is_benzo( type_code ) ) %&gt;%
     group_by(pin) %&gt;%
-    mutate( end_date = supply_date + floor(quantity/2)) %&gt;%
+    mutate( end_date = supply_date + floor(quantity * new_days_multiplier)) %&gt;%
     select( pin, item_code, quantity, n_dose, supply_date, end_date, row) %&gt;% 
     nest( item_code, supply_date, end_date, quantity, n_dose, row, .key=benzo ) %&gt;%
     { . } -&gt; df_benzo_nested
@@ -620,7 +829,7 @@ df_patient_benzo = df_patient %&gt;% filter( pin %in% df_benzo$pin)</code></pre>
   df %&gt;%
     filter( !is_benzo( type_code ) ) %&gt;%
     group_by(pin) %&gt;%
-    mutate( end_date = supply_date + floor(quantity/2)) %&gt;%
+    mutate( end_date = supply_date + floor(quantity * new_days_multiplier)) %&gt;%
     select( pin, item_code, quantity, n_dose, supply_date, end_date, row) %&gt;% 
     nest( item_code, supply_date, end_date, quantity, n_dose, row, .key=opioids ) %&gt;%
     { . } -&gt; df_opioid_nested
@@ -631,18 +840,15 @@ df_patient_benzo = df_patient %&gt;% filter( pin %in% df_benzo$pin)</code></pre>
 #
 #  df_benzo_nested %&gt;%
 #    inner_join( df_opioid_nested ) %&gt;% 
-#    rowwise() %&gt;%
+#    group_by(pin) %&gt;%
 #    do( joined =  interval_inner_join( .$opioids, .$benzo, by=qw(&#39;supply_date end_date&#39;) )) %&gt;%
-#    ungroup() %&gt;%
-#    cbind( df_both ) %&gt;%
-#    as.tibble() %&gt;%
-#    select(pin, joined ) %&gt;%
 #    unnest() %&gt;%
 #    { . } -&gt; df_intersect
 #
 #
+  no_cores &lt;- detectCores() - 1
+  cluster &lt;- create_cluster(no_cores)
 
-  cluster &lt;- create_cluster(4)
   df_benzo_nested %&gt;%
     inner_join( df_opioid_nested ) %&gt;% 
     partition(pin, cluster=cluster )  %&gt;%
@@ -669,6 +875,26 @@ df_patient_benzo = df_patient %&gt;% filter( pin %in% df_benzo$pin)</code></pre>
   df_intersect</code></pre>
 <pre class="r"><code>#cl &lt;- makeCluster(&quot;thealfred.duckdns.org&quot;, user=&quot;dewoller&quot;, master=&quot;131.172.55.229&quot;, homogeneous=FALSE)</code></pre>
 </div>
+<div id="break-prescriptions-into-4-distinct-usage-types" class="section level1">
+<h1>break prescriptions into 4 distinct usage types;</h1>
+</div>
+<div id="opioid_dd---opioid-with-a-benzodiazepine-overlapping" class="section level1">
+<h1>opioid_dd - opioid with a benzodiazepine overlapping</h1>
+</div>
+<div id="benzo_dd---benzodiazepine-with-an-opioid-overlapping" class="section level1">
+<h1>benzo_dd - benzodiazepine with an opioid overlapping</h1>
+</div>
+<div id="opioid_alone---opioid-with-no-overlap" class="section level1">
+<h1>opioid_alone - opioid with no overlap</h1>
+</div>
+<div id="benzo_alone---benzodiazepine-with-no-overlap" class="section level1">
+<h1>benzo_alone - benzodiazepine with no overlap</h1>
+<pre class="r"><code>df %&lt;&gt;% mutate( usage_type = as.factor(
+                      ifelse( row %in% df_intersect$row.x,
+                            &#39;opioid_dd&#39;,
+                            ifelse(  row %in% df_intersect$row.y,
+                            &#39;benzo_dd&#39;, 
+                            paste0( drug_type, &#39;_alone&#39;) ))))</code></pre>
 </div>
 <div id="what-do-the-group-of-double-dippers-look-like" class="section level1">
 <h1>What do the group of double dippers look like</h1>
@@ -912,226 +1138,36 @@ Dennis Wollersheim
 <h1>what type of users do we have</h1>
 <div id="number-of-users-of-each-type-overall" class="section level3">
 <h3>number of users of each type, overall</h3>
-<p><img src="figure/analysis.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
-<details> <summary><em>Expand here to see past versions of unnamed-chunk-2-1.png:</em></summary>
-<table style="border-collapse:separate; border-spacing:5px;">
-<thead>
-<tr>
-<th style="text-align:left;">
-Version
-</th>
-<th style="text-align:left;">
-Author
-</th>
-<th style="text-align:left;">
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/e7dd803dc6e2e6bdbd10683206c86eb8b8fded67/docs/figure/analysis.Rmd/unnamed-chunk-2-1.png" target="_blank">e7dd803</a>
-</td>
-<td style="text-align:left;">
-Dennis Wollersheim
-</td>
-<td style="text-align:left;">
-2018-07-25
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/24fa29df7e61e8b6c63bb6ef7553a0b0c1cbf558/docs/figure/analysis.Rmd/unnamed-chunk-2-1.png" target="_blank">24fa29d</a>
-</td>
-<td style="text-align:left;">
-Dennis Wollersheim
-</td>
-<td style="text-align:left;">
-2018-07-24
-</td>
-</tr>
-</tbody>
-</table>
-<p></details></p>
+<p><img src="figure/analysis.Rmd/tag_users-1.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="prescriptions-that-participate-in-double-dipping" class="section level3">
 <h3>Prescriptions that participate in double dipping</h3>
-<pre class="r"><code>df %&lt;&gt;% mutate( usage_type = as.factor(
-                                    ifelse( row %in% df_intersect$row.x,
-                                    &#39;opioid_dd&#39;,
-                                    ifelse(  row %in% df_intersect$row.y,
-                                    &#39;benzo_dd&#39;, 
-                                    paste0( drug_type, &#39;_alone&#39;) ))))
-
-df %&gt;%
+<pre class="r"><code>df %&gt;%
   group_by( usage_type, type_name) %&gt;%
   summarise(  quantity=sum(quantity) ) %&gt;%
   ggplot( aes( usage_type, quantity, fill=type_name)) +
   geom_col()+ 
   ggtitle( &quot;Total number of pills per usage and drug type&quot;)</code></pre>
-<p><img src="figure/analysis.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
-<details> <summary><em>Expand here to see past versions of unnamed-chunk-3-1.png:</em></summary>
-<table style="border-collapse:separate; border-spacing:5px;">
-<thead>
-<tr>
-<th style="text-align:left;">
-Version
-</th>
-<th style="text-align:left;">
-Author
-</th>
-<th style="text-align:left;">
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/e7dd803dc6e2e6bdbd10683206c86eb8b8fded67/docs/figure/analysis.Rmd/unnamed-chunk-3-1.png" target="_blank">e7dd803</a>
-</td>
-<td style="text-align:left;">
-Dennis Wollersheim
-</td>
-<td style="text-align:left;">
-2018-07-25
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/24fa29df7e61e8b6c63bb6ef7553a0b0c1cbf558/docs/figure/analysis.Rmd/unnamed-chunk-3-1.png" target="_blank">24fa29d</a>
-</td>
-<td style="text-align:left;">
-Dennis Wollersheim
-</td>
-<td style="text-align:left;">
-2018-07-24
-</td>
-</tr>
-</tbody>
-</table>
-<p></details></p>
+<p><img src="figure/analysis.Rmd/show_dd-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>df %&gt;%
   group_by( usage_type, supply_year) %&gt;%
   summarise(  quantity=sum(quantity) ) %&gt;%
   ggplot( aes( supply_year, quantity, color=usage_type, group=usage_type)) +
   geom_line()+ 
   ggtitle( &quot;Total number of pills per usage and year&quot;)</code></pre>
-<p><img src="figure/analysis.Rmd/unnamed-chunk-3-2.png" width="672" style="display: block; margin: auto;" /></p>
-<details> <summary><em>Expand here to see past versions of unnamed-chunk-3-2.png:</em></summary>
-<table style="border-collapse:separate; border-spacing:5px;">
-<thead>
-<tr>
-<th style="text-align:left;">
-Version
-</th>
-<th style="text-align:left;">
-Author
-</th>
-<th style="text-align:left;">
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/e7dd803dc6e2e6bdbd10683206c86eb8b8fded67/docs/figure/analysis.Rmd/unnamed-chunk-3-2.png" target="_blank">e7dd803</a>
-</td>
-<td style="text-align:left;">
-Dennis Wollersheim
-</td>
-<td style="text-align:left;">
-2018-07-25
-</td>
-</tr>
-<tr>
-<td style="text-align:left;">
-<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/24fa29df7e61e8b6c63bb6ef7553a0b0c1cbf558/docs/figure/analysis.Rmd/unnamed-chunk-3-2.png" target="_blank">24fa29d</a>
-</td>
-<td style="text-align:left;">
-Dennis Wollersheim
-</td>
-<td style="text-align:left;">
-2018-07-24
-</td>
-</tr>
-</tbody>
-</table>
-<p></details></p>
+<p><img src="figure/analysis.Rmd/show_dd-2.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>df %&gt;%
   count( usage_type, type_name) %&gt;%
   ggplot( aes( usage_type, n, fill=type_name)) +
   geom_col()+ 
   ggtitle( &quot;Total number of scripts per usage and drug type&quot;)</code></pre>
-<p><img src="figure/analysis.Rmd/unnamed-chunk-3-3.png" width="672" style="display: block; margin: auto;" /></p>
-<details> <summary><em>Expand here to see past versions of unnamed-chunk-3-3.png:</em></summary>
-<table style="border-collapse:separate; border-spacing:5px;">
-<thead>
-<tr>
-<th style="text-align:left;">
-Version
-</th>
-<th style="text-align:left;">
-Author
-</th>
-<th style="text-align:left;">
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/e7dd803dc6e2e6bdbd10683206c86eb8b8fded67/docs/figure/analysis.Rmd/unnamed-chunk-3-3.png" target="_blank">e7dd803</a>
-</td>
-<td style="text-align:left;">
-Dennis Wollersheim
-</td>
-<td style="text-align:left;">
-2018-07-25
-</td>
-</tr>
-</tbody>
-</table>
-<p></details></p>
+<p><img src="figure/analysis.Rmd/show_dd-3.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>df %&gt;%
   count( usage_type, supply_year) %&gt;%
   ggplot( aes( supply_year, n, color=usage_type, group=usage_type)) +
   geom_line()+ 
   ggtitle( &quot;Total number of scripts per usage and year&quot;)</code></pre>
-<p><img src="figure/analysis.Rmd/unnamed-chunk-3-4.png" width="672" style="display: block; margin: auto;" /></p>
-<details> <summary><em>Expand here to see past versions of unnamed-chunk-3-4.png:</em></summary>
-<table style="border-collapse:separate; border-spacing:5px;">
-<thead>
-<tr>
-<th style="text-align:left;">
-Version
-</th>
-<th style="text-align:left;">
-Author
-</th>
-<th style="text-align:left;">
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/e7dd803dc6e2e6bdbd10683206c86eb8b8fded67/docs/figure/analysis.Rmd/unnamed-chunk-3-4.png" target="_blank">e7dd803</a>
-</td>
-<td style="text-align:left;">
-Dennis Wollersheim
-</td>
-<td style="text-align:left;">
-2018-07-25
-</td>
-</tr>
-</tbody>
-</table>
-<p></details></p>
+<p><img src="figure/analysis.Rmd/show_dd-4.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="percentage-of-population-that-participate-in-double-dipping" class="section level3">
 <h3>Percentage of population that participate in double dipping</h3>
@@ -1147,37 +1183,7 @@ df %&gt;%
   ggplot( aes(drug, ratio)) +
   geom_boxplot( )  + 
   ggtitle( &quot;LGA total ratio pills to double dippers&quot;)</code></pre>
-<p><img src="figure/analysis.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
-<details> <summary><em>Expand here to see past versions of unnamed-chunk-4-1.png:</em></summary>
-<table style="border-collapse:separate; border-spacing:5px;">
-<thead>
-<tr>
-<th style="text-align:left;">
-Version
-</th>
-<th style="text-align:left;">
-Author
-</th>
-<th style="text-align:left;">
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/e7dd803dc6e2e6bdbd10683206c86eb8b8fded67/docs/figure/analysis.Rmd/unnamed-chunk-4-1.png" target="_blank">e7dd803</a>
-</td>
-<td style="text-align:left;">
-Dennis Wollersheim
-</td>
-<td style="text-align:left;">
-2018-07-25
-</td>
-</tr>
-</tbody>
-</table>
-<p></details></p>
+<p><img src="figure/analysis.Rmd/show_dd_users-1.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>cat(&quot;Percentage of double dippers scripts for each Seifa area&quot;)</code></pre>
 <pre><code>Percentage of double dippers scripts for each Seifa area</code></pre>
 <pre class="r"><code>df %&gt;%
@@ -1202,52 +1208,52 @@ Dennis Wollersheim
 <tr class="odd">
 <td align="left">Least</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.2044123</td>
+<td align="right">0.1188138</td>
 </tr>
 <tr class="even">
 <td align="left">Moderate</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.2184545</td>
+<td align="right">0.1223847</td>
 </tr>
 <tr class="odd">
 <td align="left">High</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.2132905</td>
+<td align="right">0.1209163</td>
 </tr>
 <tr class="even">
 <td align="left">Very High</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.2268373</td>
+<td align="right">0.1257570</td>
 </tr>
 <tr class="odd">
 <td align="left">NA</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.0377358</td>
+<td align="right">0.0188679</td>
 </tr>
 <tr class="even">
 <td align="left">Least</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.3482026</td>
+<td align="right">0.2426825</td>
 </tr>
 <tr class="odd">
 <td align="left">Moderate</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.3443464</td>
+<td align="right">0.2334740</td>
 </tr>
 <tr class="even">
 <td align="left">High</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.3312077</td>
+<td align="right">0.2256537</td>
 </tr>
 <tr class="odd">
 <td align="left">Very High</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.2678578</td>
+<td align="right">0.1781324</td>
 </tr>
 <tr class="even">
 <td align="left">NA</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.2857143</td>
+<td align="right">0.1428571</td>
 </tr>
 </tbody>
 </table>
@@ -1275,22 +1281,22 @@ Dennis Wollersheim
 <tr class="odd">
 <td align="left">Rural</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.1942110</td>
+<td align="right">0.1116164</td>
 </tr>
 <tr class="even">
 <td align="left">Urban</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.2191052</td>
+<td align="right">0.1233470</td>
 </tr>
 <tr class="odd">
 <td align="left">Rural</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.3875757</td>
+<td align="right">0.2753828</td>
 </tr>
 <tr class="even">
 <td align="left">Urban</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.3098521</td>
+<td align="right">0.2093129</td>
 </tr>
 </tbody>
 </table>
@@ -1316,39 +1322,39 @@ Dennis Wollersheim
 <tbody>
 <tr class="odd">
 <td align="left">Bupre</td>
-<td align="right">0.1527807</td>
+<td align="right">0.1583024</td>
 </tr>
 <tr class="even">
 <td align="left">Fentanyl</td>
-<td align="right">0.2142837</td>
+<td align="right">0.2160142</td>
 </tr>
 <tr class="odd">
 <td align="left">Hydromorphone</td>
-<td align="right">0.2692405</td>
+<td align="right">0.1327404</td>
 </tr>
 <tr class="even">
 <td align="left">Methadone</td>
-<td align="right">0.3918207</td>
+<td align="right">0.1457742</td>
 </tr>
 <tr class="odd">
 <td align="left">Morphine</td>
-<td align="right">0.3274442</td>
+<td align="right">0.2017477</td>
 </tr>
 <tr class="even">
 <td align="left">Oxycodone and Oxy+Nalox</td>
-<td align="right">0.2554425</td>
+<td align="right">0.1206918</td>
 </tr>
 <tr class="odd">
 <td align="left">Para_Codeine</td>
-<td align="right">0.2008675</td>
+<td align="right">0.0893094</td>
 </tr>
 <tr class="even">
 <td align="left">Tapentadol</td>
-<td align="right">0.2088992</td>
+<td align="right">0.0808406</td>
 </tr>
 <tr class="odd">
 <td align="left">Tramadol</td>
-<td align="right">0.1950262</td>
+<td align="right">0.1294268</td>
 </tr>
 </tbody>
 </table>
@@ -1365,37 +1371,7 @@ Dennis Wollersheim
   select( -drug) %&gt;%
   ggplot( aes( quarter, ratio, color=type_name ) ) +
   geom_line()</code></pre>
-<p><img src="figure/analysis.Rmd/unnamed-chunk-4-2.png" width="672" style="display: block; margin: auto;" /></p>
-<details> <summary><em>Expand here to see past versions of unnamed-chunk-4-2.png:</em></summary>
-<table style="border-collapse:separate; border-spacing:5px;">
-<thead>
-<tr>
-<th style="text-align:left;">
-Version
-</th>
-<th style="text-align:left;">
-Author
-</th>
-<th style="text-align:left;">
-Date
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left;">
-<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/e7dd803dc6e2e6bdbd10683206c86eb8b8fded67/docs/figure/analysis.Rmd/unnamed-chunk-4-2.png" target="_blank">e7dd803</a>
-</td>
-<td style="text-align:left;">
-Dennis Wollersheim
-</td>
-<td style="text-align:left;">
-2018-07-25
-</td>
-</tr>
-</tbody>
-</table>
-<p></details></p>
+<p><img src="figure/analysis.Rmd/show_dd_users-2.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>cat(&quot;Ratio of double dippers scripts for each state&quot;)</code></pre>
 <pre><code>Ratio of double dippers scripts for each state</code></pre>
 <pre class="r"><code>df %&gt;%
@@ -1418,82 +1394,82 @@ Dennis Wollersheim
 <tr class="odd">
 <td align="left">ACT</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.1797278</td>
+<td align="right">0.1006744</td>
 </tr>
 <tr class="even">
 <td align="left">NSW</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.1989747</td>
+<td align="right">0.1082459</td>
 </tr>
 <tr class="odd">
 <td align="left">NT</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.1445488</td>
+<td align="right">0.0831360</td>
 </tr>
 <tr class="even">
 <td align="left">QLD</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.2373473</td>
+<td align="right">0.1309556</td>
 </tr>
 <tr class="odd">
 <td align="left">SA</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.2333274</td>
+<td align="right">0.1342948</td>
 </tr>
 <tr class="even">
 <td align="left">TAS</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.2476100</td>
+<td align="right">0.1390658</td>
 </tr>
 <tr class="odd">
 <td align="left">VIC</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.2383665</td>
+<td align="right">0.1385597</td>
 </tr>
 <tr class="even">
 <td align="left">WA</td>
 <td align="left">opioid_dd_ratio</td>
-<td align="right">0.2012551</td>
+<td align="right">0.1216181</td>
 </tr>
 <tr class="odd">
 <td align="left">ACT</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.2957297</td>
+<td align="right">0.1913836</td>
 </tr>
 <tr class="even">
 <td align="left">NSW</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.3153689</td>
+<td align="right">0.2109536</td>
 </tr>
 <tr class="odd">
 <td align="left">NT</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.2941585</td>
+<td align="right">0.2028583</td>
 </tr>
 <tr class="even">
 <td align="left">QLD</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.3378459</td>
+<td align="right">0.2292439</td>
 </tr>
 <tr class="odd">
 <td align="left">SA</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.3660327</td>
+<td align="right">0.2478215</td>
 </tr>
 <tr class="even">
 <td align="left">TAS</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.4035044</td>
+<td align="right">0.2606078</td>
 </tr>
 <tr class="odd">
 <td align="left">VIC</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.3141023</td>
+<td align="right">0.2154418</td>
 </tr>
 <tr class="even">
 <td align="left">WA</td>
 <td align="left">benzo_dd_ratio</td>
-<td align="right">0.3375633</td>
+<td align="right">0.2323021</td>
 </tr>
 <tr class="odd">
 <td align="left"># DDD</td>
@@ -1502,37 +1478,88 @@ Dennis Wollersheim
 </tr>
 </tbody>
 </table>
+<pre class="r"><code>#Tricolore(euro_sectors, p1 = &#39;primary&#39;, p2 = &#39;secondary&#39;, p3 = &#39;tertiary&#39;, breaks = 20, hue = 0.3, chroma = 0.9, lightness = 0.8, contrast = 0.6, center = rep(1/3,3), spread = 1, show_data = TRUE, show_center = FALSE, legend = TRUE)
+
+df %&gt;%
+  count( usage_type, lga ) %&gt;%
+  spread( usage_type, n, fill=0) %&gt;% 
+  { . } -&gt; df_lga
+
+get_australia_base_map() -&gt; base_map
+
+#shiny::runApp(&#39;explore/shiny/&#39;, display.mode = &quot;normal&quot;)
+
+
+df_lga %&gt;%
+  Tricolore( p1 = &#39;benzo_dd&#39;, p2=&#39;benzodiazepine_alone&#39;, p3=&#39;opioid_alone&#39;, center=NA) %&gt;% 
+  { . } -&gt; tc</code></pre>
+<pre><code>Warning: Ignoring unknown aesthetics: z</code></pre>
+<pre class="r"><code>df_lga$srgb = tc$hexsrgb
+
+
+map_data = left_join( base_map, df_lga, by=c(&quot;LGA_CODE11&quot; = &quot;lga&quot;))</code></pre>
+<pre><code>Warning: Column `LGA_CODE11`/`lga` joining factor and character vector, coercing into character vector</code></pre>
+<pre class="r"><code>map_data %&gt;%
+  tm_shape( ) + 
+  tm_polygons( col=&#39;srgb&#39;, 
+              title = paste(&quot;Comparing Benzo, Opioid, and double dippers&quot;)
+              ) </code></pre>
+<pre><code>Linking to GEOS 3.5.1, GDAL 2.1.3, proj.4 4.9.2</code></pre>
+<p><img src="figure/analysis.Rmd/shiny-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># simulate 243 ternary compositions
+P &lt;- as.data.frame(prop.table(matrix(runif(3^6), ncol = 3), 1))
+# color-code each composition and return a corresponding color key
+tric &lt;- Tricolore(P, &#39;V1&#39;, &#39;V2&#39;, &#39;V3&#39;)</code></pre>
+<pre><code>Warning: Ignoring unknown aesthetics: z</code></pre>
+<pre class="r"><code># the color-coded compositions
+head(tric$hexsrgb)</code></pre>
+<pre><code>[1] &quot;#B66D68FF&quot; &quot;#6B7598FF&quot; &quot;#958600FF&quot; &quot;#6C7A51FF&quot; &quot;#7D687DFF&quot; &quot;#A06CABFF&quot;</code></pre>
+<pre class="r"><code>library(tmap)
+data(&quot;metro&quot;, package = &quot;tmap&quot;)
+ tm_shape(metro) + tm_bubbles(size = &quot;pop2030&quot;) + tm_format_World() + tm_style_cobalt() </code></pre>
+<pre><code>Warning in tm_format_World(): tm_format_World is deprecated as of tmap version 2.0. Please use tm_format(&quot;World&quot;, ...) instead</code></pre>
+<pre><code>Warning in tm_style_cobalt(): tm_style_white is deprecated as of tmap version 2.0. Please use tm_style(&quot;cobalt&quot;, ...) instead</code></pre>
+<pre><code>Note that tm_style(&quot;cobalt&quot;) resets all options set with tm_layout, tm_view, tm_format, or tm_legend. It is therefore recommended to place the tm_style element prior to the other tm_layout/tm_view/tm_format/tm_legend elements.</code></pre>
+<pre class="r"><code>print( tric$legend , vp=viewport(x= 0.4, y= 0.1, width= 0.2, height= 0.1))</code></pre>
+<p><img src="figure/analysis.Rmd/shiny-2.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="session-information" class="section level2">
 <h2>Session information</h2>
 <pre class="r"><code>sessionInfo()</code></pre>
 <pre><code>R version 3.4.4 (2018-03-15)
 Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: Ubuntu 17.10
+Running under: Ubuntu 16.04.5 LTS
 
 Matrix products: default
-BLAS: /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3
-LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so
+BLAS: /usr/lib/libblas/libblas.so.3.6.0
+LAPACK: /usr/lib/lapack/liblapack.so.3.6.0
 
 locale:
  [1] LC_CTYPE=en_AU.UTF-8       LC_NUMERIC=C               LC_TIME=en_AU.UTF-8        LC_COLLATE=en_AU.UTF-8     LC_MONETARY=en_AU.UTF-8    LC_MESSAGES=en_AU.UTF-8    LC_PAPER=en_AU.UTF-8      
  [8] LC_NAME=C                  LC_ADDRESS=C               LC_TELEPHONE=C             LC_MEASUREMENT=en_AU.UTF-8 LC_IDENTIFICATION=C       
 
 attached base packages:
-[1] stats4    parallel  stats     graphics  grDevices utils     datasets  methods   base     
+ [1] grid      stats4    parallel  stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] bindrcpp_0.2.2        keyring_1.1.0         RPostgreSQL_0.6-2     DBI_1.0.0             forcats_0.3.0         dplyr_0.7.6           purrr_0.2.5           readr_1.1.1          
- [9] tidyr_0.8.1           tibble_1.4.2          ggplot2_3.0.0         tidyverse_1.2.1       multidplyr_0.0.0.9000 IRanges_2.12.0        S4Vectors_0.16.0      BiocGenerics_0.24.0  
-[17] fuzzyjoin_0.1.4       DataCache_0.9         wrapr_1.5.1           readstata13_0.9.2     lubridate_1.7.4       knitr_1.20            stringr_1.3.1         magrittr_1.5         
-[25] workflowr_1.1.1       nvimcom_0.9-72       
+ [1] sf_0.6-3              bindrcpp_0.2.2        keyring_1.1.0         RPostgreSQL_0.6-2     DBI_1.0.0             tricolore_1.0.3       ggtern_2.2.1          tmaptools_2.0-1      
+ [9] tmap_2.1-1            forcats_0.2.0         dplyr_0.7.6           purrr_0.2.5           readr_1.1.1           tidyr_0.7.2           tibble_1.4.2          ggplot2_2.2.1        
+[17] tidyverse_1.2.1       multidplyr_0.0.0.9000 IRanges_2.4.1         S4Vectors_0.8.0       BiocGenerics_0.16.0   fuzzyjoin_0.1.4       DataCache_0.9         wrapr_1.5.1          
+[25] readstata13_0.9.2     lubridate_1.7.4       knitr_1.20            stringr_1.3.1         magrittr_1.5          workflowr_1.1.1       nvimcom_0.9-75       
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.12.17      lattice_0.20-35   assertthat_0.2.0  rprojroot_1.3-2   digest_0.6.15     R6_2.2.2          cellranger_1.1.0  plyr_1.8.4        backports_1.1.2   evaluate_0.10.1  
-[11] highr_0.7         httr_1.3.1        pillar_1.3.0      rlang_0.2.1       lazyeval_0.2.1    readxl_1.1.0      rstudioapi_0.7    whisker_0.3-2     R.utils_2.6.0     R.oo_1.22.0      
-[21] rmarkdown_1.10    labeling_0.3      munsell_0.5.0     broom_0.5.0       compiler_3.4.4    modelr_0.1.2      pkgconfig_2.0.1   htmltools_0.3.6   tidyselect_0.2.4  viridisLite_0.3.0
-[31] crayon_1.3.4      withr_2.1.2       R.methodsS3_1.7.1 grid_3.4.4        nlme_3.1-137      jsonlite_1.5      gtable_0.2.0      git2r_0.23.0      scales_0.5.0      cli_1.0.0        
-[41] stringi_1.2.3     xml2_1.2.0        tools_3.4.4       glue_1.3.0        hms_0.4.2         yaml_2.1.19       colorspace_1.3-2  rvest_0.3.2       bindr_0.1.1       haven_1.1.2      </code></pre>
+  [1] readxl_1.0.0        backports_1.1.1     lwgeom_0.1-4        plyr_1.8.4          lazyeval_0.2.1      sp_1.3-1            jqr_1.0.0           crosstalk_1.0.0     leaflet_2.0.1      
+ [10] geojsonlint_0.2.0   digest_0.6.12       foreach_1.4.4       htmltools_0.3.6     modelr_0.1.1        bayesm_3.1-0.1      R.utils_2.6.0       colorspace_1.3-2    rvest_0.3.2        
+ [19] jsonvalidate_1.0.0  haven_1.1.0         rgdal_1.3-4         crayon_1.3.4        jsonlite_1.5        bindr_0.1.1         iterators_1.0.10    glue_1.3.0          gtable_0.2.0       
+ [28] webshot_0.5.0       compositions_1.40-2 V8_1.5              DEoptimR_1.0-8      scales_0.5.0        Rcpp_0.12.18        viridisLite_0.2.0   xtable_1.8-2        spData_0.2.9.3     
+ [37] units_0.6-0         foreign_0.8-70      latex2exp_0.4.0     htmlwidgets_1.2     httr_1.3.1          RColorBrewer_1.1-2  pkgconfig_2.0.1     XML_3.98-1.15       R.methodsS3_1.7.1  
+ [46] tidyselect_0.2.4    labeling_0.3        rlang_0.2.1         reshape2_1.4.2      later_0.7.3         munsell_0.4.3       cellranger_1.1.0    tools_3.4.4         cli_1.0.0          
+ [55] broom_0.4.3         evaluate_0.10.1     yaml_2.1.15         robustbase_0.92-8   satellite_1.0.1     nlme_3.1-137        whisker_0.3-2       mime_0.5            R.oo_1.22.0        
+ [64] xml2_1.2.0          rmapshaper_0.4.0    compiler_3.4.4      rstudioapi_0.7      curl_3.2            png_0.1-7           e1071_1.7-0         stringi_1.2.4       highr_0.6          
+ [73] rgeos_0.3-28        lattice_0.20-35     classInt_0.2-3      psych_1.7.8         tensorA_0.36.1      pillar_1.3.0        maptools_0.9-2      geojsonio_0.6.0     raster_2.6-7       
+ [82] mapview_2.4.0       httpuv_1.4.5        R6_2.2.2            promises_1.0.1      KernSmooth_2.23-15  gridExtra_2.3       codetools_0.2-15    gdalUtils_2.0.1.14  dichromat_2.0-0    
+ [91] boot_1.3-20         energy_1.7-5        MASS_7.3-50         assertthat_0.2.0    proto_1.0.0         rprojroot_1.2       mnormt_1.5-5        geojson_0.2.0       hms_0.4.0          
+[100] class_7.3-14        rmarkdown_1.8       git2r_0.22.1        shiny_1.1.0         base64enc_0.1-3    </code></pre>
 </div>
 </div>
 
