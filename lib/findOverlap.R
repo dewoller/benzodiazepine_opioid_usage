@@ -39,7 +39,7 @@ get_intersect <- function( df, save_filename )
   } else {
     #
 
-    tic( 'create nested datasets' )
+    tic( 'create nested datasets opioids' )
     df %>%
       filter( is_benzo( type_code ) ) %>%
       group_by(pin) %>%
@@ -48,6 +48,8 @@ get_intersect <- function( df, save_filename )
       nest( item_code, supply_date, end_date, quantity, n_dose, row, .key=benzo ) %>%
       { . } -> df_benzo_nested
     #
+    toc()
+    tic( 'create nested datasets benzo' )
     df %>%
       filter( !is_benzo( type_code ) ) %>%
       group_by(pin) %>%
