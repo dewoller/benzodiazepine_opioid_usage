@@ -1,0 +1,371 @@
+---
+title: "Population Exploration,rf"
+author:  "Mofi Islam and Dennis Wollersheim "
+date: "2018-04-30"
+output:
+  workflowr::wflow_html:
+    toc: false
+---
+
+```{r pre_initial, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+
+rm(list=ls())
+options(width = 200)
+show_code = FALSE
+source("lib/functions.R")
+source("lib/standardisation.R")
+source("lib/get_data.R")
+source("lib/generate_data_frames.R")
+source("lib/findOverlap.R")
+library('tidyverse')
+opts_chunk$set(echo = FALSE)
+
+```
+
+
+```{r initial, results='hide', message=FALSE, warning=FALSE}
+
+dataset="_rr"
+dataset=""
+
+get_data_from_cache(dataset = dataset)
+
+find_overlap( df, dataset, start_day_difference=0 ) %>% 
+  { . } -> df_dd_0  
+
+find_overlap( df, dataset, start_day_difference=1 ) %>% 
+{ . } -> df_dd_1
+
+find_overlap( df, dataset, min_overlap=7 ) %>% 
+{ . } -> df_dd_all
+
+
+undebug( simple_standardise_value)
+
+df_dd_0 %>%
+  mutate( supply_year = as.character( supply_year ) ) %>%
+  left_join( df_patient ) %>%
+  # count distinct people and date of supply
+  distinct( supply_year, age, sex, pin, lga, supply_date.opioid ) %>%
+  count( supply_year, lga, age, sex ) %>%
+  simple_standardise_value( group_by_vars=qc(lga, supply_year) ,  count_var='n' ) %>%
+  left_join( df_lga ) %>%
+  filter( state != 'UNK' & !is.na( seifa )) %>%
+  ggplot( aes( state, rate, color=supply_year ) ) +
+  geom_boxplot() +
+  facet_wrap( ~seifa ) +
+  ggtitle("Same Day prescribing standardised population of double dippers / 1000 pp population for each LGA per year and seifa level")
+
+```
+
+
+```{r chunk_1}
+
+df_dd_0 %>%
+  mutate( supply_year = as.character( supply_year ) ) %>%
+  left_join( df_patient ) %>%
+  # count distinct people and date of supply
+  distinct( supply_year, age, sex, pin, lga, supply_date.opioid ) %>%
+  count( supply_year, lga, age, sex ) %>%
+  simple_standardise_value( group_by_vars=qc(lga, supply_year) ,  count_var='n' ) %>%
+  ggplot( aes( supply_year, rate) ) +
+  geom_boxplot() +
+  ggtitle("Same Day prescribing standardised population of double dippers / 1000 pp population for each LGA per year ")
+
+```
+
+```{r chunk_2}
+
+
+df_dd_0 %>%
+  mutate( supply_year = as.character( supply_year ) ) %>%
+  left_join( df_patient ) %>%
+  # count distinct people and date of supply
+  distinct( supply_year, age, sex, pin, lga, supply_date.opioid ) %>%
+  count( supply_year, lga, age, sex ) %>%
+  simple_standardise_value( group_by_vars=qc(lga, supply_year) ,  count_var='n' ) %>%
+  left_join( df_lga ) %>%
+  filter( state != 'UNK' & !is.na( seifa )) %>%
+  ggplot( aes( state, fill=supply_year, rate) ) +
+  ylab( 'age and sex standardised prevalence  per 1000 population') + 
+  geom_col( position='dodge') +
+  ggtitle("Same Day prescribing standardised population of double dippers / 1000 pp population for each LGA per year and state ")
+
+```
+
+```{r chunk_3}
+
+
+df_dd_0 %>%
+  mutate( supply_year = as.character( supply_year ) ) %>%
+  distinct( supply_date.opioid, pin, supply_year )  %>% 
+  mutate( day_of_week = wday( supply_date.opioid )) %>%
+  left_join( df_patient ) %>%
+  left_join( df_lga ) %>% filter( state != 'UNK' & !is.na( seifa )) %>%
+  ggplot( aes( day_of_week, fill=age ) ) + 
+  geom_bar()  + 
+  facet_grid( state~seifa ) +
+  ggtitle( "Same day DD incidence by state, age_group, day of week and seifa level")
+
+
+```
+
+```{r chunk_4}
+
+
+cat('##  Double dipping has state level characteristics')
+df_dd_0 %>%
+  mutate( supply_year = as.character( supply_year ) ) %>%
+  distinct( supply_date.opioid, pin, supply_year )  %>% 
+  mutate( quarter = quarter( supply_date.opioid, with_year=FALSE )) %>%
+  left_join( df_patient ) %>%
+  left_join( df_lga ) %>% filter( state != 'UNK' & !is.na( seifa )) %>%
+  count( quarter, sex, age, state, seifa, supply_year )  %>% 
+  simple_standardise_value( group_by_vars=qc(age, quarter, state, seifa,  supply_year) ,  count_var='n' ) %>%
+  ggplot( aes( quarter,rate, fill=age  ) ) + 
+  geom_col()  + 
+  facet_grid( state~seifa ) +
+  ggtitle( "Same day DD incidence standardised rate per 1000 pp by state, age_group, quarter and seifa level")
+
+```
+
+```{r chunk_5}
+
+
+cat('## Standardized rate and urbanization')
+df_dd_0 %>%
+  mutate( supply_year = as.character( supply_year ) ) %>%
+  distinct( supply_date.opioid, pin, supply_year )  %>% 
+  left_join( df_patient ) %>%
+  left_join( df_lga ) %>% filter( state != 'UNK' & !is.na( seifa )) %>%
+  count(  sex, age, state, urbanization, supply_year )  %>% 
+  simple_standardise_value( group_by_vars=qc(age, state, urbanization,  supply_year) ,  count_var='n' ) %>%
+  ggplot( aes( urbanization, rate, fill=age  ) ) + 
+  geom_col()  + 
+  facet_wrap( ~state) +
+  ggtitle( "Same day DD incidence standardised rate per 1000 pp by state, age_group and urbanization level")
+
+```
+
+```{r chunk_6}
+
+
+cat('## Standardized rate, gender and urbanisation')
+df_dd_0 %>%
+  mutate( supply_year = as.character( supply_year ) ) %>%
+  distinct( supply_date.opioid, pin, supply_year )  %>% 
+  left_join( df_patient ) %>%
+  left_join( df_lga ) %>% filter( state != 'UNK' & !is.na( seifa )) %>%
+  count(  sex, age, state, urbanization, supply_year )  %>% 
+  simple_standardise_value( group_by_vars=qc(sex, state, urbanization,  supply_year) ,  count_var='n' ) %>%
+  ggplot( aes( urbanization, rate, fill=sex  ) ) + 
+  geom_col()  +
+  facet_wrap( ~state) +
+  ggtitle( "Same day DD incidence standardised rate per 1000 pp by state, age_group and urbanization level")
+
+```
+
+```{r chunk_7}
+
+
+df_dd_0 %>%
+  mutate( supply_year = as.character( supply_year ) ) %>%
+  left_join( df_patient ) %>%
+  distinct( supply_year, age, sex, pin, lga , supply_date.opioid) %>%
+  count( supply_year, lga, age, sex ) %>%
+  simple_standardise_value( group_by_vars=qc(lga, supply_year) ,  count_var='n' ) %>%
+  left_join( df_lga ) %>% filter( state != 'UNK' & !is.na( seifa )) %>% 
+  { . } -> df_temp
+
+```
+
+```{r chunk_8}
+
+
+is_outlier <- function(x) {
+  return(x < quantile(x, 0.25) - 1.5 * IQR(x) | x > quantile(x, 0.75) + 1.5 * IQR(x))
+}
+
+```
+
+```{r chunk_9}
+
+
+is_log10_outlier <- function(x, extreme=.25) {
+  x = log10(x)
+  return(x < quantile(x, extreme) - 1.5 * IQR(x) | x > quantile(x, (1-extreme)) + 1.5 * IQR(x))
+}
+
+```
+
+```{r chunk_10}
+
+
+df_temp %>%
+  group_by( supply_year ) %>%
+  filter( is_outlier( rate )) %>% 
+  { . } -> df_outlier
+
+df_temp %>%
+  ggplot( aes( supply_year, rate )) +
+  geom_boxplot( outlier.colour=NA) +
+  #ggbeeswarm::geom_beeswarm(aes(color=supply_year)) +
+  scale_y_log10() +
+  ggrepel::geom_text_repel( data= df_outlier, aes(label=lga_name))
+
+```
+
+```{r chunk_11}
+
+
+
+
+
+
+# dd_1
+
+df_dd_1 %>%
+  mutate( supply_year = as.character( supply_year ) ) %>%
+  left_join( df_patient ) %>%
+  distinct( supply_year, age, sex, pin, lga , supply_date.opioid) %>%
+  count( supply_year, lga, age, sex ) %>%
+  simple_standardise_value( group_by_vars=qc(lga, supply_year) ,  count_var='n' ) %>%
+  left_join( df_lga ) %>% filter( state != 'UNK' & !is.na( seifa )) %>%
+  ggplot( aes( seifa, rate, color=state ) ) +
+  ylab( 'age and sex standardised prevalence per 1000 population') + 
+  geom_boxplot() +
+  facet_wrap( ~supply_year ) +
+  ggtitle("Same and Next Day prescribing population of double dippers for each LGA")
+
+```
+
+```{r chunk_12}
+
+
+
+#dd_all
+
+df_dd_all %>%
+  mutate( supply_year = as.character( supply_year ) ) %>%
+  left_join( df_patient ) %>%
+  distinct( supply_year, age, sex, pin, lga, supply_date.opioid) %>%
+  count( supply_year, lga, age, sex ) %>%
+  simple_standardise_value( group_by_vars=qc(lga, supply_year) ,  count_var='n' ) %>%
+  left_join( df_lga ) %>%
+  filter( state != 'UNK' & !is.na( seifa )) %>%
+  ggplot( aes( seifa, rate, color=state ) ) +
+  geom_boxplot() +
+  facet_wrap( ~supply_year ) +
+  ggtitle("7 day overlap standardised population of double dippers / 1000 pp population for each LGA")
+
+```
+
+```{r chunk_13}
+
+
+
+df_dd_all %>%
+  mutate( supply_year = as.character( supply_year ) ) %>%
+  distinct( supply_date.opioid, pin, supply_year )  %>% 
+  left_join( df_patient ) %>%
+  count( supply_year, lga, age, sex ) %>%
+  simple_standardise_value( group_by_vars=qc(lga, supply_year) ,  count_var='n' ) %>%
+  left_join( df_lga ) %>%
+  filter( state != 'UNK' & !is.na( seifa )) %>% 
+  { . } -> df_dd_count_by_lga
+
+```
+
+```{r chunk_14}
+
+
+df_opioid %>%
+  select_and_standardise_ddd(  qc( lga), join_with=qc(supply_year) ) %>%
+  inner_join( df_dd_count_by_lga ) %>%
+  group_by( lga, seifa ) %>%
+  summarise( rate = mean(rate), ddd=mean(ddd)) %>%
+  ungroup() %>%
+  inner_join( df_lga ) %>%
+  ggplot( aes( ddd, rate, fill=seifa, color=seifa )) +
+  geom_point() +
+  xlab( 'mean yearly prevalence / 1000 pp ') + 
+  ylab( 'mean ddd over 4 year period ') + 
+  scale_x_log10() + scale_y_log10() + 
+  ggrepel::geom_text_repel( data= . %>% filter( is_log10_outlier( rate, .25 )), aes(label=lga_name)) +
+  ggtitle( "7 day overlap comparison between opioid ddd for an LGA and dd incidence, dd incidence outliers labelled")
+
+```
+
+```{r chunk_15}
+
+
+df_opioid %>%
+  select_and_standardise_ddd(  qc( lga), join_with=qc(supply_year) ) %>%
+  inner_join( df_dd_count_by_lga ) %>%
+  group_by( lga, seifa ) %>%
+  summarise( rate = mean(rate), ddd=mean(ddd)) %>%
+  ungroup() %>%
+  inner_join( df_lga ) %>%
+  ggplot( aes( ddd, rate, fill=urbanization, color=urbanization )) +
+  geom_point() +
+  xlab( 'mean yearly prevalence / 1000 pp ') + 
+  ylab( 'mean ddd over 4 year period ') + 
+  scale_x_log10() + scale_y_log10() + 
+  ggrepel::geom_text_repel( data= . %>% filter( is_log10_outlier( rate, .25 )), aes(label=lga_name)) +
+  ggtitle( "7 day overlap comparison between opioid ddd for an LGA and dd incidence, dd incidence outliers labelled")
+
+```
+
+```{r chunk_16}
+
+
+df_opioid %>%
+  select_and_standardise_ddd(  qc( lga), join_with=qc(supply_year) ) %>%
+  inner_join( df_dd_count_by_lga ) %>%
+  group_by( lga, seifa ) %>%
+  summarise( rate = mean(rate), ddd=mean(ddd)) %>%
+  ungroup() %>%
+  inner_join( df_lga ) %>%
+  ggplot( aes( ddd, rate, fill=urbanization, color=urbanization )) +
+  geom_point() +
+  xlab( 'mean yearly prevalence / 1000 pp ') + 
+  ylab( 'mean ddd over 4 year period ') + 
+  scale_x_log10() + scale_y_log10() + 
+  ggrepel::geom_text_repel( data= . %>% filter( is_log10_outlier( rate, .25 )), aes(label=lga_name)) +
+  ggtitle( "7 day overlap comparison between opioid ddd for an LGA and dd incidence, dd incidence outliers labelled")
+
+```
+
+```{r chunk_17}
+
+
+df_opioid %>%
+  select_and_standardise_ddd(  qc( lga), join_with=qc(supply_year) ) %>%
+  inner_join( df_dd_count_by_lga ) %>%
+  ggplot( aes( ddd, rate, fill=seifa, color=seifa )) +
+  geom_point() +
+  scale_x_log10() + scale_y_log10() + 
+  facet_grid( state~supply_year ) + 
+  ggtitle( "7 day overlap State and year based comparison between opioid ddd for an LGA and dd incidence")
+
+
+```
+
+```{r chunk_18}
+
+
+cat('')
+df_dd_all %>%
+  mutate( supply_year = as.character( supply_year ) ) %>%
+  mutate( quarter = quarter( supply_date.opioid, with_year=FALSE )) %>%
+  select( quarter, everything()) %>%
+  left_join( df_patient ) %>%
+  left_join( df_lga ) %>% filter( state != 'UNK' & !is.na( seifa )) %>%
+  count( quarter, sex, age, state, seifa, supply_year )  %>% 
+  simple_standardise_value( group_by_vars=qc(age, quarter, state, seifa,  supply_year) ,  count_var='n' ) %>%
+  ggplot( aes( quarter,rate, fill=age  ) ) + 
+  geom_col()  + 
+  facet_grid( state~seifa ) +
+  ggtitle( "Overlap DD incidence standardised rate per 1000 pp by state, age_group, quarter and seifa level")
+
+```

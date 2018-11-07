@@ -2,12 +2,12 @@
 
 cache_directory_name = 'data/cache/'
 cache_file_prefix = 'mycache_'
-df_suffix = '_rr'
+dataset = '_rr'
 library('DataCache')
 
-clear_cache = function( df_suffix ='_rr') { 
+clear_cache = function( dataset ='_rr') { 
 
-  rmcache = paste0( 'rm ', cache_directory_name, '/', cache_file_prefix, df_suffix, '*')
+  rmcache = paste0( 'rm ', cache_directory_name, '/', cache_file_prefix, dataset, '*')
 #  dput(rmcache)
   system( rmcache )
 }
@@ -34,9 +34,9 @@ test_generate_data_frames = function() {
 }
 
 
-get_data_from_cache = function( df_suffix ='_rr') {
+get_data_from_cache = function( dataset ='_rr') {
   data_id = paste0(cache_file_prefix, 
-                  ifelse( df_suffix=='', 'full', df_suffix) )
+                  ifelse( dataset=='', 'full', dataset) )
 
   data.cache( generate_data_frames, 
              frequency=yearly, 
@@ -44,23 +44,23 @@ get_data_from_cache = function( df_suffix ='_rr') {
              cache.dir=cache_directory_name,
              envir=parent.frame(1), 
              wait=FALSE,
-             df_suffix )
+             dataset )
 
 }
 
 # generate all the data
-generate_data_frames = function( df_suffix='_rr' ) {
+generate_data_frames = function( dataset='_rr' ) {
 
-  table = paste0( 'continuing', df_suffix )
+  table = paste0( 'continuing', dataset )
   df <- get_continuing_df( table, benzo=TRUE )  %>%
     mutate(drug_type=as.factor( ifelse(is_benzo(type_code), 'benzodiazepine', 'opioid')),
            quarter = quarter(supply_date, with_year = TRUE), 
-           supply_year = as.factor(year(supply_date))
+           supply_year = as.factor(year(supply_date)) 
            )
 
-  if (df_suffix == '_rr' ) {
+  if (dataset == '_rr' ) {
      multiplier = 8459157/9480
-  } else if (df_suffix == '') {
+  } else if (dataset == '') {
     multiplier = 1
   }
 
@@ -71,38 +71,13 @@ generate_data_frames = function( df_suffix='_rr' ) {
                         class = "factor")
 
 
-read.dta13('data/nsw_vic_populato_and_seifa_data.dta') %>% 
-    tbl_df() %>%
-    rename( lga_name = lga, 
-           lga = lgacode,
-            sex = sex2,
-            population = populato 
-           ) %>%
-    filter( substring( lga,1,1) != '8') %>%
-    mutate( supply_year=as.factor(year ),
-            age = age_groups[as.integer( age4) ],
-            state = ifelse( substring( lga,1,1) == '1', 'NSW', 'VIC'),
-            lga = as.factor(lga)
-          ) %>%
-    select(-year, -age4, -lga_name ) %>%
-    mutate( seifa=ordered(seifa, levels=c('Least','Moderate','High','Very High'))) %>%
-      {.} -> df_population
+  df_population = get_population_df()
 
-    #
-    #
-    # 
-    # list all schemes
-#    df %>% 
-#      distinct( pin, scheme ) %>%
-#      group_by(pin) %>% 
-#      summarise( all_scheme=paste(sort(scheme), collapse=','))  %>%
-#      {.} -> df_patient_scheme
-    #
-    # select out patients
-    #
-    #
+  df_population %>% 
+    distinct( lga, seifa,  urbanization, state, lga_name ) %>% 
+    { . } ->  df_lga
 
-    df %>% 
+  df %>% 
       distinct (pin, sex, age, state, lga) %>% 
       mutate( sex = as.factor(sex)) %>%
 #      inner_join( df_patient_scheme, by="pin") %>%
@@ -137,13 +112,37 @@ read.dta13('data/nsw_vic_populato_and_seifa_data.dta') %>%
                 ) %>%
       {.} -> df_patient_usage
 
-    list( "df_patient_usage" = df_patient_usage, 
+
+   df %<>% mutate( row=row_number())
+
+    df %>%
+      filter( is_benzo( type_code ) ) %>%
+      { . } -> df_benzo
+
+
+    df %>%
+      filter( !is_benzo( type_code ) ) %>%
+      { . } -> df_opioid
+
+    df_patient_opioid = df_patient %>% filter( pin %in% df_opioid$pin)
+    df_patient_benzo = df_patient %>% filter( pin %in% df_benzo$pin)
+
+
+
+
+    list( 
+         "df"=df,
+         "df_patient_usage" = df_patient_usage, 
          "df_population" = df_population,
+         "df_lga" = df_lga,
+         "df_benzo" = df_benzo,
+         "df_opioid" = df_opioid,
+         "df_patient_opioid" = df_patient_opioid,
+         "df_patient_benzo" = df_patient_benzo,
          "df_patient" = df_patient,
          "base_map" =  get_australia_base_map(), 
          "age_groups" = age_groups,
-         "multiplier" = multiplier, 
-         "df"=df
+         "multiplier" = multiplier
          )
 }
 

@@ -5,8 +5,10 @@ navbar:
   left:
     - text: "Home"
       href: index.html
-    - text: "Analysis"
+    - text: "Multi day DD"
       href: analysis.html
+    - text: "Single Day DD"
+      href: mofi_request_sameDay.html
     - text: "About"
       href: about.html
     - text: "License"

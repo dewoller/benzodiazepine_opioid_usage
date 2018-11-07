@@ -1,5 +1,18 @@
 
 
+# default australian population breakdown for standardisation
+standardisation_default_population = structure(list(age = structure(c(1L, 1L, 2L, 2L, 3L, 3L, 4L,
+                                                                      4L), .Label = c("0-19", "20-44", "45-64", "65+"), class = c("ordered",
+                                                                      "factor")), sex = c("F", "M", "F", "M", "F", "M", "F", "M"),
+                                                    population = c(2945332, 3103585, 4268595, 4278986, 3028266,
+                                                                   2912534, 1956770, 1716741)), class = c("tbl_df", "tbl", "data.frame"
+                                                    ), row.names = c(NA, -8L), .Names = c("age", "sex", "population"
+                                                    ))
+
+############################################################################################
+# standardisation_test 
+############################################################################################
+
 standardisation_test = function() {
 
   read.csv('data/standardisation.csv') %>%
@@ -29,17 +42,25 @@ standardisation_test = function() {
 }
 
 
+############################################################################################
+# get_population_grouped 
+############################################################################################
 get_population_grouped = function ( pop, rollup_level = NA) {
   if (typeof(rollup_level ) == "logical" && is.na( rollup_level )) {
-    pop %>% ungroup() %>%
-      summarize( population=sum(population)  )
+    pop %>% 
+      ungroup() %>%
+      dplyr::summarize( population=sum(population)  )
   } else {
-    pop %>% ungroup() %>%
+    pop %>% 
+      ungroup() %>%
       group_by_( .dots=rollup_level ) %>%
-      summarize( population=sum(population)  )
+      dplyr::summarize( population=sum(population)  )
   }
 }
 
+############################################################################################
+# get_population_grouped_test
+############################################################################################
 get_pop_grouped_test = function() {
   get_population_grouped(df_population_test ) 
   get_population_grouped(df_population_test, 'cat')
@@ -51,7 +72,9 @@ get_pop_grouped_test = function() {
   get_population_grouped(df_population, qw('lga supply_year'))
 }
 
-# create test population function
+############################################################################################
+# f_join_population_test_dataset 
+############################################################################################
 f_join_population_test_dataset = function( dataset, 
                              rollup_level = NA,  
                              join_key = rollup_level, 
@@ -59,8 +82,10 @@ f_join_population_test_dataset = function( dataset,
   f_join_population( dataset, rollup_level, join_key, df_population. )
 }
 
+############################################################################################
+# f_join_population 
+############################################################################################
 
-# expects df_population with variable population
 f_join_population = function( dataset, 
                     rollup_level = NA,  
                     join_key = rollup_level, 
@@ -72,18 +97,38 @@ f_join_population = function( dataset,
   join_key = intersect(pop_names, join_key )
 
   if ( length( available_rollup_vars ) == 0 )  {
-    # fallback to average total database population if no variables to join with
+
+    # fallback to total database population if no variables to join with
     dataset %>% 
-      mutate(temp=1) %>% 
-      inner_join( get_population_grouped( df_population. ) %>% mutate(temp=1)
+      mutate(temp_var=1) %>% 
+      inner_join( get_population_grouped( df_population. ) %>% mutate(temp_var=1)
                   ,by="temp") %>%
-      select(-temp) 
+      dplyr::select(-temp_var)  %>% 
+      { . } -> rv
+
   } else {
+
+    # every item in dataset should endup with a population
     dataset %>%
-      inner_join( get_population_grouped(  df_population., available_rollup_vars ),  by=join_key)
+      left_join( get_population_grouped(  df_population., available_rollup_vars ),  by=join_key) %>% 
+      { . } -> rv
+
   }
+  assertthat::assert_that( sum( is.na( rv$population)) == 0, 
+                          msg=paste( "All items in the input dataset must have a population, missing = ", 
+                                    filter( rv, is.na(population)) %>% 
+                                      distinct(lga) %$% 
+                                      lga , 
+                                    collapse=',' 
+                                    )
+                          )
+  rv
 }
 
+
+############################################################################################
+# f_join_population_test
+############################################################################################
 
 f_join_population_test = function( ) {
 
@@ -106,6 +151,10 @@ f_join_population_test = function( ) {
 }
 
 
+
+############################################################################################
+# standardise_test 
+############################################################################################
 
 standardise_test = function() {
 
@@ -139,11 +188,17 @@ df_test %>% group_by( bp ) %>% summarise( sum( pop))
 
 }
 
-simple_standardise_value = function( df, 
-                                    standardise_using, 
-                                    standardise_across, 
+
+#debug(simple_standardise_value )
+############################################################################################
+# simple_standardise_value 
+############################################################################################
+simple_standardise_value = function( df_standardise, 
+                                    group_by_vars, 
                                     count_var,
-                                    f_population. = f_population
+                                    localf_join_population = f_join_population
+                                    , 
+                                    standardisation_default = standardisation_default_population 
                                     ) {
 
   # 1) sum count_var in df based on c( standardise_using + standardise_across)
@@ -153,27 +208,109 @@ simple_standardise_value = function( df,
   # 4) total the population_overall_rate by standardise_across to get grand_total_rate
   # 4) join total population, divide grand_total by total_population
 
-  detailed_vars = c( standardise_using, standardise_across )
+    standardise_using <- qw("age sex")  %>%   
+      setdiff( group_by_vars ) 
 
-  df %>%
-    ungroup() %>%
-    mutate( count=count_var ) %>%  # create df_test variable for the count field
-    group_by_( .dots=detailed_vars ) %>%
-      summarise( count = sum( count )) %>%
-      select_( .dots=c(detailed_vars, 'count' )) %>%
-      f_population.( detailed_vars ) %>%
-      mutate( ratio = count / population ) %>%
-      select_( .dots=c(detailed_vars, 'ratio')) %>%
-      f_population.( standardise_using) %>%
-      mutate( population_overall_rate= ratio * population ) %>%
-      group_by_(.dots= standardise_across )  %>%
-      summarise( grand_total= sum(population_overall_rate)) %>%
-      f_population.( ) %>%
-      mutate( ratio = grand_total / population ) %>%
-      select_(.dots= c(standardise_across, 'ratio') )
+    standardisation_default %>%
+      group_by_( .dots=standardise_using ) %>%
+      summarise( population = sum( population )) %>% 
+      { . } -> this_standardisation_default 
+
+
+
+    #debug_pipe() %>%
+
+    df_standardise %>%  # group by everything we want to group by to get base level sum of count variable
+      ungroup() %>%
+      group_by_( .dots=c( group_by_vars, standardise_using)) %>%
+      mutate_( n=count_var ) %>% # standardise variable name
+      dplyr::summarise( n = sum( n ) ) %>%
+      ungroup() %>%
+      #
+      # calculate rate for this count
+      # join up with population on the maximal set of the same variables
+      localf_join_population ( c( group_by_vars, standardise_using)) %>%
+      group_by_( .dots=c( group_by_vars, standardise_using )) %>%
+      #
+      # calculate rate / 1000 pp at this level
+      dplyr::mutate( rate = n / population * 1000 ) %>%
+      #
+      # now that we have the total count and population for each subgroup,
+      # now we standardise that count based on the total population
+      # first throw away extraneous variables brought in by previous join, 
+      # all we want is n,and the key variables
+      select_( .dots = c(group_by_vars, standardise_using, "rate") ) %>%
+      #
+      # get the population grouped by levels we want to standardise on, that is, 
+      # the standardisation variables (possibly age and/or sex, as long as they are not
+      inner_join( this_standardisation_default, by = c(standardise_using ) ) %>%
+      mutate( rate_standardized = rate * population ) %>%  
+      #
+      # now, sum up our standardized_proportion, 
+      # grouped on age and/or sex as long as we ae not using it elsewhere
+      group_by_( .dots=c( group_by_vars )) %>%  # no standardize_vars here
+      dplyr::summarise( rate_standardized = sum(rate_standardized )) %>%
+      select_( .dots = c( group_by_vars, "rate_standardized") ) %>% # and cleanup
+      #
+      # divide by the total population, and standardisation finished
+      mutate( rate = rate_standardized /  sum(this_standardisation_default$population) ) %>%  
+      #
+      # finished standardisation, cleanup by selecting only variables of interest
+      select_( .dots = c(group_by_vars, "rate") ) %>%
+      ungroup()
+}
+
+
+############################################################################################
+# simple_standardise_value_test_1 
+############################################################################################
+simple_standardise_value_test_1 = function() {
+
+  df_standardise=
+  structure(list(supply_year = c("2013", "2013", "2013", "2013",
+  "2013", "2013"), lga = c("10050", "10050", "10050", "10050",
+  "10050", "10050"), age = structure(c(2L, 2L, 3L, 3L, 4L, 4L), .Label = c("0-19",
+  "20-44", "45-64", "65+"), class = "factor"), sex = structure(c(1L,
+  2L, 1L, 2L, 1L, 2L), .Label = c("F", "M"), class = "factor"),
+  n = c(2L, 2L, 12L, 6L, 15L, 4L)), class = c("tbl_df", "tbl",
+  "data.frame"), row.names = c(NA, -6L), .Names = c("supply_year",
+  "lga", "age", "sex", "n"))
+
+
+  df_population = 
+  structure(list(lga = c("10050", "10050", "10050", "10050", "10050",
+  "10050", "10050", "10050"), sex = c("F", "F", "M", "F", "M",
+  "F", "M", "M"), age = c("20-44", "0-19", "0-19", "45-64", "65+",
+  "65+", "45-64", "20-44"), population = c(8498, 6525, 6555, 6324,
+  3567, 4483, 6036, 8232), supply_year = c("2013", "2013", "2013",
+  "2013", "2013", "2013", "2013", "2013")), row.names = c(NA, -8L
+  ), class = c("tbl_df", "tbl", "data.frame"), .Names = c("lga",
+  "sex", "age", "population", "supply_year"))
+
+  expected_results=
+  structure(list(lga = "10050", supply_year = "2013", rate = 0.791301362438), class = c("tbl_df",
+  "tbl", "data.frame"), row.names = c(NA, -1L), .Names = c("lga",
+  "supply_year", "rate"))
+
+
+  simple_standardise_value( df_standardise, group_by_vars=qc(lga, supply_year) ,  count_var='n' )  %>% 
+  { . } -> rv
+
+  assertthat::assert_that( 
+              rv$supply_year == expected_results$supply_year,
+              rv$lga == expected_results$lga,
+              round( rv$rate, 5) == round( expected_results$rate,5)
+              )
+
+
 
 }
 
+
+
+############################################################################################
+# simple_standardise_value_test
+############################################################################################
 simple_standardise_value_test = function() {
 
   df_test %>% simple_standardise_value( standardise_using=qw('Age cat'), 
@@ -192,21 +329,30 @@ simple_standardise_value_test = function() {
                             f_join_population)  
 }
 
+############################################################################################
+# framework
+############################################################################################
 function () {
 
-  df_patient_dose %>%
-    inner_join( df_patient_usage ) %>%
-    inner_join( df_patient ) %>%
-    ungroup() -> df
+  #undebug( f_join_population )
 
-  #df = a
-  standardise_over=qw('lga usage_category')
-  join_with= c('supply_year') 
+  standardise_over=qw('sex')
+
+  join_with=qw('supply_year')
 
 }
 
+
+############################################################################################
+# select_and_standardise_ddd 
+############################################################################################
 #  -------------------------------------------------
-select_and_standardise_ddd <- function( df, standardise_over, join_with, localf_join_population = f_join_population) {
+select_and_standardise_ddd <- function( df, 
+                                       standardise_over, 
+                                       join_with = c() , 
+                                       localf_join_population = f_join_population, 
+                                       standardisation_default = standardisation_default_population 
+                                       ) {
   # select out standardise_over and join_with from df,
   # standardising value based on standardise_using, generally sex and age
 
@@ -219,17 +365,26 @@ select_and_standardise_ddd <- function( df, standardise_over, join_with, localf_
   # what 
 
 
-  standardise_using <- qw("age sex supply_year")  %>%   
+
+  standardise_using <- qw("age sex")  %>%   
     setdiff( standardise_over ) %>% 
       setdiff( join_with )
 
+  standardisation_default %>%
+    group_by_( .dots=standardise_using ) %>%
+    summarise( population = sum( population )) %>% 
+    { . } -> this_standardisation_default 
+
     df %>%  # group by everything we want to group by to get base level number of doses
       ungroup() %>%
-        group_by_( .dots=c( standardise_over, join_with, standardise_using )) %>%
-        summarise( n_dose=sum(n_dose )) %>%
+        group_by_( .dots=c( standardise_over, join_with, standardise_using, 'supply_year' )) %>%
+        dplyr::summarise( n_dose = sum( n_dose ) ) %>%
+        ungroup() %>%
         # join up with population on the maximal set of the same variables
-        localf_join_population ( c( standardise_over, join_with, standardise_using )) %>%
-        mutate( proportion = (n_dose * 1000 * 10) / (population * my_year_length( supply_year ) )) %>%  # calculate proportion at this level
+        localf_join_population ( c( standardise_over, join_with, standardise_using, 'supply_year' )) %>%
+        group_by_( .dots=c( standardise_over, join_with, standardise_using )) %>%
+        # calculate proportion at this level
+        dplyr::summarise( proportion = sum((n_dose * 1000 * 10)) / sum(population * my_year_length( supply_year ) )) %>%  
 
         # now that we have the proportion for each subgroup,
         # now we standardise that proportion based on the total population
@@ -239,33 +394,27 @@ select_and_standardise_ddd <- function( df, standardise_over, join_with, localf_
 
         select_( .dots = c(standardise_over, join_with, standardise_using, "proportion") ) %>%
 
-          # get the population grouped by levels we want to standardise on, that is, 
-          # the standardisation variables (possibly age and/or sex, as long as they are not
-          # included in the non-standard_vars), and join_with, eg. supply_year
+        # get the population grouped by levels we want to standardise on, that is, 
+        # the standardisation variables (possibly age and/or sex, as long as they are not
+        # included in the non-standard_vars), and join_with, eg. supply_year
+        inner_join( this_standardisation_default, by = c(standardise_using ) ) %>%
+        mutate( proportion_standardized = proportion * population ) %>%  
 
-          # this next call differentiiates standardise_over and join_with, 
-          # we rollup the pupulation by grouping on everything apart from the standardise_over
-          # for example, we might put lga or state in standardise_over, and rollup to that
-          localf_join_population ( c(standardise_using,  join_with)) %>% 
-          mutate( proportion_standardized = proportion * population ) %>%  
-
-          # now, sum up our standardized_proportion, 
-          # grouped on age and/or sex as long as we ae not using it elsewhere
-          group_by_( .dots=c( standardise_over, join_with )) %>%  # no standardize_vars here
-          summarise( proportion_standardized = sum(proportion_standardized )) %>%
-            select_( .dots = c( standardise_over, join_with, "proportion_standardized") ) %>% # and cleanup
-
-            # get population completely rolled up, so we can divide
-            localf_join_population ( join_with ) %>% 
-
-              # divide by the total population, and standardisation finished
-              mutate( ddd = proportion_standardized / population ) %>%  
-
-              # finished standardisation, cleanup by selecting only variables of interest
-              select_( .dots = c(standardise_over, join_with, "ddd") ) %>%
-              ungroup()
+        # now, sum up our standardized_proportion, 
+        # grouped on age and/or sex as long as we ae not using it elsewhere
+        group_by_( .dots=c( standardise_over, join_with )) %>%  # no standardize_vars here
+        dplyr::summarise( proportion_standardized = sum(proportion_standardized )) %>%
+        select_( .dots = c( standardise_over, join_with, "proportion_standardized") ) %>% # and cleanup
+        # divide by the total population, and standardisation finished
+        mutate( ddd = proportion_standardized /  sum(this_standardisation_default$population) ) %>%  
+        # finished standardisation, cleanup by selecting only variables of interest
+        select_( .dots = c(standardise_over, join_with, "ddd") ) %>%
+        ungroup()
 }
 
+############################################################################################
+# select_and_standardise_ddd_test 
+############################################################################################
 select_and_standardise_ddd_test = function() {
 
   df_patient_dose %>%

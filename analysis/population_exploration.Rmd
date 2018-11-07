@@ -1,0 +1,113 @@
+---
+title: "Population Exploration,rf"
+author:  "Mofi Islam and Dennis Wollersheim "
+date: "2018-04-30"
+output:
+  workflowr::wflow_html:
+    toc: false
+---
+
+```{r pre_initial, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+
+rm(list=ls())
+options(width = 200)
+show_code = FALSE
+source("lib/functions.R")
+source("lib/standardisation.R")
+source("lib/get_data.R")
+source("lib/generate_data_frames.R")
+library('tidyverse')
+opts_chunk$set(echo = FALSE)
+
+```
+
+
+```{r initial, results='hide', message=FALSE, warning=FALSE}
+
+dataset="_rr"
+dataset=""
+
+get_data_from_cache(dataset = dataset)
+intersect_filename = paste0( 'data/cache/df_intersect', dataset, '.rdata')
+intersect_0_filename = paste0( 'data/cache/df_intersect_0', dataset, '.rdata')
+
+df_population %>% distinct( lga, seifa ) -> df_seifa
+df_population %>% distinct( lga, urbanization ) -> df_urbanization
+
+df %<>% mutate( row=row_number())
+#
+df %>%
+  filter( is_benzo( type_code ) ) %>%
+  { . } -> df_benzo
+#
+#
+df %>%
+  filter( !is_benzo( type_code ) ) %>%
+  { . } -> df_opioid
+#
+df_patient_opioid = df_patient %>% filter( pin %in% df_opioid$pin)
+df_patient_benzo = df_patient %>% filter( pin %in% df_benzo$pin)
+
+
+```
+
+```{r lga_level_population}
+
+get_population_df(0) %>% 
+  { . } -> df_pop_all
+
+df_pop_all %>%
+  group_by( state, lga) %>%
+  summarise( population = sum(population)) %>% 
+  ungroup() %>%
+  { . } -> lga_pop
+
+cat("We have all the states")
+distinct( lga_pop, state)
+
+cat("We have all the supply years")
+df_pop_all %>%
+  distinct(  supply_year)
+
+df_pop_all %>%
+  filter( supply_year==2016) %>%
+  group_by( state, lga) %>%
+  summarise( population = sum(population)) %>% 
+  ungroup() %>%
+  { . } -> lga_pop
+
+
+df %>% 
+  distinct( lga, pin,  ) %>%
+  count( lga ) %>% 
+  { . } -> df_lga
+
+
+bothDiff(lga_pop, df_lga)
+
+
+cat("the LGAS missing from drug dataset are very small population, with high aboriginality")
+
+df_pop_all %>%
+  inner_join( anti_join (select( lga_pop, lga ) , select( df_lga, lga )))%>%
+  group_by( state, lga, supply_year) %>%
+  summarise( population = sum(population)) %>% 
+  ungroup() %>%
+  arrange( lga, desc( population ))
+
+
+cat( "the LGAs missing from the population dataset")
+df %>%
+  filter( lga != '.') %>%
+  inner_join( anti_join (distinct( df_lga, lga ) , distinct( lga_pop, lga ))) %>%
+  glimpse()
+
+df_pop_all %>% filter( lga== "56020")
+
+
+cat( "56020 has been merged into 53800 but we do not have population for it")
+cat( "57560	has been merged into 54310 but we have population for it")
+
+
+```
+

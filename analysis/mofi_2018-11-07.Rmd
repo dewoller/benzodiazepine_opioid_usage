@@ -1,0 +1,90 @@
+---
+title: "Population Exploration,rf"
+author:  "Mofi Islam and Dennis Wollersheim "
+date: "2018-04-30"
+output:
+  workflowr::wflow_html:
+    toc: false
+---
+
+```{r pre_initial, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+
+rm(list=ls())
+options(width = 200)
+show_code = FALSE
+source("lib/functions.R")
+source("lib/standardisation.R")
+source("lib/get_data.R")
+source("lib/generate_data_frames.R")
+source("lib/findOverlap.R")
+library('tidyverse')
+opts_chunk$set(echo = FALSE)
+
+```
+
+
+```{r initial, results='hide', message=FALSE, warning=FALSE}
+
+dataset="_rr"
+dataset=""
+
+get_data_from_cache(dataset = dataset)
+
+find_overlap( df, dataset, start_day_difference=0 ) %>% 
+  { . } -> df_dd_0  
+
+find_overlap( df, dataset, start_day_difference=1 ) %>% 
+{ . } -> df_dd_1
+
+find_overlap( df, dataset, min_overlap=7 ) %>% 
+  { . } -> df_dd_all
+
+find_overlap( df, dataset, min_overlap=0 ) %>% 
+{ . } -> df_dd_all_1
+
+df %>%
+  group_by( pin ) %>%
+  arrange( supply_date )  %>%
+  mutate( is_dd = ifelse( is_benzo( type_code ) != is_benzo( lead ( type_code )) &
+                        n_dose >= lead( supply_date ) - supply_date ,
+                        1, 
+                        0 
+                      )
+         )  %>%
+  { . } -> mofi_dd
+
+mofi_dd %>%
+  group_by( pin ) %>%
+  arrange( supply_date )  %>%
+  mutate( is_dd = ifelse( lag( is_dd ) == 1, 2, is_dd )) %>% 
+  { . } -> mofi_dd
+
+
+df_dd_0 %>%
+  distinct( pin, supply_year ) %>%
+  left_join( df_patient ) %>%
+  count( sex, supply_year )
+
+df_dd_0 %>%
+  distinct( pin) %>%
+  count( )
+
+
+
+mofi_dd %>%
+  ungroup() %>%
+  filter( is_dd==1 ) %>%
+  distinct( pin, supply_year) %>%
+  mutate( supply_year = as.numeric( as.character( supply_year) )) %>%
+  bind_rows( df_dd_0 %>% distinct( pin, supply_year ) ) %>%
+  bind_rows( df_dd_1 %>% distinct( pin, supply_year ) ) %>%
+  distinct( pin, supply_year) %>%
+  count( )
+
+df_dd_all_1 %>%
+  distinct( pin, row.opioid, supply_date.opioid ) %>%
+  mutate( supply_year = year( supply_date.opioid )) %>%
+  distinct( pin, supply_year ) %>%
+  count()
+
+  

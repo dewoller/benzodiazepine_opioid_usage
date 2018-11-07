@@ -4,7 +4,7 @@ source( "lib/functions_preload.R")
 detach_all_packages()
 
 safe_load( 'workflowr')
-#safe_load("seas")
+safe_load("seas")
 safe_load("magrittr")
 safe_load("stringr")
 safe_load("knitr")
@@ -39,6 +39,12 @@ safe_load("ggtern")
 safe_load("tricolore") 
 
 is_theme_complete = function (x)  {TRUE}  # fix up bug in current tricolore library
+
+# my.year.length  ------------------------------------------------------------------
+#
+my_year_length <- function( year ) {
+  sapply( year, function(year) { year.length(as.character(year )) })
+}
 
 
 
@@ -391,11 +397,21 @@ seqNext <- function(x1, y1) {
 }
 
 # bothDiff  ------------------------------------------------------------------
-bothDiff <- function ( set1, set2 ) {
-	print(setdiff( set1, set2 ))
-	print(setdiff(set2, set1))
-}
+bothDiff <- function ( set1, set2, by=intersect(  names( set1 ), names( set2))) {
 
+  print("first - second")
+  set1 %>%
+    anti_join( set2, by=by ) %>%
+    arrange_( by ) %>%
+    print()
+
+  print("second - first")
+  set2 %>%
+    anti_join( set1, by=by ) %>%
+    arrange_( by ) %>%
+    print()
+
+}
 # ------------------------------------------------------------------
 slurpTable <- function( name ) {
 
