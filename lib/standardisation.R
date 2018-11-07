@@ -216,6 +216,8 @@ simple_standardise_value = function( df_standardise,
       summarise( population = sum( population )) %>% 
       { . } -> this_standardisation_default 
 
+
+
     #debug_pipe() %>%
 
     df_standardise %>%  # group by everything we want to group by to get base level sum of count variable

@@ -1,0 +1,105 @@
+---
+title: "Population Exploration,rf"
+author:  "Mofi Islam and Dennis Wollersheim "
+date: "2018-04-30"
+output:
+  workflowr::wflow_html:
+    toc: false
+---
+
+```{r pre_initial, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+
+rm(list=ls())
+options(width = 200)
+show_code = FALSE
+source("lib/functions.R")
+source("lib/standardisation.R")
+source("lib/get_data.R")
+source("lib/generate_data_frames.R")
+source("lib/findOverlap.R")
+library('tidyverse')
+opts_chunk$set(echo = FALSE)
+
+```
+
+
+```{r initial, results='hide', message=FALSE, warning=FALSE}
+
+dataset="_rr"
+dataset=""
+
+get_data_from_cache(dataset = dataset)
+
+find_overlap( df, dataset, start_day_difference=0 ) %>% 
+  { . } -> df_dd_0  
+
+find_overlap( df, dataset, start_day_difference=1 ) %>% 
+{ . } -> df_dd_1
+
+find_overlap( df, dataset, min_overlap=7 ) %>% 
+{ . } -> df_dd_all
+
+
+# standardise test
+df_opioid %>%
+  inner_join( df_benzo, by = qc( pin, supply_date )) %>%
+  distinct( supply_date, pin ) %>%
+  mutate( supply_year = as.character( year( supply_date ))) %>%
+  left_join( df_patient, by='pin' ) %>%
+  count( supply_year, state, age, sex ) %>% 
+  { . } -> df_standardise
+
+df_standardise %>%
+  summarise( sum( n ))
+
+  simple_standardise_value( 
+                           
+                          
+                           group_by_vars=qc(state, supply_year) 
+                           
+                           ,  
+                           count_var='n' 
+                           ) %>%
+  mutate( rate = rate * 10 ) %>%
+  dplyr::filter( state %in% qc( NSW, VIC ) ) %>%
+  spread( state, rate) %>% tableHTML::tableHTML() %>% clipr::write_clip()
+
+df_opioid %>%
+  inner_join( df_benzo, by = qc( pin, supply_date )) %>%
+  distinct( supply_date, pin ) %>%
+  mutate( supply_year = as.character( year( supply_date ))) %>%
+  left_join( df_patient, by='pin' ) %>%
+  count( supply_year, state, age, sex ) %>%
+  simple_standardise_value( group_by_vars=qc(state, supply_year) ,  count_var='n' ) %>%
+  mutate( rate = rate * 10 ) %>%
+  dplyr::filter( state %in% qc( NSW, VIC ) ) %>%
+  spread( state, rate) %>% tableHTML::tableHTML() %>% clipr::write_clip()
+
+
+
+df_dd_0 %>%
+  mutate( supply_year = as.character( supply_year ) ) %>%
+  left_join( df_patient ) %>%
+  # count distinct people and date of supply
+  distinct( age, sex, pin, state, supply_year, supply_date.benzo ) %>%
+  count( supply_year, state, age, sex ) %>%
+  simple_standardise_value( group_by_vars=qc(state, supply_year) ,  count_var='n' ) %>%
+  mutate( rate = rate * 10 ) %>%
+  dplyr::filter( state %in% qc( NSW, VIC ) ) %>%
+  spread( state, rate) %>% tableHTML::tableHTML() %>% clipr::write_clip()
+
+
+df_population %>%
+  group_by( supply_year, state ) %>%
+  summarise( population = sum( population )) %>%
+  dplyr::filter( state %in% qc( NSW, VIC ) ) %>%
+  print()
+
+
+read.dta13( 'data/nsw_vic_populato_and_seifa_data.dta') %>%
+  as.tibble()  %>%
+  mutate (state = substring( as.character( lgacode ),1,1)) %>%
+  group_by( year,  state) %>%
+  summarise( population = sum( populato )) %>%
+  filter( state < '3' ) %>%
+ 
