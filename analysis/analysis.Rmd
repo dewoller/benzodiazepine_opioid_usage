@@ -57,9 +57,9 @@ df_patient_benzo = df_patient %>% filter( pin %in% df_benzo$pin)
 
    | Type | Treatment|
    |---|---|
-   |Patches| Continuious usage for number of days reccomended for each patch |
-   | Injections | Continious usage at the adult daily reccomended dose |
-   | tablets | 2 tablets /day |
+   |Patches| Continuious daily usage for number of days reccomended for each patch |
+   | Injections | Continious daily usage at the adult daily reccomended dose |
+   | Tablets | 2 tablets /day |
 
 We estimate prescription comsumption window by assuming that the user takes the prescription daily from the time they fill their prescription until it runs out, given consumption factors the the table above, and the quantity of items in the prescription.
 
@@ -355,6 +355,8 @@ df %>%
 ```
 # DDD
 
+<<<<<<< HEAD
+=======
 ```{r shiny}
 
 #Tricolore(euro_sectors, p1 = 'primary', p2 = 'secondary', p3 = 'tertiary', breaks = 20, hue = 0.3, chroma = 0.9, lightness = 0.8, contrast = 0.6, center = rep(1/3,3), spread = 1, show_data = TRUE, show_center = FALSE, legend = TRUE)
