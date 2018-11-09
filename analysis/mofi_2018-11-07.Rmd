@@ -29,62 +29,223 @@ dataset="_rr"
 dataset=""
 
 get_data_from_cache(dataset = dataset)
+source('lib/findOverlap_simplified.R')
 
-find_overlap( df, dataset, start_day_difference=0 ) %>% 
-  { . } -> df_dd_0  
+################# ################# ################# ################# 
+# data prep finished
+################# ################# ################# ################# 
+ 
+# sanity checks
+setdiff( names( df_dd_overlap_all ), names( df_dd_1b_new ))
+setdiff(  names( df_dd_1b_new ),names( df_dd_overlap_all ))
 
-find_overlap( df, dataset, start_day_difference=1 ) %>% 
-{ . } -> df_dd_1
+setdiff( names( df_dd_overlap_all ), names( df_dd_0_new ))
+setdiff(  names( df_dd_0_new ),names( df_dd_overlap_all ))
 
-find_overlap( df, dataset, min_overlap=7 ) %>% 
-  { . } -> df_dd_all
+anti_join( df_dd_overlap_all , df_dd_1b_new )
+anti_join( df_dd_overlap_all , df_dd_1a_new )
+anti_join( df_dd_overlap_all , df_dd_0_new )
 
-find_overlap( df, dataset, min_overlap=0 ) %>% 
-{ . } -> df_dd_all_1
+anti_join(  df_dd_1b_new,df_dd_overlap_all  )
+anti_join(  df_dd_1a_new,df_dd_overlap_all  )
+anti_join(  df_dd_0_new,df_dd_overlap_all  )
 
-df %>%
-  group_by( pin ) %>%
-  arrange( supply_date )  %>%
-  mutate( is_dd = ifelse( is_benzo( type_code ) != is_benzo( lead ( type_code )) &
-                        n_dose >= lead( supply_date ) - supply_date ,
-                        1, 
-                        0 
-                      )
-         )  %>%
-  { . } -> mofi_dd
+# sanity checks
+df_dd_overlap_benzo %>% count(row, sort=TRUE)
+df_dd_0_new %>% count(row.benzo, row.opioid, sort=TRUE)
+df_dd_0_new %>% count(row.opioid, sort=TRUE)
+df_dd_0_new %>% count(row.benzo, sort=TRUE)
+df_dd_overlap_combined %>% count(row.benzo, sort=TRUE)
 
-mofi_dd %>%
-  group_by( pin ) %>%
-  arrange( supply_date )  %>%
-  mutate( is_dd = ifelse( lag( is_dd ) == 1, 2, is_dd )) %>% 
-  { . } -> mofi_dd
+df_dd_0_new %>% arrange( pin, supply_date.opioid, item_code.opioid ) 
+
+df_dd_overlap_combined %>% arrange( pin, supply_date.opioid, item_code.opioid ) 
+setdiff(  names( df_dd_1b_new ),names( df_dd_overlap_all ))
+
+df_dd_overlap_combined %>% distinct ( pin, supply_year ) %>% count()
+df_dd_0_new%>% distinct ( pin ) %>% count()
 
 
-df_dd_0 %>%
+if (FALSE) { # test cod
+  # make sure data is in supply date order
+  df %>%
+    group_by( pin ) %>%
+    arrange( row ) %>% 
+    filter( supply_date > lead( supply_date ) & pin == lead( pin ))
+  # number of multiple script
+  df %>%
+    count( pin, supply_date, sort=TRUE ) %>%
+    filter( n>1)
+}
+
+df_dd_overlap_combined  %>%
   distinct( pin, supply_year ) %>%
-  left_join( df_patient ) %>%
-  count( sex, supply_year )
-
-df_dd_0 %>%
-  distinct( pin) %>%
-  count( )
+  left_join( df_patient ) %>% 
+  { . } -> df_pat_all
 
 
+df_pat_all %>% distinct( lga )  %>% arrange(lga)
+  count( sex, supply_year ) %>%
+  summarise( sum( n ))
 
-mofi_dd %>%
-  ungroup() %>%
-  filter( is_dd==1 ) %>%
-  distinct( pin, supply_year) %>%
-  mutate( supply_year = as.numeric( as.character( supply_year) )) %>%
-  bind_rows( df_dd_0 %>% distinct( pin, supply_year ) ) %>%
-  bind_rows( df_dd_1 %>% distinct( pin, supply_year ) ) %>%
-  distinct( pin, supply_year) %>%
-  count( )
 
-df_dd_all_1 %>%
-  distinct( pin, row.opioid, supply_date.opioid ) %>%
-  mutate( supply_year = year( supply_date.opioid )) %>%
-  distinct( pin, supply_year ) %>%
+df %>% distinct( lga )  %>% anti_join( df_pat_all %>% distinct( lga ) )
+
+df %>% summarise( sum( quantity ))
+
+
+```
+# get mofi data
+```{r}
+
+
+read.dta13( '/mnt/sda5/store/aarnet_owncloud/Sharing_between_mofi_and_dennis/pick_z.dta') %>%
+  as.tibble() %>% 
+  rename( pin=ID,
+         lga=lgacode,
+         item_code=ItemCode,
+         n_dose = DDD,
+         quantity=qty,
+         supply_date=DateSupply,
+         unit_wt = Unit_wt,
+         ddd_mg_factor = DDD,
+         ) %>%
+  mutate (
+          state=str_trim( state ),
+          sex=str_trim( sex ),
+          age = age_grouping_mofi( age),
+          lga = as.character( lga ) ,
+          item_code = str_trim(item_code ), 
+          n_dose=quantity * unit_wt / ddd_mg_factor ,
+          supply_date= dmy( supply_date ),
+          supply_year=as.character( year( supply_date))
+          ) %>% 
+  { . } -> mofi1
+
+
+```
+# zero day differences
+```{r}
+
+
+mofi1 %>% 
+  filter( !is.na( samedate)) %>% 
+  { . } -> mofi_dd_0
+
+df_dd_0_new %>%
+  count( pin, supply_year.opioid ) %>%
+  rename( supply_year=supply_year.opioid ) %>%
+  bothDiff( mofi_dd_0 %>% count( pin, supply_year ), by=qc( pin, supply_year, n ))
+
+df_dd_0_new %>%
+  distinct( pin, supply_year.opioid ) %>%
+  rename( supply_year=supply_year.opioid ) %>%
+  bothDiff( mofi_dd_0 %>% distinct( pin, supply_year ), by=qc( pin, supply_year ))
+
+df_dd_0_new %>%
+  count( pin) %>%
+  bothDiff( mofi_dd_0 %>% count( pin), by=qc( pin))
+
+
+
+```
+# single day differences
+```{r}
+
+
+```
+# investigate individuals
+```{r}
+
+
+
+df %>% filter( pin == '90312')
+
+mofi1 %>% filter( pin=='90312')
+
+df %>% filter( pin == '132789')
+
+
+explore = function( mpin ) {
+  df %>% filter( pin == mpin ) %>% arrange( supply_date, item_code ) %>% print()
+  mofi1 %>% 
+    filter( pin==mpin ) %>%  
+    arrange( supply_date, item_code ) %>% 
+    select( Day_diff, Stnd_dose,quantity, ddd_mg_factor, unit_wt, everything()) %>%
+    print()
+
+#  df_dd_0_new %>% filter( pin == mpin) %>% print()
+#  mofi_dd_0 %>% filter( pin==mpin) %>% print()
+
+  df_dd_overlap %>% filter( pin == mpin) %>% print()
+  df_dd_overlap_all %>% filter( pin == mpin) %>% print()
+  mofi_dd_multi %>% filter( pin==mpin) %>% print()
+  FALSE
+}
+
+explore( 3209161230)
+
+  df %>% 
+    filter( pin==5529050722) %>%  
+    filter( supply_date >= '2014-07-08') %>%  
+   arrange( supply_date, item_code ) %>% print()
+
+  mofi1 %>% 
+    filter( pin==5529050722) %>%  
+    filter( supply_date >= '2014-07-08') %>%  
+    arrange( supply_date, item_code ) %>% 
+    select( ci, Day_diff, Stnd_dose,quantity, ddd_mg_factor, unit_wt, everything()) %>%
+    print()
+
+rm(list=c('mofi','mofi1'))
+
+
+
+  distinct( pin ) %>%
   count()
 
-  
+```
+# multi day differences
+```{r}
+
+mofi1 %>% 
+  filter( ci >= 0) %>% 
+  { . } -> mofi_dd_multi
+
+mofi_dd_multi %>% distinct( pin )
+
+df_dd_overlap_combined  %>%
+  distinct( pin) %>%
+  bothDiff( mofi_dd_multi %>% distinct( pin), by=qc( pin))
+
+ mofi_dd_multi %>% 
+   anti_join( df_dd_overlap_combined , by=qc( pin) ) %>%
+   distinct( pin, item_code ) %>%
+   filter( !(item_code %in% c( '05339B', '01808E' )))
+
+
+df_dd_overlap_combined %>% filter( pin == '61485')
+mofi_dd_multi %>% filter( pin=='61485')
+
+
+df %>% filter( pin == '61485') %>% arrange( pin, supply_date, item_code)
+mofi1 %>% filter( pin=='61485') 
+
+explore(5529050722)
+
+
+
+
+
+explore = function( mpin ) {
+  df %>% filter( pin == mpin ) %>% 
+    arrange(pin, supply_date, item_code)  %>%
+    print()
+  mofi1 %>% filter( pin==mpin ) %>% print()
+
+  df_dd_overlap_combined %>% filter( pin == mpin) %>% print()
+  mofi_dd_multi %>% filter( pin==mpin) %>% print()
+  FALSE
+}
+
+

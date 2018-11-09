@@ -9,16 +9,14 @@ get_continuing_df <- function(
 
   type_code_limit = ifelse( benzo, 10, 9 )
   query  <-  paste0( "
-    SELECT pin, gender, age, state, lga, scheme, item_code, type_code, type_name, supply_date, quantity, unit_wt, ddd_mg_factor, new_days_multiplier from continuing."
-    , base_table
-    , " r JOIN continuing.item i USING (item_code) 
-      JOIN public.generictype USING (type_code)
-    where (type_code <= ", type_code_limit, "  
-    AND EXTRACT( YEAR FROM supply_date ) != '2017'
---    AND state in ('NSW', 'VIC') AND (lga like '1%' OR lga like '2%')
-)"
+    SELECT pin, gender, age, state, lga, item_code, type_code, 
+    type_name, supply_date, quantity, unit_wt, ddd_mg_factor 
+    FROM continuing." , base_table , " r 
+    JOIN continuing.item i USING (item_code) 
+    JOIN public.generictype USING (type_code)
+    WHERE (EXTRACT( YEAR FROM supply_date ) != '2017') ",
+    ifelse( benzo, '', " AND (type_code <> 10)") 
       )
-#  dput(query)
 
   my_db_get_query( query ) %>%
     as.tibble() %>%
