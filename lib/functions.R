@@ -658,3 +658,11 @@ find_pill_group = function( supply_date, difference, ndays, threshold  = .25) {
 
 
 
+#-----------------------------------------------------------------------------
+# send formattded to clipboard
+
+xc = function (df ) {
+  df %>% 
+    mutate_if( is_numeric, round, 2 ) %>%
+    tableHTML::tableHTML() %>% clipr::write_clip()
+} 

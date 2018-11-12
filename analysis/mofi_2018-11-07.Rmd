@@ -93,7 +93,6 @@ df %>% distinct( lga )  %>% anti_join( df_pat_all %>% distinct( lga ) )
 
 df %>% summarise( sum( quantity ))
 
-
 ```
 # get mofi data
 ```{r}
@@ -122,6 +121,32 @@ read.dta13( '/mnt/sda5/store/aarnet_owncloud/Sharing_between_mofi_and_dennis/pic
           ) %>% 
   { . } -> mofi1
 
+
+mofi1 %>% count( lga, pick_z )
+
+
+# mofis 
+df_dd_overlap_all %>%
+  bind_rows( df_dd_0_new ) %>%
+  mutate( supply_year = as.character( supply_year.opioid ) ) %>%
+  left_join( df_patient ) %>%
+  dplyr::filter( state %in% qc( NSW, VIC ) ) %>%
+  filter( lga != '.' ) %>%
+  distinct( pin, lga, sex ) %>%
+  bothDiff( mofi1 %>% filter( pick_ci==1 ), by='pin' )
+
+df_dd_overlap_all  %>% distinct( pin )
+
+
+
+df_dd_overlap_all %>%
+  bind_rows( df_dd_0_new ) %>%
+  mutate( supply_year = as.character( supply_year.opioid ) ) %>%
+  left_join( df_patient ) %>%
+  dplyr::filter( state %in% qc( NSW, VIC ) ) %>%
+  distinct ( supply_year, pin )
+
+  summary( lga)
 
 ```
 # zero day differences

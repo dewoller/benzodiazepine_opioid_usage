@@ -165,6 +165,8 @@ df_dd_overlap_all %>%
   summarise( sum(n ))
 
 
+
+# state level standardisation
 df_dd_overlap_all %>%
   bind_rows( df_dd_0_new ) %>%
   mutate( supply_year = as.character( supply_year.opioid ) ) %>%
@@ -175,7 +177,11 @@ df_dd_overlap_all %>%
   count( supply_year, state, age, sex ) %>%
   simple_standardise_value( group_by_vars=qc(state, supply_year) ,  count_var='n' ) %>% 
   { . } -> overall_state_rate
- 
+
+
+overall_state_rate %>% spread( state, rate) %>% xc()
+
+# lga level standardisation
 
 df_dd_overlap_all %>%
   bind_rows( df_dd_0_new ) %>%
@@ -190,9 +196,11 @@ df_dd_overlap_all %>%
 
 
 by_lga %>%
-  group_by( supply_year, state ) %>%
-  summarise( rate = mean( rate ))  %>%
+  spread( supply_year, rate) %>% 
+  xc()
 
+
+# get mofi's populations
 
 read.dta13('data/nsw_vic_populato_and_seifa_data.dta') %>% 
 tbl_df() %>%
