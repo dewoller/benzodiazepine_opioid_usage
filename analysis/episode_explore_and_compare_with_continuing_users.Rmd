@@ -1,0 +1,34 @@
+---
+title: "Population Exploration,rf"
+author:  "Mofi Islam and Dennis Wollersheim "
+date: "2018-04-30"
+output:
+  workflowr::wflow_html:
+    toc: false
+---
+
+```{r pre_initial, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+
+rm(list=ls())
+options(width = 200)
+show_code = FALSE
+source("lib/functions.R")
+source("lib/standardisation.R")
+source("lib/get_data.R")
+source("lib/generate_data_frames.R")
+source("lib/findOverlap.R")
+library('tidyverse')
+opts_chunk$set(echo = FALSE)
+
+```
+
+
+```{r initial, results='hide', message=FALSE, warning=FALSE}
+
+dataset="_rr"
+dataset=""
+get_data_from_cache(dataset = dataset)
+source('lib/findOverlap_simplified.R')
+
+
+
