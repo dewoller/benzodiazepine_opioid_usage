@@ -1,0 +1,65 @@
+---
+title: "mapping "
+author:  "Mofi Islam and Dennis Wollersheim "
+date: "2018-04-30"
+output:
+  workflowr::wflow_html:
+    toc: false
+--- 
+```{r pre_initial, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+
+rm(list=ls())
+options(width = 200)
+show_code = FALSE
+source("lib/functions.R")
+source("lib/standardisation.R")
+source("lib/get_data.R")
+source("lib/generate_data_frames.R")
+source("lib/mapping_functions.R")
+source("lib/mapping_paper.R")
+library('tidyverse')
+opts_chunk$set(echo = FALSE)
+states=1:9
+states_outline_map = get_australia_states_map( states )
+
+```
+
+
+```{r initial, results='hide', message=FALSE, warning=FALSE}
+
+dataset="_rr"
+dataset=""
+
+get_data_from_cache(dataset = dataset)
+source('lib/findOverlap_simplified.R')
+
+
+df_dd_overlap_all %>%
+  mutate( supply_year = as.character( supply_year.opioid ) ) %>%
+  rename( supply_date = supply_date.opioid ) %>%
+  left_join( df_patient ) %>%
+  filter( lga != '.' ) %>%
+  distinct( age, sex, pin, lga, supply_year, supply_date) %>%
+  count( supply_year, lga, age, sex ) %>%
+  simple_standardise_value( group_by_vars=qc(lga, supply_year) ,  count_var='n' ) %>%
+  mutate( rate = rate * 10 ) %>%
+  group_by( lga ) %>%
+  summarise( rate = mean(rate ) ) %>%  
+  ungroup() %>%
+  mutate( value = cut( rate, 
+                      breaks=quantile( rate, probs=seq(0,1,1/3) ), 
+                      labels=qc( low, medium, high ))) %>%
+  mutate( value = factor( ifelse( is.na( value ), 1, value ),
+                         labels=qc( low, medium, high )
+  )) %>% 
+  { . } -> df_map 
+
+print_map( df_map, states_outline_map, title="Double Dipping\nLevel", filename='/tmp/a.png', inset_states=c(1,2,4:6 ) ) 
+
+
+```
+
+```{r  }
+```
+
+

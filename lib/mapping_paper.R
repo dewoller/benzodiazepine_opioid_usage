@@ -1,0 +1,254 @@
+
+
+library(sp)
+library(spbabel)
+
+
+##################################################################
+##################################################################
+bbox2poly <- function( bbox ) {
+
+  e <- as(raster::extent( bbox[1], bbox[3], bbox[2], bbox[4]) , "SpatialPolygons")
+  proj4string(e) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+  e
+
+}
+
+
+##################################################################
+##################################################################
+get_direction_offset <- function () {
+
+  rv <- data.frame( 
+             direction=qc( N,S,E,W, O ),
+             x_offset_direction = c( 0,0,1,-1,0 ), 
+             y_offset_direction = c( 1,-1, 0, 0,0 ),
+             stringsAsFactors=FALSE   )
+
+  expand.grid ( qc( N,S ), qc( E,W), stringsAsFactors=F) %>%
+    inner_join( rv, by=c('Var1'='direction')) %>%
+    inner_join( rv, by=c('Var2'='direction')) %>%
+    mutate( direction=paste0( Var1, Var2 ), 
+           x_offset_direction = x_offset_direction.x + x_offset_direction.y,
+           y_offset_direction = y_offset_direction.y + y_offset_direction.x ) %>%
+    select( names(rv )) %>% 
+    bind_rows( rv ) 
+
+}
+
+##################################################################
+##################################################################
+get_state_vp_coordinates <- function ( bb,  inner_margins ) {
+
+  direction_offset = get_direction_offset()
+    
+  state_viewport_position = rbind( 
+  data.frame(name='Sydney',state_id=1, direction='E', offset_x= 0.0, offset_y= -0.02, stringsAsFactors=FALSE),
+  data.frame(name='Melbourne',state_id=2, direction='SW', offset_x= 0.0, offset_y= 0.0, stringsAsFactors=FALSE),
+  data.frame(name='Perth',state_id=4, direction='W', offset_x= 0.0, offset_y= 0.0, stringsAsFactors=FALSE),
+  data.frame(name='Adelaide',state_id=5, direction='SW', offset_x= -0.0280, offset_y= 0.012, stringsAsFactors=FALSE),
+  data.frame(name='Brisbane',state_id=3, direction='E', offset_x= 0.0, offset_y= 0.02, stringsAsFactors=FALSE),
+  data.frame(name='Darwin',state_id=7, direction='N', offset_x= 0.0, offset_y= 0.0, stringsAsFactors=FALSE),
+  data.frame(name='Hobart',state_id=6, direction='E', offset_x= 0.0, offset_y= 0.0, stringsAsFactors=FALSE)
+  )
+
+  abs_offset = .09 # how far to offset the box from the center of the bb for the city
+  remains_x = 1 - ( inner_margins[ 2 ] + inner_margins[ 4 ] )
+  remains_y = 1 - ( inner_margins[ 1 ] + inner_margins[ 3 ] )
+  bbx = as.numeric( bb$xmax - bb$xmin )
+  bby = as.numeric( bb$ymax - bb$ymin )
+
+  state_viewport_position %>%
+    rowwise() %>%
+    # what is coordinates of state capital in lat lon
+    # what is coordinates of state capital in 0:1
+    mutate( 
+          cap_lon_x = mean(get_state_capital_xlim( state_id )),
+          cap_lat_y = mean(get_state_capital_ylim( state_id )),
+          cap_lon_offset_x = cap_lon_x  - as.numeric( bb$xmin ) ,
+          cap_lat_offset_y = cap_lat_y  - as.numeric( bb$ymin ) ,
+          cap_lon_x_scaled = cap_lon_offset_x/ bbx * remains_x + inner_margins[ 2 ],
+          cap_lat_y_scaled = cap_lat_offset_y/ bby * remains_y + inner_margins[ 1 ]
+          ) %>% 
+    inner_join( direction_offset, by='direction') %>%
+    mutate( vp_x = cap_lon_x_scaled + abs_offset * x_offset_direction+offset_x ) %>%
+    mutate( vp_y = cap_lat_y_scaled + abs_offset * y_offset_direction+offset_y ) %>%
+    mutate( vp_lon_x = cap_lon_x + (abs_offset * bbx * remains_x *  x_offset_direction )) %>%
+    mutate( vp_lat_y = cap_lat_y + (abs_offset * bby * remains_y *  y_offset_direction ))
+
+
+}
+
+
+inset_states=1
+##################################################################
+
+print_map = function( df_map, states_outline_map,  title, filename, inset_states="")  {
+
+  line_color = 'green'
+#
+  map_color_set_1= RColorBrewer::brewer.pal(6, "Oranges")[2:6]
+  map_color_set_2= RColorBrewer::brewer.pal(6, "Blues")[2:6] 
+  #
+  map_color_set_2= c(RColorBrewer::brewer.pal(5, "PuBuGn") )
+  map_color_set_1= c(RColorBrewer::brewer.pal(5, "YlOrRd") )
+#
+#
+  cc_box_width=0.12
+
+  # bottom, left, top, and right margin
+  inner_margins = c( .1, .1, 0, .1 )
+  #vp_sydney=viewport(x= .50, y= .52, width= cc_box_width, height= cc_box_width)
+  #vp_melbourne=viewport(x= 0.18, y= 0.18, width= cc_box_width, height= cc_box_width)
+
+  legend_dim = .2
+  get_direction_offset() %>%
+    filter( direction=='NW' ) %>%
+    mutate_if(is_numeric, function(x) { ((x+1)/2) + (-x * legend_dim/2)  }) %$%
+    viewport(x= x_offset_direction, 
+             y= y_offset_direction, 
+             width= legend_dim, 
+             height= legend_dim) %>% 
+    { . } -> vp_legend
+
+  #
+  states_outline_map %>%
+    bb( xlim=c(112.92, 154)) %>% 
+    { . } -> oz_bb
+
+#
+  state_vp_coordinates = get_state_vp_coordinates ( oz_bb, inner_margins ) 
+  # sanity check inset_states
+  inset_states = intersect( state_vp_coordinates$state_id, inset_states )
+
+  #make picture proportional to the map 
+  pixel_multiplier = 60
+  pic_width= floor((oz_bb$xmax - oz_bb$xmin) * pixel_multiplier )
+  pic_height= floor((oz_bb$ymax - oz_bb$ymin) * pixel_multiplier / 47.43 * 54.58 )
+
+  df_map %>%
+    right_join( df_population %>% distinct( lga ) ) %>%
+#    mutate( value = ifelse( is.na(value), NA, as.factor( value ) )) %>% # make sure everything has a value 
+    select( lga, value ) %>%
+  #  rbind( data.frame( lga=c(89399), value=0)) %>%
+    mutate( value=as.ordered(value)) %>% 
+    select( lga, value ) %>%
+    append_data( base_map, 
+                ., 
+                key.shp="LGA_CODE11", 
+                key.data="lga" 
+                )  %>%
+    {.} -> df_geom_map
+
+  df_geom_map %>%
+    tm_shape( bbox=oz_bb ) + 
+    tm_polygons( "value", 
+                title = title,
+                palette = map_color_set_1 ,
+                showNA=FALSE,
+                colorNA='#FFFFFF'
+                ) +
+#    tm_shape( bbox2poly( oz_bb )) +
+#    tm_borders(  alpha=1, col="#000000"  ) +
+    tm_shape( states_outline_map) + 
+    tm_borders(  alpha=1, col="#000000"  ) %>%
+    {.} -> map
+
+  map +  
+    tm_layout(frame=FALSE,
+              inner.margins = c( inner_margins, 4),  # how far in from the bottom and right side (for insets)
+              legend.show=FALSE) %>% 
+              { . } -> map_alone
+  
+  map + tm_layout(frame=FALSE,
+          bg.color="#FFFFFF",
+          legend.only=TRUE) %>%
+  { . } -> m_legend
+  insets=list( m_legend )
+  insets_vp=list( vp_legend )
+#
+  # create capital view ports 
+  state_vp_coordinates  %>%
+    filter( state_id %in% inset_states ) %>%
+    rowwise() %>%
+    mutate( vp = list(viewport( x= vp_x , 
+                               y= vp_y , 
+                               width= cc_box_width, 
+                               height= cc_box_width) )) %>%
+    mutate( inset = list( create_capital_inset( df_geom_map, state_id, map_color_set_1, unlist(vp ), line_color ))) %>%
+    mutate( line = list( make_line( vp_lon_x, vp_lat_y, cap_lon_x, cap_lat_y    ))) %>%
+    { . } -> df_states 
+#
+  insets=c( df_states$inset,  insets ) 
+  insets_vp=c( df_states$vp, insets_vp)
+
+  # add in capital city boxes 
+  for(i in 1:dim(df_states)[1] ) 
+  {
+    map_alone <- map_alone + 
+      tm_shape( capital_city_box(df_states[i,]$state_id )) + 
+      tm_borders(col= line_color ) +
+      tm_shape( df_states[i, ]$line[[1]] ) +
+      tm_lines( col= line_color)
+  }
+  print(map_alone)
+
+#
+  # print insets
+  for(i in 1:length(insets) ) 
+    print( insets[[i]], vp=insets_vp[[i]])
+#
+
+  tmap_save( map_alone, 
+            insets_vp = insets_vp,
+            insets_tm = insets,
+            filename=filename, 
+            width=pic_width, height=pic_height, asp=0
+            ) 
+
+}
+
+##################################################################
+##################################################################
+
+make_line = function( x1, y1, x2, y2 ) {
+  coords = matrix( c(x1, y1, x2, y2 ), ncol=2, byrow=TRUE)
+  #cat (coords, '\n')
+  e=coords2Lines( coords = coords, ID='A' )
+ proj4string(e) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+ e
+
+}
+###################################################################
+
+capital_city_box = function( state_id ) {
+  coords = c( get_state_capital_xlim( state_id ), get_state_capital_ylim( state_id ))
+  #cat(coords, '\n' )
+  e <- as(raster::extent(coords), "SpatialPolygons")
+  proj4string(e) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
+  e
+}
+
+##################################################################
+##################################################################
+
+# debug( create_capital_inset)
+
+create_capital_inset = function( df_map, state_id, map_color_set, vp, line_color  ) {
+  # slice out a chunk of df_map, put it in a red box, and print it into a viewport.  
+  # Return the map for later use 
+  df_map %>%
+    tm_shape( xlim=get_state_capital_xlim(state_id),
+              ylim=get_state_capital_ylim(state_id) ) +
+  tm_polygons( "value", 
+            palette = map_color_set ,
+            showNA=FALSE,
+            colorNA='#FFFFFF',
+            legend.show=FALSE) +
+  tm_layout(frame= line_color , bg.color="#FFFFFF")  %>%
+  {.} -> inset_map
+  #print(inset_map, vp=vp)
+  inset_map
+}
+
+
