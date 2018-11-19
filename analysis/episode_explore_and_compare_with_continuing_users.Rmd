@@ -36,7 +36,41 @@ source('lib/findOverlap_simplified.R')
 
 ```{r get_continuing_users}
 
+df_dd_overlap_all %>%
+  count( pin ) %>%
+  full_join ( df_patient_usage %>% 
+             filter( drug_type == 'opioid')
+           , by = 'pin' ) %>% 
+  mutate( is_dd = ifelse( is.na(n), 'not_dd', 'dd') ) %>%
+  { . } -> df_match
 
+
+cat ('# number of users who do not double dip ')
+
+df_match %>%
+  count( is_dd ) 
+
+cat ('# ratio of double dippers for each usage category')
+
+df_match %>% 
+  count( usage_category, is_dd) %>% 
+  spread( is_dd, nn ) %>%
+  mutate( ratio_dd = dd/not_dd )
+
+
+df_match %>% 
+  inner_join( df_patient ) %>%
+  count( lga, usage_category, is_dd) %>% 
+  spread( is_dd, nn ) %>%
+  mutate( ratio_dd = dd/not_dd ) %>%
+  filter( lga != '.' ) %>%
+  group_by( usage_category ) %>%
+  mutate( value = cut( rate, 
+                    breaks=quantile( rate, probs=seq(0,1,1/3) ), 
+                    labels=qc( low, medium, high ))
+  ) %>%
+  print_map( states_outline_map, title="ratio", filename='/tmp/a.png', inset_states=c(1,2,4:6 ) ) 
+  
 
 
 ```

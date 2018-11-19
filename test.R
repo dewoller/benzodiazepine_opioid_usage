@@ -69,3 +69,17 @@ lst <- split(df, df$ID)
 sln <- foreach(i = lst, id = names(lst), .combine = rbind) %do% {
   coords2Lines(as.matrix(i[, 2:3]), ID = id)
 }
+
+
+
+urb_1970_2030 = urban_agglomerations %>% 
+  filter(year %in% c(1970, 1990, 2010, 2030))
+
+tm_shape(world) + tm_polygons() + 
+  tm_shape(urb_1970_2030) + tm_symbols(col = "black", border.col = "white",
+                                       size = "population_millions") +
+tm_facets(by = "year", nrow = 2, free.coords = FALSE)
+
+
+
+a= tm_shape(world) + tm_polygons() 

@@ -110,17 +110,20 @@ generate_data_frames = function( dataset='_rr' )
 
     #
     toc()
-    tic( "Getting usage")
+
+    tic( "Getting opioid usage")
     df%>%
+      filter( drug_type== 'opioid' ) %>%
       group_by(pin, drug_type) %>%
       summarise( 
                 n_quarter = n_distinct( quarter ),
-                usage_ticegory= cut( n_quarter, 
+                usage_category= cut( n_quarter, 
                                     c(-1, 1,7,13, 999999), 
                                     labels = qw("one-off short-term long-term regular"),
                                     ordered_result=TRUE
                                     ) 
                 ) %>%
+      ungroup() %>% 
       {.} -> df_patient_usage
 
 

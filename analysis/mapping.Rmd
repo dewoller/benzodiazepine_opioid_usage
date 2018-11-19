@@ -20,7 +20,6 @@ source("lib/mapping_paper.R")
 library('tidyverse')
 opts_chunk$set(echo = FALSE)
 states=1:9
-states_outline_map = get_australia_states_map( states )
 
 ```
 

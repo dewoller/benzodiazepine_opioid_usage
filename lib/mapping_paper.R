@@ -83,24 +83,64 @@ get_state_vp_coordinates <- function ( bb,  inner_margins ) {
 inset_states=1
 ##################################################################
 
-print_map = function( df_map, states_outline_map,  title, filename, inset_states="")  {
+
+print_map= function( 
+                    df_map, 
+                    title='', 
+                    filename=NA, 
+                    inset_states=vector() ,
+                    states=0, 
+                    states_outline_map = get_australia_states_map( states )
+                    )  
+{
+
+  map_list = generate_map ( 
+                           df_map = df_map, 
+                           title=title ,
+                           filename=filename, 
+                           inset_states=inset_states ,
+                           states_outline_map = states_outline_map
+                           )
+                           
+  print_map_list( map_list )
+  map_list
+}
+
+##################################################################
+
+print_map_list= function( map_list )  {
+  print( map_list[['map']] + 
+        map_list[['map_city_inset_box_overlay']])
+
+  #
+  # print insets
+  for(i in 1:length(map_list[['insets_tm']]) ) 
+    print( map_list[['insets_tm']][[i]], vp=map_list[['insets_vp']] [[i]])
+  #
+
+}
+
+
+##################################################################
+generate_map = function( df_map, title, filename, inset_states, states_outline_map)  {
 
   line_color = 'green'
 #
-  map_color_set_1= RColorBrewer::brewer.pal(6, "Oranges")[2:6]
-  map_color_set_2= RColorBrewer::brewer.pal(6, "Blues")[2:6] 
+  #map_color_set_1= RColorBrewer::brewer.pal(6, "Oranges")[2:6]
+  #map_color_set_2= RColorBrewer::brewer.pal(6, "Blues")[2:6] 
   #
-  map_color_set_2= c(RColorBrewer::brewer.pal(5, "PuBuGn") )
+  #map_color_set_2= c(RColorBrewer::brewer.pal(5, "PuBuGn") )
   map_color_set_1= c(RColorBrewer::brewer.pal(5, "YlOrRd") )
 #
 #
   cc_box_width=0.12
 
-  # bottom, left, top, and right margin
-  inner_margins = c( .1, .1, 0, .1 )
-  #vp_sydney=viewport(x= .50, y= .52, width= cc_box_width, height= cc_box_width)
-  #vp_melbourne=viewport(x= 0.18, y= 0.18, width= cc_box_width, height= cc_box_width)
 
+  # bottom, left, top, and right inner  margin
+  inner_margins = c( .1, .1, 0, .1 )
+
+  
+  # generate legend
   legend_dim = .2
   get_direction_offset() %>%
     filter( direction=='NW' ) %>%
@@ -111,7 +151,7 @@ print_map = function( df_map, states_outline_map,  title, filename, inset_states
              height= legend_dim) %>% 
     { . } -> vp_legend
 
-  #
+  #zoom in on actual mainland oz
   states_outline_map %>%
     bb( xlim=c(112.92, 154)) %>% 
     { . } -> oz_bb
@@ -138,7 +178,7 @@ print_map = function( df_map, states_outline_map,  title, filename, inset_states
                 key.shp="LGA_CODE11", 
                 key.data="lga" 
                 )  %>%
-    {.} -> df_geom_map
+  {.} -> df_geom_map
 
   df_geom_map %>%
     tm_shape( bbox=oz_bb ) + 
@@ -156,56 +196,60 @@ print_map = function( df_map, states_outline_map,  title, filename, inset_states
 
   map +  
     tm_layout(frame=FALSE,
-              inner.margins = c( inner_margins, 4),  # how far in from the bottom and right side (for insets)
+              inner.margins = inner_margins,  # how far in from the bottom and right side (for insets)
               legend.show=FALSE) %>% 
-              { . } -> map_alone
-  
+    { . } -> map_alone
+ 
+  # create legend viewport from base map
   map + tm_layout(frame=FALSE,
           bg.color="#FFFFFF",
           legend.only=TRUE) %>%
-  { . } -> m_legend
-  insets=list( m_legend )
+    { . } -> m_legend
+  insets_tm=list( m_legend )
   insets_vp=list( vp_legend )
-#
+
+  map_city_inset_box_overlay = 0
   # create capital view ports 
-  state_vp_coordinates  %>%
-    filter( state_id %in% inset_states ) %>%
-    rowwise() %>%
-    mutate( vp = list(viewport( x= vp_x , 
-                               y= vp_y , 
-                               width= cc_box_width, 
-                               height= cc_box_width) )) %>%
-    mutate( inset = list( create_capital_inset( df_geom_map, state_id, map_color_set_1, unlist(vp ), line_color ))) %>%
-    mutate( line = list( make_line( vp_lon_x, vp_lat_y, cap_lon_x, cap_lat_y    ))) %>%
-    { . } -> df_states 
-#
-  insets=c( df_states$inset,  insets ) 
-  insets_vp=c( df_states$vp, insets_vp)
+  if (length( inset_states ) != 0 ) { 
+    state_vp_coordinates  %>%
+      filter( state_id %in% inset_states ) %>%
+      rowwise() %>%
+      mutate( vp = list(viewport( x= vp_x , 
+                                y= vp_y , 
+                                width= cc_box_width, 
+                                height= cc_box_width) )) %>%
+      mutate( inset_tm = list( create_capital_inset( df_geom_map, state_id, map_color_set_1, unlist(vp ), line_color ))) %>%
+      mutate( line = list( make_line( vp_lon_x, vp_lat_y, cap_lon_x, cap_lat_y    ))) %>%
+      { . } -> df_states 
+    insets_tm=c( df_states$inset_tm,  insets_tm ) 
+    insets_vp=c( df_states$vp, insets_vp)
 
-  # add in capital city boxes 
-  for(i in 1:dim(df_states)[1] ) 
-  {
-    map_alone <- map_alone + 
-      tm_shape( capital_city_box(df_states[i,]$state_id )) + 
-      tm_borders(col= line_color ) +
-      tm_shape( df_states[i, ]$line[[1]] ) +
-      tm_lines( col= line_color)
+  # add in capital city boxes for later overlay
+    for(i in 1:dim(df_states)[1] ) 
+    {
+      map_city_inset_box_overlay <- 
+        tm_shape( capital_city_box(df_states[i,]$state_id )) + 
+        tm_borders(col= line_color ) +
+        tm_shape( df_states[i, ]$line[[1]] ) +
+        tm_lines( col= line_color) +
+        map_city_inset_box_overlay 
+    }
   }
-  print(map_alone)
 
-#
-  # print insets
-  for(i in 1:length(insets) ) 
-    print( insets[[i]], vp=insets_vp[[i]])
-#
+  if( !is.na( filename )) {
+    tmap_save( map_alone, 
+              insets_vp = insets_vp,
+              insets_tm = insets_tm,
+              filename=filename, 
+              width=pic_width, height=pic_height, asp=0
+              ) 
+  }
 
-  tmap_save( map_alone, 
-            insets_vp = insets_vp,
-            insets_tm = insets,
-            filename=filename, 
-            width=pic_width, height=pic_height, asp=0
-            ) 
-
+  return (list( map=map_alone, 
+    map_city_inset_box_overlay = map_city_inset_box_overlay, 
+    insets_vp = insets_vp,
+    insets_tm = insets_tm
+    ))
 }
 
 ##################################################################
