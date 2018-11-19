@@ -1,9 +1,3 @@
-
-
-library(sp)
-library(spbabel)
-
-
 ##################################################################
 ##################################################################
 bbox2poly <- function( bbox ) {
@@ -139,27 +133,15 @@ generate_map = function( df_map, title, filename, inset_states, states_outline_m
   # bottom, left, top, and right inner  margin
   inner_margins = c( .1, .1, 0, .1 )
 
-  
-  # generate legend
-  legend_dim = .2
-  get_direction_offset() %>%
-    filter( direction=='NW' ) %>%
-    mutate_if(is_numeric, function(x) { ((x+1)/2) + (-x * legend_dim/2)  }) %$%
-    viewport(x= x_offset_direction, 
-             y= y_offset_direction, 
-             width= legend_dim, 
-             height= legend_dim) %>% 
-    { . } -> vp_legend
-
-  #zoom in on actual mainland oz
+   #zoom in on actual mainland oz
   states_outline_map %>%
     bb( xlim=c(112.92, 154)) %>% 
     { . } -> oz_bb
 
 #
-  state_vp_coordinates = get_state_vp_coordinates ( oz_bb, inner_margins ) 
-  # sanity check inset_states
-  inset_states = intersect( state_vp_coordinates$state_id, inset_states )
+  get_state_vp_coordinates ( oz_bb, inner_margins ) %>%
+    filter( state_id %in% inset_states ) %>% 
+    { . } -> state_vp_coordinates
 
   #make picture proportional to the map 
   pixel_multiplier = 60
@@ -187,52 +169,28 @@ generate_map = function( df_map, title, filename, inset_states, states_outline_m
 #    tm_borders(  alpha=1, col="#000000"  ) +
     tm_shape( states_outline_map) + 
     tm_borders(  alpha=1, col="#000000"  ) %>%
-    {.} -> map
+    {.} -> base_map
 
-  map +  
+  base_map +  
     tm_layout(frame=FALSE,
               inner.margins = inner_margins,  # how far in from the bottom and right side (for insets)
               legend.show=FALSE) %>% 
     { . } -> map_alone
  
-  # create legend viewport from base map
-  map + tm_layout(frame=FALSE,
-          bg.color="#FFFFFF",
-          legend.only=TRUE) %>%
-    { . } -> m_legend
-  insets_tm=list( m_legend )
-  insets_vp=list( vp_legend )
+  g( inset_legend_tm, inset_legend_vp ) %=% generate_legend_vp( base_map )
+  g( inset_capitals_tm, inset_capitals_vp, map_city_inset_box_overlay) %=% 
+    generate_capital_map_helpers( state_vp_coordinates, df_geom_map, map_color_set_1, line_color ) 
 
-  map_city_inset_box_overlay = 0
-  # create capital view ports 
-  if (length( inset_states ) != 0 ) { 
-    state_vp_coordinates  %>%
-      filter( state_id %in% inset_states ) %>%
-      rowwise() %>%
-      mutate( vp = list(viewport( x= vp_x , 
-                                y= vp_y , 
-                                width= cc_box_width, 
-                                height= cc_box_width) )) %>%
-      mutate( inset_tm = list( create_capital_inset( df_geom_map, state_id, map_color_set_1, unlist(vp ), line_color ))) %>%
-      mutate( line = list( make_line( vp_lon_x, vp_lat_y, cap_lon_x, cap_lat_y    ))) %>%
-      { . } -> df_states 
-    insets_tm=c( df_states$inset_tm,  insets_tm ) 
-    insets_vp=c( df_states$vp, insets_vp)
-
-  # add in capital city boxes for later overlay
-    for(i in 1:dim(df_states)[1] ) 
-    {
-      map_city_inset_box_overlay <- 
-        tm_shape( capital_city_box(df_states[i,]$state_id )) + 
-        tm_borders(col= line_color ) +
-        tm_shape( df_states[i, ]$line[[1]] ) +
-        tm_lines( col= line_color) +
-        map_city_inset_box_overlay 
-    }
+  if (length( inset_states ) == 0 ) { 
+    insets_vp = inset_legend_vp
+    insets_tm = inset_legend_tm
+  } else {
+    insets_tm=c( inset_capitals_tm, inset_legend_tm ) 
+    insets_vp=c( inset_capitals_vp, inset_legend_vp)
   }
 
   if( !is.na( filename )) {
-    tmap_save( map_alone, 
+    tmap_save( map_alone + map_city_inset_box_overlay , 
               insets_vp = insets_vp,
               insets_tm = insets_tm,
               filename=filename, 
@@ -248,6 +206,65 @@ generate_map = function( df_map, title, filename, inset_states, states_outline_m
 }
 
 ##################################################################
+
+generate_capital_map_helpers  = function( state_vp_coordinates, df_geom_map, map_color_set_1, line_color ) {
+
+  map_city_inset_box_overlay = 0
+  # create capital view ports 
+  state_vp_coordinates  %>%
+    rowwise() %>%
+    mutate( vp = list(viewport( x= vp_x , y= vp_y , 
+                                width= cc_box_width, height= cc_box_width) )) %>%
+    mutate( inset_tm = list( create_capital_inset( df_geom_map, 
+                                                  state_id, 
+                                                  map_color_set_1, 
+                                                  unlist(vp ), 
+                                                  line_color ))
+    ) %>%
+    mutate( line = list( make_line( vp_lon_x, vp_lat_y, cap_lon_x, cap_lat_y    ))) %>%
+    { . } -> df_states 
+
+  # add in capital city boxes for later overlay
+  for(i in 1:dim(df_states)[1] ) 
+  {
+    map_city_inset_box_overlay <- 
+      tm_shape( capital_city_box(df_states[i,]$state_id )) + 
+      tm_borders(col= line_color ) +
+      tm_shape( df_states[i, ]$line[[1]] ) +
+      tm_lines( col= line_color) +
+      map_city_inset_box_overlay 
+  }
+  return( list(  
+                df_states$inset_tm,  
+                df_states$vp,
+                map_city_inset_box_overlay 
+                )
+  ) 
+}
+##################################################################
+
+generate_legend_vp = function(  base_map, legend_direction='NW' ) {
+  # generate legend
+  legend_dim = .2
+  get_direction_offset() %>%
+    filter( direction==legend_direction) %>%
+    mutate_if(is_numeric, function(x) { ((x+1)/2) + (-x * legend_dim/2)  }) %$%
+    viewport(x= x_offset_direction, 
+             y= y_offset_direction, 
+             width= legend_dim, 
+             height= legend_dim) %>% 
+    { . } -> vp_legend
+
+  # create legend viewport from base map
+  base_map + tm_layout(frame=FALSE,
+                       bg.color="#FFFFFF",
+                       legend.only=TRUE) %>%
+  { . } -> m_legend
+
+return( list(list( m_legend ), list( vp_legend )))
+
+}
+
 ##################################################################
 
 make_line = function( x1, y1, x2, y2 ) {

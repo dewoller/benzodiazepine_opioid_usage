@@ -1,3 +1,16 @@
+safe_load("tmap", 'https://cloud.r-project.org')
+safe_load("tmaptools", 'https://cloud.r-project.org')
+safe_load("grid")
+safe_load("ggtern")
+safe_load("tricolore") 
+safe_load("mapview") 
+
+
+library(sp)
+library(spbabel)
+
+
+
 
 # display a map for each lga in lga_categories, displaying only a colors corresponding to the display_factors
 # show the category_name
