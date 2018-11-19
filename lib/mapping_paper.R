@@ -167,11 +167,6 @@ generate_map = function( df_map, title, filename, inset_states, states_outline_m
   pic_height= floor((oz_bb$ymax - oz_bb$ymin) * pixel_multiplier / 47.43 * 54.58 )
 
   df_map %>%
-    right_join( df_population %>% distinct( lga ) ) %>%
-#    mutate( value = ifelse( is.na(value), NA, as.factor( value ) )) %>% # make sure everything has a value 
-    select( lga, value ) %>%
-  #  rbind( data.frame( lga=c(89399), value=0)) %>%
-    mutate( value=as.ordered(value)) %>% 
     select( lga, value ) %>%
     append_data( base_map, 
                 ., 

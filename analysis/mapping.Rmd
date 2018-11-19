@@ -45,7 +45,9 @@ df_dd_overlap_all %>%
   group_by( lga ) %>%
   summarise( rate = mean(rate ) ) %>%  
   ungroup() %>%
-  mutate( value = cut( rate, 
+  right_join( df_population %>% distinct( lga ) ) %>%
+  mutate( rate = ifelse( is.na( rate), 0, rate ),
+         value = cut( rate, 
                       breaks=quantile( rate, probs=seq(0,1,1/3) ), 
                       labels=qc( low, medium, high ))) %>%
   mutate( value = factor( ifelse( is.na( value ), 1, value ),
@@ -53,7 +55,7 @@ df_dd_overlap_all %>%
   )) %>% 
   { . } -> df_map 
 
-print_map( df_map, states_outline_map, title="Double Dipping\nLevel", filename='/tmp/a.png', inset_states=c(1,2,4:6 ) ) 
+print_map( df_map, title="Double Dipping\nLevel", filename='/tmp/a.png', inset_states=c(1,2,4:6 ) ) -> a
 
 
 ```
