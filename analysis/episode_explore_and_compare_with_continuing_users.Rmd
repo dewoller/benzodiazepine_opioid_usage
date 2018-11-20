@@ -1,7 +1,7 @@
 ---
-title: "Population Exploration,rf"
+title: "Population Exploration"
 author:  "Mofi Islam and Dennis Wollersheim "
-date: "2018-04-30"
+date: "2018-11-19 "
 output:
   workflowr::wflow_html:
     toc: false
@@ -153,4 +153,110 @@ df_patient_usage %>%
 ```{r }
 
 
+```
+
+
+```{r get_continuing_users}
+
+df_dd_overlap_all %>%
+  count( pin ) %>%
+  full_join ( df_patient_usage %>% 
+             filter( drug_type == 'opioid')
+           , by = 'pin' ) %>% 
+  mutate( is_dd = ifelse( is.na(n), 'not_dd', 'dd') ) %>%
+  { . } -> df_match
+
+
+cat ('# number of users who do not double dip ')
+
+df_match %>%
+  count( is_dd ) 
+
+cat ('# ratio of double dippers for each usage category')
+
+df_match %>% 
+  count( usage_category, is_dd) %>% 
+  spread( is_dd, nn ) %>%
+  mutate( ratio_dd = dd/not_dd )
+
+
+df_match %>% 
+  inner_join( df_patient ) %>%
+  count( lga, usage_category, is_dd) %>% 
+  spread( is_dd, nn ) %>%
+  mutate( ratio_dd = dd/not_dd ) %>%
+  filter( lga != '.' ) %>%
+  filter( usage_category == 'regular') %>%
+  right_join( df_population %>% distinct( lga ) ) %>%
+  mutate( ratio_dd = ifelse( is.na( ratio_dd), 0, ratio_dd )) %>%
+  mutate( value = cut( ratio_dd, 
+                    breaks=quantile( ratio_dd, probs=seq(0,1,1/3) ), 
+                    labels=qc( low, medium, high ))
+  ) %>%
+  mutate( value = factor( ifelse( is.na( value ), 1, value ),
+                         labels=qc( low, medium, high )  )) %>%
+  print_map( title="Ratio between dd and regular users", filename='/tmp/dd_regular.png', inset_states=c(1,2,4:6 ) ) -> a
+  
+
+df_match %>% 
+  inner_join( df_patient ) %>%
+  count( lga, usage_category, is_dd) %>% 
+  spread( is_dd, nn ) %>%
+  mutate( ratio_dd = dd/not_dd ) %>%
+  filter( lga != '.' ) %>%
+  filter( usage_category == 'one-off') %>%
+  right_join( df_population %>% distinct( lga ) ) %>%
+  mutate( ratio_dd = ifelse( is.na( ratio_dd), 0, ratio_dd )) %>%
+  mutate( value = cut( ratio_dd, 
+                      breaks=quantile( ratio_dd, probs=seq(0,1,1/3) ), 
+                      labels=qc( low, medium, high ))
+  ) %>%
+  mutate( value = factor( ifelse( is.na( value ), 1, value ),
+                         labels=qc( low, medium, high )  )) %>%
+  print_map( title="Ratio between dd and one-off users", filename='/tmp/dd_one-off.png', inset_states=c(1,2,4:6 ) ) -> a
+```
+
+```{r prediction_dd}
+library( caret )
+
+
+df_patient %>% filter( lga != '.' ) %>% mutate( s1 = substring( lga, 1,1)) %>% distinct( state, s1 ) %>% arrange( s1 )
+df_population %>% filter( lga != '.' ) %>% mutate( s1 = substring( lga, 1,1)) %>% distinct( state, s1 ) %>% arrange( s1 )
+
+df_match %>% 
+  inner_join( df_patient ) %>%
+  select( -state, -pin, -drug_type ) %>%
+  inner_join( df_population %>% 
+             filter( supply_year=='2013' ) %>%
+             group_by( lga, seifa, urbanization, state, irsd_score_raw, area_albers_sqkm ) %>% 
+             summarise( density=sum( population ) / min(area_albers_sqkm)) , 
+           by='lga') %>% 
+  mutate( is_dd = factor( is_dd ),  state = factor( get_state_code_from_lga( lga) )) %>%
+  select( -n, -lga, -area_albers_sqkm ) %>%
+  drop_na() %>%
+{ . } -> df_prediction
+#
+intrain <- createDataPartition(y =  df_prediction$is_dd, p= 0.7, list = FALSE)
+training <- df_prediction[intrain,]
+testing <- df_prediction[-intrain,]
+MyTrainControl=trainControl(
+                            method = "repeatedcv",
+                            number=5,
+                            repeats=5
+)
+
+
+rf_fit <- train(is_dd ~ .,
+                data = training, 
+                method = "rpart",
+                trControl=MyTrainControl, 
+                preProcess=  c("center", "scale", "YeoJohnson"), 
+                tuneGrid = expand.grid(nIter=1:10*10) 
+                )
+#
+#
+
+ 
+
+```
 
