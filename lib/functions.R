@@ -439,7 +439,7 @@ sapply( state_id, function( x )  {
 # -------------------------------------------------
 get_state_code_from_lga <- function( lga ) { 
 #
-state = c( "NSW" , "VIC" , "QLD" , "WA" , "SA" , "TAS" , "NT" , "ACT" , "UNK")
+state = c( "NSW" , "VIC" , "QLD" , "SA" , "WA" , "TAS" , "NT" , "ACT" , "UNK")
 sapply( substr( lga, 1, 1) , function( x )  {
                     ifelse( x >= '1' & x <='999999999'
                             , state[ as.numeric( x ) ]

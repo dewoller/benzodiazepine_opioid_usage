@@ -146,6 +146,7 @@ generate_map = function( df_map, title, filename, inset_states, states_outline_m
   #make picture proportional to the map 
   pixel_multiplier = 60
   pic_width= floor((oz_bb$xmax - oz_bb$xmin) * pixel_multiplier )
+  # make lat and long proportional to picture size
   pic_height= floor((oz_bb$ymax - oz_bb$ymin) * pixel_multiplier / 47.43 * 54.58 )
 
   df_map %>%
@@ -165,16 +166,14 @@ generate_map = function( df_map, title, filename, inset_states, states_outline_m
                 showNA=FALSE,
                 colorNA='#FFFFFF'
                 ) +
-#    tm_shape( bbox2poly( oz_bb )) +
-#    tm_borders(  alpha=1, col="#000000"  ) +
     tm_shape( states_outline_map) + 
     tm_borders(  alpha=1, col="#000000"  ) %>%
     {.} -> base_map
 
   base_map +  
     tm_layout(frame=FALSE,
-              inner.margins = inner_margins,  # how far in from the bottom and right side (for insets)
-              legend.show=FALSE) %>% 
+              inner.margins = inner_margins,  # how far in from the sides (for insets)
+              legend.show=FALSE) %>%  # we want to place our legend ourselves 
     { . } -> map_alone
  
   g( inset_legend_tm, inset_legend_vp ) %=% generate_legend_vp( base_map )
@@ -221,7 +220,7 @@ generate_capital_map_helpers  = function( state_vp_coordinates, df_geom_map, map
                                                   unlist(vp ), 
                                                   line_color ))
     ) %>%
-    mutate( line = list( make_line( vp_lon_x, vp_lat_y, cap_lon_x, cap_lat_y    ))) %>%
+    mutate( line = list( latlon2line( vp_lon_x, vp_lat_y, cap_lon_x, cap_lat_y    ))) %>%
     { . } -> df_states 
 
   # add in capital city boxes for later overlay
@@ -267,8 +266,8 @@ return( list(list( m_legend ), list( vp_legend )))
 
 ##################################################################
 
-make_line = function( x1, y1, x2, y2 ) {
-  coords = matrix( c(x1, y1, x2, y2 ), ncol=2, byrow=TRUE)
+latlon2line = function( lon1, lat1, lon2, lat2 ) {
+  coords = matrix( c(lon1, lat1, lon2, lat2 ), ncol=2, byrow=TRUE)
   #cat (coords, '\n')
   e=coords2Lines( coords = coords, ID='A' )
  proj4string(e) <- "+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs"
