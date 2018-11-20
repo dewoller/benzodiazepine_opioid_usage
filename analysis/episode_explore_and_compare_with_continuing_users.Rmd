@@ -30,20 +30,141 @@ dataset=""
 get_data_from_cache(dataset = dataset)
 source('lib/findOverlap_simplified.R')
 
+```
+
+
+```{r generate_continuing_users }
+#
+tic('generate_continuing_users')
+df%>%
+  group_by(pin) %>%
+  summarise( 
+            n_quarter = n_distinct( quarter ),
+            usage_category= cut( n_quarter, 
+                                c(-1, 1,6,11, 18), 
+                                labels = qw("one-off medium-episodic long-episodic chronic")),
+                                ordered_result=TRUE
+            ) %>%
+  {.} -> df_patient_usage
+toc()
+
+tic('match')
+df_dd_overlap_all %>%
+  count( pin ) %>%
+  full_join ( df_patient_usage , by = 'pin' ) %>% 
+  mutate( is_dd = ifelse( is.na(n), 'not_dd', 'dd') ) %>%
+  { . } -> df_match
+toc
+
+```
+
+
+```{r count_simple_episodes}
+
+
+tic('count_simple_episodes')
+
+df_dd_0_new %>%
+  rename( supply_date = supply_date.opioid ) %>%
+  rename( supply_year  = supply_year.opioid) %>%
+  distinct( pin, supply_year, supply_date ) %>%
+  count( pin, supply_year ) %>% 
+  { . } -> df_dd_0_episodes
+
+
+df_dd_overlap_all %>%
+  filter( supply_date.opioid != supply_date.benzo) %>%
+  rename( supply_date  = supply_date.opioid) %>%
+  rename( supply_year  = supply_year.opioid) %>%
+  distinct( pin, supply_year, supply_date ) %>%
+  count( pin, supply_year ) %>% 
+  { . } -> df_dd_overlap_episodes
+
+df_dd_overlap_episodes %>%
+  full_join( df_dd_0_episodes, by=c( 'pin', 'supply_year')) %>%
+  mutate( n.x = ifelse( is.na( n.x  ), 0, n.x ), 
+         n.y = ifelse( is.na( n.y  ), 0, n.y ) ) %>%
+  mutate( n = n.y+n.x ) %>% 
+  { . } -> df_dd_all_episodes
+
+```
+# compare_users_continuing_vs_dd 
+
+```{r compare_users_continuing_vs_dd }
+df_patient_usage %>%
+  inner_join( df_patient ) %>%
+  left_join( df_dd_all_episodes %>% count( pin ), by='pin') %>%
+  mutate( n = ifelse( is.na(n) , 0 )) %>%
+  print()
+
+
+```
+
+
+```{r  compare_continuing_vs_episodes}
+
+
+```
+
+
+```{r  compare_users_continuing_vs_dd}
+
+
+```
+
+
+```{r  compare_users_continuing_vs_dd}
+
+
+```
+
+
+```{r }
+
+
+```
+
+
+```{r }
+
+
+```
+
+
+```{r }
+
+
+```
+
+
+```{r }
+
+
+```
+
+
+```{r }
+
+
+
+
+
+
+
+
+
+
+
+```
+
+
+```{r }
+
 
 ```
 
 
 ```{r get_continuing_users}
-
-df_dd_overlap_all %>%
-  count( pin ) %>%
-  full_join ( df_patient_usage %>% 
-             filter( drug_type == 'opioid')
-           , by = 'pin' ) %>% 
-  mutate( is_dd = ifelse( is.na(n), 'not_dd', 'dd') ) %>%
-  { . } -> df_match
-
 
 cat ('# number of users who do not double dip ')
 
@@ -98,12 +219,9 @@ df_match %>%
 library( caret )
 
 
-df_patient %>% filter( lga != '.' ) %>% mutate( s1 = substring( lga, 1,1)) %>% distinct( state, s1 ) %>% arrange( s1 )
-df_population %>% filter( lga != '.' ) %>% mutate( s1 = substring( lga, 1,1)) %>% distinct( state, s1 ) %>% arrange( s1 )
-
 df_match %>% 
   inner_join( df_patient ) %>%
-  select( -state, -pin, -drug_type ) %>%
+  select( -state, -pin) %>%
   inner_join( df_population %>% 
              filter( supply_year=='2013' ) %>%
              group_by( lga, seifa, urbanization, state, irsd_score_raw, area_albers_sqkm ) %>% 
@@ -129,10 +247,25 @@ rf_fit <- train(is_dd ~ .,
                 method = "rpart",
                 trControl=MyTrainControl, 
                 preProcess=  c("center", "scale", "YeoJohnson"), 
-                tuneGrid = expand.grid(nIter=1:10*10) 
+                tuneGrid = expand.grid(cp=c(1,2,3,10) )
                 )
 #
 #
+
+rf_fit 
+
+
+ 
+prediction = predict(rf_fit, newdata = testing, preProcess=  c("center", "scale", "YeoJohnson"))
+#
+confusionMatrix( factor(testing$is_dd), prediction )
+
+#preProcess=  c("center", "scale", "YeoJohnson", "nzv", "pca")
+
+rf_fit$finalModel
+
+plot( rf_fit )
+varImp( rf_fit$finalModel )
 
  
 
