@@ -48,6 +48,14 @@ df%>%
   {.} -> df_patient_usage
 toc()
 
+tic('match')
+df_dd_overlap_all %>%
+  count( pin ) %>%
+  full_join ( df_patient_usage , by = 'pin' ) %>% 
+  mutate( is_dd = ifelse( is.na(n), 'not_dd', 'dd') ) %>%
+  { . } -> df_match
+toc
+
 ```
 
 
@@ -158,15 +166,6 @@ df_patient_usage %>%
 
 ```{r get_continuing_users}
 
-df_dd_overlap_all %>%
-  count( pin ) %>%
-  full_join ( df_patient_usage %>% 
-             filter( drug_type == 'opioid')
-           , by = 'pin' ) %>% 
-  mutate( is_dd = ifelse( is.na(n), 'not_dd', 'dd') ) %>%
-  { . } -> df_match
-
-
 cat ('# number of users who do not double dip ')
 
 df_match %>%
@@ -220,12 +219,9 @@ df_match %>%
 library( caret )
 
 
-df_patient %>% filter( lga != '.' ) %>% mutate( s1 = substring( lga, 1,1)) %>% distinct( state, s1 ) %>% arrange( s1 )
-df_population %>% filter( lga != '.' ) %>% mutate( s1 = substring( lga, 1,1)) %>% distinct( state, s1 ) %>% arrange( s1 )
-
 df_match %>% 
   inner_join( df_patient ) %>%
-  select( -state, -pin, -drug_type ) %>%
+  select( -state, -pin) %>%
   inner_join( df_population %>% 
              filter( supply_year=='2013' ) %>%
              group_by( lga, seifa, urbanization, state, irsd_score_raw, area_albers_sqkm ) %>% 
@@ -251,10 +247,25 @@ rf_fit <- train(is_dd ~ .,
                 method = "rpart",
                 trControl=MyTrainControl, 
                 preProcess=  c("center", "scale", "YeoJohnson"), 
-                tuneGrid = expand.grid(nIter=1:10*10) 
+                tuneGrid = expand.grid(cp=c(1,2,3,10) )
                 )
 #
 #
+
+rf_fit 
+
+
+ 
+prediction = predict(rf_fit, newdata = testing, preProcess=  c("center", "scale", "YeoJohnson"))
+#
+confusionMatrix( factor(testing$is_dd), prediction )
+
+#preProcess=  c("center", "scale", "YeoJohnson", "nzv", "pca")
+
+rf_fit$finalModel
+
+plot( rf_fit )
+varImp( rf_fit$finalModel )
 
  
 
