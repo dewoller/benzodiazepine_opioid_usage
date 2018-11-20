@@ -56,9 +56,9 @@ generate_data_frames = function( dataset='_rr' )
   tic( "Getting data from database")
   table = paste0( 'continuing', dataset )
   df <- get_continuing_df( table, benzo=TRUE )  %>%
-    mutate(drug_type=as.factor( ifelse(is_benzo(type_code), 'benzodiazepine', 'opioid')),
+    mutate(drug_type=ifelse(is_benzo(type_code), 'benzodiazepine', 'opioid'),
            quarter = quarter(supply_date, with_year = TRUE), 
-           supply_year = as.factor(year(supply_date)) 
+           supply_year = as.character(year(supply_date)) 
            )
   toc()
 
@@ -86,7 +86,6 @@ generate_data_frames = function( dataset='_rr' )
   tic( "Getting patients")
   df %>% 
       distinct (pin, sex, age, state, lga) %>% 
-      mutate( sex = as.factor(sex)) %>%
 #      inner_join( df_patient_scheme, by="pin") %>%
       {.} -> df_patient
 
@@ -102,7 +101,7 @@ generate_data_frames = function( dataset='_rr' )
       group_by(pin,  supply_year, drug_type) %>%
       summarise(
                 n_dose = sum(n_dose),
-                quantity = sum(quantity),
+                #quantity = sum(quantity),
                 n_script = n()
             ) %>%
       ungroup() %>%
@@ -129,22 +128,24 @@ generate_data_frames = function( dataset='_rr' )
 
     toc()
     tic ("seperating out benzo/opioid usages")
-    df %<>% mutate( row=row_number())
+    df %>% mutate( row=row_number()) %>%
+      select (-sex, -age, -state, -lga) %>% 
+      { . } -> df 
 
-    df %>%
-      filter( is_benzo( type_code ) ) %>%
-      { . } -> df_benzo
+#    df %>%
+#      filter( is_benzo( type_code ) ) %>%
+#      { . } -> df_benzo
 
 
-    df %>%
-      filter( !is_benzo( type_code ) ) %>%
-      { . } -> df_opioid
+#    df %>%
+#      filter( !is_benzo( type_code ) ) %>%
+#      { . } -> df_opioid
 
-    toc()
-    tic ("seperating out benzo/opioid patients")
-    df_patient_opioid = df_patient %>% filter( pin %in% df_opioid$pin)
-    df_patient_benzo = df_patient %>% filter( pin %in% df_benzo$pin)
-    toc()
+#    toc()
+#    tic ("seperating out benzo/opioid patients")
+#    df_patient_opioid = df_patient %>% filter( pin %in% df_opioid$pin)
+#    df_patient_benzo = df_patient %>% filter( pin %in% df_benzo$pin)
+#    toc()
 
 
 
@@ -154,12 +155,12 @@ generate_data_frames = function( dataset='_rr' )
          "df_patient_usage" = df_patient_usage, 
          "df_population" = df_population,
          "df_lga" = df_lga,
-         "df_benzo" = df_benzo,
-         "df_opioid" = df_opioid,
-         "df_patient_opioid" = df_patient_opioid,
-         "df_patient_benzo" = df_patient_benzo,
+#         "df_benzo" = df_benzo,
+#         "df_opioid" = df_opioid,
+#         "df_patient_opioid" = df_patient_opioid,
+#         "df_patient_benzo" = df_patient_benzo,
          "df_patient" = df_patient,
-         "base_map" =  get_australia_base_map(), 
+         "base_map" =  get_australia_base_map(1:8), 
          "age_groups" = age_groups,
          "multiplier" = multiplier
          )

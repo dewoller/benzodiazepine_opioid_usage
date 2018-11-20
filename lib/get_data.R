@@ -21,12 +21,13 @@ get_continuing_df <- function(
   my_db_get_query( query ) %>%
     as.tibble() %>%
     mutate( n_dose = (unit_wt * quantity / ddd_mg_factor ),
-           agen=ifelse( age=='100+', 101, as.numeric( age )),
+           agen=ifelse( age=='100+', 101, suppressWarnings( as.numeric( age ))),
            age = cut( agen, 
                            c(0,19,44,64,9999), 
                            labels=qw("0-19 20-44 45-64 65+")
                            )
            ) %>%
+    select( -unit_wt, -quantity, -ddd_mg_factor, -agen, -item_code) %>% 
     rename(sex=gender) 
 }
 
