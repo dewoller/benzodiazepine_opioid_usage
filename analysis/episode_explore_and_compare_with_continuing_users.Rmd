@@ -30,5 +30,127 @@ dataset=""
 get_data_from_cache(dataset = dataset)
 source('lib/findOverlap_simplified.R')
 
+```
+
+
+```{r generate_continuing_users }
+#
+tic('generate_continuing_users')
+df%>%
+  group_by(pin) %>%
+  summarise( 
+            n_quarter = n_distinct( quarter ),
+            usage_category= cut( n_quarter, 
+                                c(-1, 1,6,11, 18), 
+                                labels = qw("one-off medium-episodic long-episodic chronic")),
+                                ordered_result=TRUE
+            ) %>%
+  {.} -> df_patient_usage
+toc()
+
+```
+
+
+```{r count_simple_episodes}
+
+
+tic('count_simple_episodes')
+
+df_dd_0_new %>%
+  rename( supply_date = supply_date.opioid ) %>%
+  rename( supply_year  = supply_year.opioid) %>%
+  distinct( pin, supply_year, supply_date ) %>%
+  count( pin, supply_year ) %>% 
+  { . } -> df_dd_0_episodes
+
+
+df_dd_overlap_all %>%
+  filter( supply_date.opioid != supply_date.benzo) %>%
+  rename( supply_date  = supply_date.opioid) %>%
+  rename( supply_year  = supply_year.opioid) %>%
+  distinct( pin, supply_year, supply_date ) %>%
+  count( pin, supply_year ) %>% 
+  { . } -> df_dd_overlap_episodes
+
+df_dd_overlap_episodes %>%
+  full_join( df_dd_0_episodes, by=c( 'pin', 'supply_year')) %>%
+  mutate( n.x = ifelse( is.na( n.x  ), 0, n.x ), 
+         n.y = ifelse( is.na( n.y  ), 0, n.y ) ) %>%
+  mutate( n = n.y+n.x ) %>% 
+  { . } -> df_dd_all_episodes
+
+```
+# compare_users_continuing_vs_dd 
+
+```{r compare_users_continuing_vs_dd }
+df_patient_usage %>%
+  inner_join( df_patient ) %>%
+  left_join( df_dd_all_episodes %>% count( pin ), by='pin') %>%
+  mutate( n = ifelse( is.na(n) , 0 )) %>%
+  print()
+
+
+```
+
+
+```{r  compare_continuing_vs_episodes}
+
+
+```
+
+
+```{r  compare_users_continuing_vs_dd}
+
+
+```
+
+
+```{r  compare_users_continuing_vs_dd}
+
+
+```
+
+
+```{r }
+
+
+```
+
+
+```{r }
+
+
+```
+
+
+```{r }
+
+
+```
+
+
+```{r }
+
+
+```
+
+
+```{r }
+
+
+
+
+
+
+
+
+
+
+
+```
+
+
+```{r }
+
 
 
