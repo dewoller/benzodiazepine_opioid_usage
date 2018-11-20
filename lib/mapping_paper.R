@@ -127,8 +127,6 @@ generate_map = function( df_map, title, filename, inset_states, states_outline_m
   map_color_set_1= c(RColorBrewer::brewer.pal(5, "YlOrRd") )
 #
 #
-  cc_box_width=0.12
-
 
   # bottom, left, top, and right inner  margin
   inner_margins = c( .1, .1, 0, .1 )
@@ -209,6 +207,8 @@ generate_map = function( df_map, title, filename, inset_states, states_outline_m
 generate_capital_map_helpers  = function( state_vp_coordinates, df_geom_map, map_color_set_1, line_color ) {
 
   map_city_inset_box_overlay = 0
+  cc_box_width=0.12
+
   # create capital view ports 
   state_vp_coordinates  %>%
     rowwise() %>%

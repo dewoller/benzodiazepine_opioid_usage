@@ -83,3 +83,10 @@ tm_facets(by = "year", nrow = 2, free.coords = FALSE)
 
 
 a= tm_shape(world) + tm_polygons() 
+
+
+
+df_population %>%
+  mutate( state = factor( get_state_code_from_lga( lga) )) %>%
+  group_by( supply_year, age, sex )  %>%
+  summarise( population = sum( population )) %>% write.csv( '/tmp/population.csv')
