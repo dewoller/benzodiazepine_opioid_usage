@@ -1,0 +1,242 @@
+---
+title: "Population Exploration"
+author:  "Mofi Islam and Dennis Wollersheim "
+date: "2018-11-19 "
+output:
+  workflowr::wflow_html:
+    toc: false
+---
+
+```{r pre_initial, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
+
+rm(list=ls())
+options(width = 200)
+show_code = FALSE
+source("lib/functions.R")
+source("lib/standardisation.R")
+source("lib/get_data.R")
+source("lib/generate_data_frames.R")
+source("lib/findOverlap.R")
+library('tidyverse')
+opts_chunk$set(echo = FALSE)
+
+```
+
+
+```{r initial, results='hide', message=FALSE, warning=FALSE}
+
+dataset="_rr"
+dataset=""
+get_data_from_cache(dataset = dataset)
+
+library( foreign )
+read.dta( 'data/nobackup/match.dta' ) %>%
+  as.tibble() %>% 
+  { . } -> df_match
+
+tic( 'join')
+df%>%
+  filter( drug_type == 'opioid' ) %>%
+  inner_join( df%>% filter( drug_type == 'opioid' ), 
+             by=qc( pin, supply_date )) %>% 
+  rename_at( vars( ends_with( '.x')), funs(str_replace( .,'.x$', '.opioid'))) %>%
+  rename_at( vars( ends_with( '.y')), funs(str_replace( .,'.y$', '.benzo'))) %>% 
+  mutate( supply_date.benzo = supply_date) %>%
+  rename( supply_date.opioid = supply_date) %>%
+  { . } -> df_dd_0
+toc()
+################# ################# ################# ################# 
+```
+# section 1
+## same day distinct double dip episodes by sex and year
+```{r}
+
+
+df_dd_0 %>%
+  rename( supply_year = supply_year.opioid ) %>%
+  rename( supply_date = supply_date.opioid ) %>%
+  distinct( pin, supply_date, supply_year) %>%
+  inner_join( df_patient ) %>%
+  count( sex, supply_year ) %>%
+  group_by( supply_year ) %>%
+  mutate( percent = round( n/sum(n) * 100 , 2 )) %>%
+  ungroup() %>%
+  gather( type, value, -sex, -supply_year ) %>% 
+  spread( sex, value )
+
+
+```
+
+## same day distinct double dip episodes by year totals
+```{r}
+
+df_dd_0 %>%
+  rename( supply_year = supply_year.opioid ) %>%
+  rename( supply_date = supply_date.opioid ) %>%
+  distinct( pin, supply_date, supply_year) %>%
+  inner_join( df_patient ) %>%
+  count( supply_year ) 
+
+```
+
+## same day distinct double dip episodes by sex totals
+
+```{r}
+df_dd_0 %>%
+  rename( supply_year = supply_year.opioid ) %>%
+  rename( supply_date = supply_date.opioid ) %>%
+  distinct( pin, supply_date, supply_year) %>%
+  inner_join( df_patient ) %>%
+  count( sex )  %>% 
+  mutate( percent = round( n/sum(n) * 100 , 2 )) 
+
+
+
+```
+
+# section 3
+
+## same day distinct double dip episodes by age and year
+```{r}
+
+
+df_dd_0 %>%
+  rename( supply_year = supply_year.opioid ) %>%
+  rename( supply_date = supply_date.opioid ) %>%
+  distinct( pin, supply_date, supply_year) %>%
+  inner_join( df_patient ) %>%
+  count( age, supply_year ) %>%
+  group_by( supply_year ) %>%
+  mutate( percent = round( n/sum(n) * 100 , 2 )) %>%
+  ungroup() %>%
+  gather( type, value, -age, -supply_year ) %>% 
+  spread( age, value )
+
+
+```
+
+## same day distinct double dip episodes by age totals
+
+```{r}
+df_dd_0 %>%
+  rename( supply_year = supply_year.opioid ) %>%
+  rename( supply_date = supply_date.opioid ) %>%
+  distinct( pin, supply_date, supply_year) %>%
+  inner_join( df_patient ) %>%
+  count( age )  %>% 
+  mutate( percent = round( n/sum(n) * 100 , 2 )) 
+
+
+
+```
+# section 3
+
+## same day distinct double dip people by sex
+
+```{r}
+
+df_dd_0 %>%
+  rename( supply_year = supply_year.opioid ) %>%
+  distinct( pin, supply_year) %>%
+  inner_join( df_patient ) %>%
+  count( sex, supply_year ) %>%
+  group_by( supply_year ) %>%
+  mutate( percent = round( n/sum(n) * 100 , 2 )) %>%
+  ungroup() %>%
+  gather( type, value, -sex, -supply_year ) %>% 
+  spread( sex, value )
+
+```
+
+# section 4 
+##  Nextday dispensing  - not done
+
+# section 5
+## Distinct double dippers (sameday and ddd overlap)
+### totals by year
+
+```{r}
+
+df_match %>% 
+  filter( ndays > 0 )  %>%
+  count( supply_year )
+
+df_match %>% 
+  filter( ndays > 0 )  %>%
+  count( supply_year ) %$%
+  sum(n)
+
+
+```
+
+### distinct individuals
+
+```{r}
+
+df_match %>% 
+  filter( ndays > 0 )  %>%
+  distinct( pin ) %>%
+  count(  )
+
+
+```
+
+### distinct male and female
+
+```{r}
+
+df_match %>% 
+  filter( ndays > 0 )  %>%
+  count( supply_year, sex ) %>%
+  spread( sex, n )
+
+
+```
+
+### distinct male and female by age and sex
+
+```{r}
+
+df_match %>% 
+  filter( ndays > 0 )  %>%
+  group_by( supply_year, sex, age ) %>%
+  mutate( age_sex = paste0(sex, '-', age )) %>%
+  select( -age, -sex) %>%
+  spread( age_sex, n )
+
+
+```
+### distinct male and female by state
+
+```{r}
+
+df_match %>% 
+  filter( ndays > 0 )  %>%
+  count( supply_year, state_name) %>%
+  mutate( age_sex = paste0(sex, '-', age )) %>%
+  select( -age, -sex) %>%
+  spread( age_sex, n )
+
+
+```
+
+## 
+
+```{r}
+
+```
+
+## 
+
+```{r}
+
+
+
+
+```
+
+## 
+
+```{r}
+
+
