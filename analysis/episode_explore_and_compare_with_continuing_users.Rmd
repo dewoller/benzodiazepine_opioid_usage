@@ -28,140 +28,60 @@ opts_chunk$set(echo = FALSE)
 dataset="_rr"
 dataset=""
 get_data_from_cache(dataset = dataset)
-source('lib/findOverlap_simplified.R')
+#source('lib/findOverlap_simplified.R')
 
 ```
 
 
 ```{r generate_continuing_users }
 #
-tic('generate_continuing_users')
-df%>%
-  group_by(pin) %>%
-  summarise( 
-            n_quarter = n_distinct( quarter ),
-            usage_category= cut( n_quarter, 
-                                c(-1, 1,6,11, 18), 
-                                labels = qw("one-off medium-episodic long-episodic chronic")),
-                                ordered_result=TRUE
-            ) %>%
-  {.} -> df_patient_usage
-toc()
+#tic('generate_continuing_users')
+#df%>%
+#  group_by(pin) %>%
+#  summarise( 
+#            n_quarter = n_distinct( quarter ),
+#            usage_category= cut( n_quarter, 
+#                                c(-1, 1,6,11, 18), 
+#                                labels = qw("one-off medium-episodic long-episodic chronic")),
+#                                ordered_result=TRUE
+#            ) %>%
+#  {.} -> df_patient_usage
+#toc()
 
-tic('match')
-df_dd_overlap_all %>%
-  count( pin ) %>%
-  full_join ( df_patient_usage , by = 'pin' ) %>% 
-  mutate( is_dd = ifelse( is.na(n), 'not_dd', 'dd') ) %>%
+expand.grid( supply_year = as.character( 2013:2016), pin = distinct( df_patient, pin )$pin) -> rows
+
+rows %>% as.tibble()
+
+
+df3_nrd %>% 
+  ungroup() %>%
+  rename ( ndays_overlap_noduplication  = nrd ) %>%
+  mutate( supply_year = as.character( year( supply_date ))) %>%
+  group_by(supply_year, pin) %>%
+  summarise( ndays = sum( ndays_overlap_noduplication )) %>%
+  full_join ( rows, by = qc( pin, supply_year) ) %>% 
+  mutate( ndays = ifelse( is.na( ndays ), 0, ndays )) %>%
+  arrange( pin ) %>%
+  inner_join( df_patient, by='pin' ) %>%
+  select(-state) %>%
+  left_join( df_population, by=qc(lga, age, sex, supply_year )) %>%
   { . } -> df_match
-toc
+
+df_match  %>% write.csv( file='/tmp/overlaps.csv', row.names=F)
+
+df_match %>% ungroup () %>% distinct( substring( lga, 1,1 ), state_code, state_name)
 
 ```
 
 
-```{r count_simple_episodes}
-
-
-tic('count_simple_episodes')
-
-df_dd_0_new %>%
-  rename( supply_date = supply_date.opioid ) %>%
-  rename( supply_year  = supply_year.opioid) %>%
-  distinct( pin, supply_year, supply_date ) %>%
-  count( pin, supply_year ) %>% 
-  { . } -> df_dd_0_episodes
-
-
-df_dd_overlap_all %>%
-  filter( supply_date.opioid != supply_date.benzo) %>%
-  rename( supply_date  = supply_date.opioid) %>%
-  rename( supply_year  = supply_year.opioid) %>%
-  distinct( pin, supply_year, supply_date ) %>%
-  count( pin, supply_year ) %>% 
-  { . } -> df_dd_overlap_episodes
-
-df_dd_overlap_episodes %>%
-  full_join( df_dd_0_episodes, by=c( 'pin', 'supply_year')) %>%
-  mutate( n.x = ifelse( is.na( n.x  ), 0, n.x ), 
-         n.y = ifelse( is.na( n.y  ), 0, n.y ) ) %>%
-  mutate( n = n.y+n.x ) %>% 
-  { . } -> df_dd_all_episodes
-
-```
-# compare_users_continuing_vs_dd 
-
-```{r compare_users_continuing_vs_dd }
-df_patient_usage %>%
-  inner_join( df_patient ) %>%
-  left_join( df_dd_all_episodes %>% count( pin ), by='pin') %>%
-  mutate( n = ifelse( is.na(n) , 0 )) %>%
-  print()
-
-
-```
-
-
-```{r  compare_continuing_vs_episodes}
-
-
-```
-
-
-```{r  compare_users_continuing_vs_dd}
-
-
-```
-
-
-```{r  compare_users_continuing_vs_dd}
-
-
-```
-
-
-```{r }
-
-
-```
-
-
-```{r }
-
-
-```
-
-
-```{r }
-
-
-```
-
-
-```{r }
-
-
-```
-
-
-```{r }
-
-
-
-
-
-
-
+replicate mofi's spreadsheet
+```{r replicate }
 
 
 
 
 ```
 
-
-```{r }
-
-
-```
 
 
 ```{r get_continuing_users}
@@ -175,8 +95,8 @@ cat ('# ratio of double dippers for each usage category')
 
 df_match %>% 
   count( usage_category, is_dd) %>% 
-  spread( is_dd, nn ) %>%
-  mutate( ratio_dd = dd/not_dd )
+  spread( is_dd, n ) %>%
+  mutate( ddpct = dd/(not_dd + dd) )
 
 
 df_match %>% 
@@ -220,43 +140,68 @@ library( caret )
 
 
 df_match %>% 
+  mutate( ndays = ifelse( is.na( ndays ), 0, ndays )) %>%
   inner_join( df_patient ) %>%
   select( -state, -pin) %>%
   inner_join( df_population %>% 
              filter( supply_year=='2013' ) %>%
              group_by( lga, seifa, urbanization, state, irsd_score_raw, area_albers_sqkm ) %>% 
-             summarise( density=sum( population ) / min(area_albers_sqkm)) , 
+             summarise( population = sum( population) , density=sum( population ) / min(area_albers_sqkm)) , 
            by='lga') %>% 
-  mutate( is_dd = factor( is_dd ),  state = factor( get_state_code_from_lga( lga) )) %>%
-  select( -n, -lga, -area_albers_sqkm ) %>%
+  mutate( is_dd = factor( is_dd ),  
+         state = factor( get_state_code_from_lga( lga) ),
+         sex=as.factor( sex )
+         ) %>%
+  select( -drug_type, -lga, -area_albers_sqkm ) %>%
   drop_na() %>%
-{ . } -> df_prediction
+  { . } -> df_prediction
+
+df_prediction %>%
+  select(-ndays) %>% 
+  { . } -> df_prediction1
 #
 intrain <- createDataPartition(y =  df_prediction$is_dd, p= 0.7, list = FALSE)
 training <- df_prediction[intrain,]
 testing <- df_prediction[-intrain,]
-MyTrainControl=trainControl(
-                            method = "repeatedcv",
-                            number=5,
-                            repeats=5
-)
-
+ctrl <- trainControl(method = "repeatedcv",
+                     number = 10,
+                     repeats = 5,
+                     summaryFunction = twoClassSummary,
+                     classProbs = TRUE)
 
 rf_fit <- train(is_dd ~ .,
                 data = training, 
-                method = "rpart",
-                trControl=MyTrainControl, 
-                preProcess=  c("center", "scale", "YeoJohnson"), 
-                tuneGrid = expand.grid(cp=c(1,2,3,10) )
+                method = "gbm",
+                trControl=ctrl, 
+                verbose=TRUE,
+                metric='ROC'
                 )
 #
 #
 
 rf_fit 
 
+test_roc <- function(model, data) {
+  
+  roc(data$is_dd,
+      predict(model, data, type = "prob")[, "not_dd"])
 
+}
+
+rf_fit %>% predict( data=testing, type='prob') -> a
+
+library(gbm)
+pretty.gbm.tree(rf_fit$finalModel,i.tree = 1)
+
+rf_fit %>% 
+  predict( data=testing) %>%
+  as.tibble() %>% 
+  { . } ->prediction
+
+rf_fit %>% 
+  test_roc(data = testing) %>%
+  auc()
  
-prediction = predict(rf_fit, newdata = testing, preProcess=  c("center", "scale", "YeoJohnson"))
 #
 confusionMatrix( factor(testing$is_dd), prediction )
 

@@ -1,8 +1,8 @@
 safe_load("tmap", 'https://cloud.r-project.org')
 safe_load("tmaptools", 'https://cloud.r-project.org')
 safe_load("grid")
-safe_load("ggtern")
-safe_load("tricolore") 
+#safe_load("ggtern")
+#safe_load("tricolore") 
 safe_load("mapview") 
 
 
@@ -115,6 +115,7 @@ get_australia_state_map <- function( df_lga_category ,
 # ------------------------------------------------------------------
 get_australia_base_map = function(states=c(1:8)) {
   if (states==0) states = c(1:8)
+  
   read_shape("~/mydoc/research/mofi/shapefiles/LGA11aAust.shp")  %>%
     subset( STATE_CODE %in% states )  %>% 
     simplify_shape(0.05)

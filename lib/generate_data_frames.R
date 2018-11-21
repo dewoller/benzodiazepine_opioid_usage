@@ -145,7 +145,7 @@ generate_data_frames = function( dataset='_rr' )
 #    tic ("seperating out benzo/opioid patients")
 #    df_patient_opioid = df_patient %>% filter( pin %in% df_opioid$pin)
 #    df_patient_benzo = df_patient %>% filter( pin %in% df_benzo$pin)
-#    toc()
+    toc()
 
 
 
