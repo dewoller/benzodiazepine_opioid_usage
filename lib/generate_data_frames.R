@@ -162,18 +162,39 @@ generate_data_frames = function( dataset='_rr' )
 
     tic( "Getting opioid usage")
     df%>%
-      filter( drug_type== 'opioid' ) %>%
       group_by(pin, drug_type) %>%
       summarise( 
-                n_quarter = n_distinct( quarter ),
-                usage_category= cut( n_quarter, 
-                                    c(-1, 1,7,13, 999999), 
-                                    labels = qw("one-off short-term long-term regular"),
-                                    ordered_result=TRUE
-                                    ) 
+        n_quarter = n_distinct( quarter ),
+        usage_category= cut( n_quarter, 
+                            c(-1, 1,7,13, 999999), 
+                            labels = qw("one-off short-term long-term regular"),
+                            ordered_result=TRUE
+                            ) 
                 ) %>%
       ungroup() %>% 
-      {.} -> df_patient_usage
+      {.} -> df_patient_usage_temp
+
+    full_join( 
+              filter( df_patient_usage_temp, drug_type=="opioid" ) ,
+              filter( df_patient_usage_temp, drug_type=="benzodiazepine" ) ,
+              by='pin') %>%
+    select( pin, starts_with('n_'), starts_with('usage') ) %>% 
+    set_names( qc( pin, 
+                  opioid_n_quarter, 
+                  benzo_n_quarter, 
+                  opioid_usage_category,  
+                  benzo_usage_category) ) %>% 
+    mutate( 
+      opioid_n_quarter = ifelse( is.na( opioid_n_quarter ), 0, opioid_n_quarter ),
+      benzo_n_quarter = ifelse( is.na( benzo_n_quarter ), 0, benzo_n_quarter ), 
+      both_n_quarter= opioid_n_quarter + benzo_n_quarter,  
+      both_category= cut( pmin( opioid_n_quarter , benzo_n_quarter ), 
+                          c(-1, 1,7,13, 999999), 
+                          labels = qw("one-off short-term long-term regular"),
+                          ordered_result=TRUE
+                          ) ) %>%
+    { . } -> df_patient_usage
+    
 
 
     toc()

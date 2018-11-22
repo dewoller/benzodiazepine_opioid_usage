@@ -35,18 +35,6 @@ get_data_from_cache(dataset = dataset)
 
 ```{r generate_continuing_users }
 #
-#tic('generate_continuing_users')
-#df%>%
-#  group_by(pin) %>%
-#  summarise( 
-#            n_quarter = n_distinct( quarter ),
-#            usage_category= cut( n_quarter, 
-#                                c(-1, 1,6,11, 18), 
-#                                labels = qw("one-off medium-episodic long-episodic chronic")),
-#                                ordered_result=TRUE
-#            ) %>%
-#  {.} -> df_patient_usage
-#toc()
 
 expand.grid( supply_year = as.character( 2013:2016), pin = distinct( df_patient, pin )$pin) -> rows
 
@@ -213,6 +201,26 @@ plot( rf_fit )
 varImp( rf_fit$finalModel )
 
  
+
+```
+
+
+```{r multilevel_modelling}
+
+df_match  %>%
+  mutate( 
+         sex = factor( sex ), 
+         age = factor( age ), 
+         lga = factor( lga ), 
+         state_name = factor( state_name ), 
+         seifa = factor( seifa ), 
+         urbanization = factor( urbanization ) ) %>% 
+         { . } -> df_match
+
+
+lme4::lmer( ndays ~ age + (1|state_name), data=df_match, family = binomial)
+
+lme4::lmer( ndays ~ age + sex + irsd_score_raw + urbanization + population + (1|lga/state_name), data=df_match, family = binomial)->a
 
 ```
 

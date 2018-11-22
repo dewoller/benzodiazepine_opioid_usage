@@ -77,10 +77,27 @@ df %>%
   mutate( ndays_overlap_noduplication = ifelse ( is.na( lead( supply_date )), ndays_overlap,
                                ifelse( supply_date == lead( supply_date ), 0, 
                                        pmin( ndays_overlap, lead( supply_date ) - supply_date)
-          ))) -> df3_nrd
+          ))) -> df_match
 
-df3_nrd  %>% 
+#df_match  %>% 
+#  ungroup() %>%
+#  write.csv( row.names=F, file= 'data/overlaps.csv')
+
+
+df_match %>%
+  inner_join(  df_patient_usage, by='pin'  ) %>%
+  inner_join( select( df_patient, pin, benzo_total_doses:doc_benzo_doses ), by='pin') %>% 
+  foreign::write.dta( '/tmp/match_multiyear.v2.dta')
+
+df_match %>%
   ungroup() %>%
-  write.csv( row.names=F, file= 'data/overlaps.csv')
+  group_by( pin, sex, age,lga,lga_name,state_code,state_name,area_albers_sqkm,irsd_score_raw,seifa,class_type,class_name,urbanization,state ) %>%
+  summarise( ndays = sum( ndays )) %>%
+  ungroup() %>%
+  inner_join( select( df_patient, pin, benzo_total_doses:doc_benzo_doses ), by='pin') %>% 
+  left_join(  df_patient_usage, by='pin'  ) %>%
+  foreign::write.dta( '/tmp/match_single_period.v1.dta')
+
+df_patient
 
 
