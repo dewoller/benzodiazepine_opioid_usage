@@ -9,26 +9,41 @@ get_continuing_df <- function(
 
   type_code_limit = ifelse( benzo, 10, 9 )
   query  <-  paste0( "
-    SELECT pin, gender, age, state, lga, item_code, type_code, 
-    type_name, supply_date, quantity, unit_wt, ddd_mg_factor 
-    FROM continuing." , base_table , " r 
-    JOIN continuing.item i USING (item_code) 
-    JOIN public.generictype USING (type_code)
-    WHERE (EXTRACT( YEAR FROM supply_date ) != '2017') ",
-    ifelse( benzo, '', " AND (type_code <> 10)") 
-      )
+                    SELECT pin, gender, age, state, lga, item_code, type_code, generic_name  ,
+                    type_name, supply_date, quantity, unit_wt, ddd_mg_factor 
+                    FROM continuing." , base_table , " r 
+                    JOIN continuing.item i USING (item_code) 
+                    JOIN public.generictype USING (type_code)
+                    WHERE (EXTRACT( YEAR FROM supply_date ) != '2017') ",
+                    ifelse( benzo, '', " AND (type_code <> 10)") 
+                    )
 
   my_db_get_query( query ) %>%
     as.tibble() %>%
     mutate( n_dose = (unit_wt * quantity / ddd_mg_factor ),
            agen=ifelse( age=='100+', 101, suppressWarnings( as.numeric( age ))),
            age = cut( agen, 
-                           c(0,19,44,64,9999), 
-                           labels=qw("0-19 20-44 45-64 65+")
-                           )
+                     c(0,19,44,64,9999), 
+                     labels=qw("0-19 20-44 45-64 65+")
+                     )
            ) %>%
     select( -unit_wt, -quantity, -ddd_mg_factor, -agen, -item_code) %>% 
     rename(sex=gender) 
+}
+
+
+# -------------------------------------------------
+get_drugs <- function( ) {
+
+  query  <-  paste0( "
+    SELECT type_code, generic_name, type_name, ddd_mg_factor 
+    FROM 
+    continuing.item i 
+    JOIN public.generictype USING (type_code)"
+      )
+
+  my_db_get_query( query ) %>%
+    as.tibble() 
 }
 
 # -------------------------------------------------

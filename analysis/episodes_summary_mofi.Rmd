@@ -16,33 +16,57 @@ source("lib/functions.R")
 source("lib/standardisation.R")
 source("lib/get_data.R")
 source("lib/generate_data_frames.R")
-source("lib/findOverlap.R")
+#source("lib/findOverlap.R")
+source("lib/mapping_functions.R")
 library('tidyverse')
 opts_chunk$set(echo = FALSE)
 
 ```
-
+# sanity checking;  a person only has 1 state
+with a as (
+  SELECT distinct pin, state 
+  from continuing.continuing
+  ) 
+  select pin, state, count( pin )
+  from a
+  group by 1, 2
+  having count( distinct state ) > 1
 
 ```{r initial, results='hide', message=FALSE, warning=FALSE}
 
 dataset="_rr"
 dataset=""
 get_data_from_cache(dataset = dataset)
+#
 
-library( foreign )
-read.dta( 'data/nobackup/match.dta' ) %>%
+foreign::read.dta( 'data/nobackup/match.dta' ) %>%
   as.tibble() %>% 
   { . } -> df_match
+
+
+df_match %>%
+  inner_join( select( df_patient_usage, -drug_type), by='pin'  ) %>%
+  inner_join( select( df_patient, pin, benzo_total_doses:doc_benzo_doses ), by='pin') %>% 
+  foreign::write.dta( '/tmp/match_multiyear.v2.dta')
+
+df_match %>%
+  ungroup() %>%
+  group_by( pin, sex, age,lga,lga_name,state_code,state_name,area_albers_sqkm,irsd_score_raw,seifa,class_type,class_name,urbanization,state ) %>%
+  summarise( ndays = sum( ndays )) %>%
+  ungroup() %>%
+  inner_join( select( df_patient, pin, benzo_total_doses:doc_benzo_doses ), by='pin') %>% 
+  left_join( select( df_patient_usage, -drug_type), by='pin'  ) %>%
+  foreign::write.dta( '/tmp/match_single_period.v1.dta')
+
+df_patient
+
 
 tic( 'join')
 df%>%
   filter( drug_type == 'opioid' ) %>%
-  inner_join( df%>% filter( drug_type == 'opioid' ), 
+  inner_join( df%>% filter( drug_type == 'benzodiazepine' ) %>% select( pin, supply_date ), 
              by=qc( pin, supply_date )) %>% 
-  rename_at( vars( ends_with( '.x')), funs(str_replace( .,'.x$', '.opioid'))) %>%
-  rename_at( vars( ends_with( '.y')), funs(str_replace( .,'.y$', '.benzo'))) %>% 
-  mutate( supply_date.benzo = supply_date) %>%
-  rename( supply_date.opioid = supply_date) %>%
+  mutate( supply_year = as.character( year(supply_date))) %>%
   { . } -> df_dd_0
 toc()
 ################# ################# ################# ################# 
@@ -53,8 +77,6 @@ toc()
 
 
 df_dd_0 %>%
-  rename( supply_year = supply_year.opioid ) %>%
-  rename( supply_date = supply_date.opioid ) %>%
   distinct( pin, supply_date, supply_year) %>%
   inner_join( df_patient ) %>%
   count( sex, supply_year ) %>%
@@ -71,8 +93,6 @@ df_dd_0 %>%
 ```{r}
 
 df_dd_0 %>%
-  rename( supply_year = supply_year.opioid ) %>%
-  rename( supply_date = supply_date.opioid ) %>%
   distinct( pin, supply_date, supply_year) %>%
   inner_join( df_patient ) %>%
   count( supply_year ) 
@@ -83,8 +103,6 @@ df_dd_0 %>%
 
 ```{r}
 df_dd_0 %>%
-  rename( supply_year = supply_year.opioid ) %>%
-  rename( supply_date = supply_date.opioid ) %>%
   distinct( pin, supply_date, supply_year) %>%
   inner_join( df_patient ) %>%
   count( sex )  %>% 
@@ -101,8 +119,6 @@ df_dd_0 %>%
 
 
 df_dd_0 %>%
-  rename( supply_year = supply_year.opioid ) %>%
-  rename( supply_date = supply_date.opioid ) %>%
   distinct( pin, supply_date, supply_year) %>%
   inner_join( df_patient ) %>%
   count( age, supply_year ) %>%
@@ -119,8 +135,6 @@ df_dd_0 %>%
 
 ```{r}
 df_dd_0 %>%
-  rename( supply_year = supply_year.opioid ) %>%
-  rename( supply_date = supply_date.opioid ) %>%
   distinct( pin, supply_date, supply_year) %>%
   inner_join( df_patient ) %>%
   count( age )  %>% 
@@ -136,7 +150,6 @@ df_dd_0 %>%
 ```{r}
 
 df_dd_0 %>%
-  rename( supply_year = supply_year.opioid ) %>%
   distinct( pin, supply_year) %>%
   inner_join( df_patient ) %>%
   count( sex, supply_year ) %>%
@@ -181,7 +194,7 @@ df_match %>%
 
 ```
 
-### distinct male and female
+### distinct individuals  by sex
 
 ```{r}
 
@@ -193,13 +206,13 @@ df_match %>%
 
 ```
 
-### distinct male and female by age and sex
+### distinct individuals by age and sex
 
-```{r}
+```{r test}
 
 df_match %>% 
   filter( ndays > 0 )  %>%
-  group_by( supply_year, sex, age ) %>%
+  count( supply_year, sex, age ) %>%
   mutate( age_sex = paste0(sex, '-', age )) %>%
   select( -age, -sex) %>%
   spread( age_sex, n )
@@ -212,18 +225,76 @@ df_match %>%
 
 df_match %>% 
   filter( ndays > 0 )  %>%
-  count( supply_year, state_name) %>%
-  mutate( age_sex = paste0(sex, '-', age )) %>%
-  select( -age, -sex) %>%
-  spread( age_sex, n )
+  count( supply_year, state) %>%
+  spread( state, n )
+
+
+```
+# section 6
+## Total episode of utilisation
+### totals scripts overall
+
+```{r}
+
+df %>% 
+  count( drug_type ) %>%
+  mutate( pct = round( n/sum(n) * 100, 2 ))
+
+```
+### drug of preference
+
+```{r}
+
+df %>% 
+  distinct( pin, drug_type ) %>%
+  group_by( pin ) %>%
+  arrange( pin, drug_type ) %>%
+  summarise( dt1 = paste( drug_type, collapse=',')) %>%
+  count( dt1 )
+
+```
+
+# section 7
+### 2 step standardised dd people per 1000
+Standardized double dippers from Dennis (through two step standandization) that is standdizing the LGAs first and then taking the average 
+
+```{r}
+
+df_match %>% 
+  filter( ndays > 0 )  %>%
+  filter( lga != '.' ) %>%
+  group_by( supply_year, lga, age, sex ) %>%  
+  summarise( ndays = sum( ndays ) ) %>%
+  simple_standardise_value( group_by_vars=qc(lga, supply_year) ,  count_var='ndays' ) %>%
+  inner_join( select( df_population, lga, state )) %>%
+  group_by( supply_year, state ) %>%
+  summarise( rate = mean( rate )) %>%
+  spread( state, rate )
 
 
 ```
 
-## 
+# section 8
+## These are yearwise episode (taking DDD and oneday together)?? Pls double check
 
 ```{r}
 
+df_match %>% 
+  filter( ndays > 0 )  %>%
+  group_by( supply_year, pin) %>%  
+  summarise( ndays = sum( ndays ) ) %>%
+  ungroup() %>%
+  group_by( supply_year) %>%
+  summarise( n = n(), 
+            total_days = sum( ndays ),  
+            mean = mean(ndays),
+             sd = sd( ndays ), 
+             min = min( ndays ),
+             max = max( ndays )
+  )
+
+
+  
 ```
 
 ## 

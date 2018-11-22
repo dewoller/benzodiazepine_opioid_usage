@@ -57,6 +57,8 @@ generate_data_frames = function( dataset='_rr' )
   table = paste0( 'continuing', dataset )
   df <- get_continuing_df( table, benzo=TRUE )  %>%
     mutate(drug_type=ifelse(is_benzo(type_code), 'benzodiazepine', 'opioid'),
+           type_name = ifelse( !is_benzo( type_code), type_name, 
+                              stringr::str_extract( generic_name, '[^ ]*')),
            quarter = quarter(supply_date, with_year = TRUE), 
            supply_year = as.character(year(supply_date)) 
            )
@@ -78,15 +80,63 @@ generate_data_frames = function( dataset='_rr' )
 
   df_population = get_population_df()
 
+
   df_population %>% 
     distinct( lga, seifa,  urbanization, state, lga_name ) %>% 
     { . } ->  df_lga
   toc()
 
   tic( "Getting patients")
+
+  get_drugs() %>%
+    mutate( type_name = ifelse( !is_benzo( type_code), type_name, 
+                               stringr::str_extract( generic_name, '[^ ]*'))
+  ) %>%
+  group_by( type_name ) %>%
+  summarise( ddd_mg_factor = mean( ddd_mg_factor )) %>% 
+  { . } -> df_drugs
+
   df %>% 
-      distinct (pin, sex, age, state, lga) %>% 
-#      inner_join( df_patient_scheme, by="pin") %>%
+    group_by (pin, drug_type, type_name) %>% 
+    summarise( n_dose = sum( n_dose )) %>% 
+    ungroup() %>%
+    inner_join( df_drugs, by='type_name') %>%
+    group_by( pin, drug_type ) %>%
+    filter( n_dose == max( n_dose )) %>%
+    filter( ddd_mg_factor == min( ddd_mg_factor )) %>%
+    select(-ddd_mg_factor ) %>%
+    ungroup() %>%
+     { . } -> df_drug_of_choice
+
+  full_join( 
+              filter( df_drug_of_choice, drug_type=='opioid'),
+              filter( df_drug_of_choice, drug_type=='benzodiazepine'), 
+              by=qc( pin )) %>%
+    rename( 
+            doc_opioid = type_name.x, 
+            doc_benzo = type_name.y,
+            doc_opioid_doses = n_dose.x, 
+            doc_benzo_doses = n_dose.y) %>%
+    select( -starts_with( 'drug_type' )) %>%
+    mutate( 
+            doc_opioid_doses = ifelse( is.na( doc_opioid_doses ), 0, doc_opioid_doses ),
+            doc_benzo_doses = ifelse( is.na( doc_benzo_doses ), 0, doc_benzo_doses )
+            ) %>% 
+      { . } -> df_drug_of_choice1
+
+
+  #   df_drug_of_choice %>% distinct( pin )
+  #   df_drug_of_choice1 %>% distinct( pin )
+
+
+  df %>% 
+      group_by (pin, sex, age, state, lga, drug_type) %>% 
+      summarise( n_dose = sum( n_dose )) %>%
+      ungroup() %>%
+      spread( drug_type, n_dose, fill=0 ) %>%
+      rename( opioid_total_doses = opioid, 
+             benzo_total_doses = benzodiazepine ) %>%
+      inner_join( df_drug_of_choice1, by=qc( pin)) %>%
       {.} -> df_patient
 
     #

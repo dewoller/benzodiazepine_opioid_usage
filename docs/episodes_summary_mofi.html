@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Mofi Islam and Dennis Wollersheim" />
+
+<meta name="date" content="2018-11-19" />
+
+<title>Population Exploration</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.0.13/css/fa-svg-with-js.css" rel="stylesheet" />
+<script src="site_libs/font-awesome-5.0.13/js/fontawesome-all.min.js"></script>
+<script src="site_libs/font-awesome-5.0.13/js/fa-v4-shims.min.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">benzodiazepine</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="analysis.html">Multi day DD</a>
+</li>
+<li>
+  <a href="mofi_request_sameDay.html">Single Day DD</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/jdblischak/workflowr">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Population Exploration</h1>
+<h4 class="author"><em>Mofi Islam and Dennis Wollersheim</em></h4>
+<h4 class="date"><em>2018-11-19</em></h4>
+
+</div>
+
+
+<p><strong>Last updated:</strong> 2018-11-22</p>
+<strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
+<ul>
+<li>
+<p><details> <summary> <strong style="color:red;">✖</strong> <strong>R Markdown file:</strong> uncommitted changes </summary> The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+</details>
+</li>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Environment:</strong> empty </summary></p>
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</details>
+</li>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Seed:</strong> <code>set.seed(20180719)</code> </summary></p>
+<p>The command <code>set.seed(20180719)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</details>
+</li>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Session information:</strong> recorded </summary></p>
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</details>
+</li>
+<li>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/tree/c5fe22cc00cb40c03faecaf5e4cb38025780fff3" target="_blank">c5fe22c</a> </summary></p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+<pre><code>
+Ignored files:
+    Ignored:    data/cache/
+    Ignored:    data/nobackup/
+
+Unstaged changes:
+    Modified:   analysis/episodes_summary_mofi.Rmd
+
+</code></pre>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes. </details>
+</li>
+</ul>
+<details> <summary> <small><strong>Expand here to see past versions:</strong></small> </summary>
+<ul>
+<table style="border-collapse:separate; border-spacing:5px;">
+<thead>
+<tr>
+<th style="text-align:left;">
+File
+</th>
+<th style="text-align:left;">
+Version
+</th>
+<th style="text-align:left;">
+Author
+</th>
+<th style="text-align:left;">
+Date
+</th>
+<th style="text-align:left;">
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/f703e8488be42ee93a057e83f0b1e31aaf5355ee/analysis/episodes_summary_mofi.Rmd" target="_blank">f703e84</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-11-22
+</td>
+<td style="text-align:left;">
+regenerate mofis base output part 1
+</td>
+</tr>
+</tbody>
+</table>
+</ul>
+<p></details></p>
+<hr />
+<div id="sanity-checking-a-person-only-has-1-state" class="section level1">
+<h1>sanity checking; a person only has 1 state</h1>
+<p>with a as ( SELECT distinct pin, state from continuing.continuing ) select pin, state, count( pin ) from a group by 1, 2 having count( distinct state ) &gt; 1</p>
+</div>
+<div id="section-1" class="section level1">
+<h1>section 1</h1>
+<div id="same-day-distinct-double-dip-episodes-by-sex-and-year" class="section level2">
+<h2>same day distinct double dip episodes by sex and year</h2>
+<pre><code>Joining, by = &quot;pin&quot;</code></pre>
+<pre><code># A tibble: 8 x 4
+  supply_year type          F       M
+  &lt;chr&gt;       &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;
+1 2013        n       58370   40564  
+2 2013        percent    59      41  
+3 2014        n       59305   41840  
+4 2014        percent    58.6    41.4
+5 2015        n       59209   41756  
+6 2015        percent    58.6    41.4
+7 2016        n       58289   40808  
+8 2016        percent    58.8    41.2</code></pre>
+</div>
+<div id="same-day-distinct-double-dip-episodes-by-year-totals" class="section level2">
+<h2>same day distinct double dip episodes by year totals</h2>
+<pre><code>Joining, by = &quot;pin&quot;</code></pre>
+<pre><code># A tibble: 4 x 2
+  supply_year      n
+  &lt;chr&gt;        &lt;int&gt;
+1 2013         98934
+2 2014        101145
+3 2015        100965
+4 2016         99097</code></pre>
+</div>
+<div id="same-day-distinct-double-dip-episodes-by-sex-totals" class="section level2">
+<h2>same day distinct double dip episodes by sex totals</h2>
+<pre><code>Joining, by = &quot;pin&quot;</code></pre>
+<pre><code># A tibble: 2 x 3
+  sex        n percent
+  &lt;chr&gt;  &lt;int&gt;   &lt;dbl&gt;
+1 F     235173    58.8
+2 M     164968    41.2</code></pre>
+</div>
+</div>
+<div id="section-3" class="section level1">
+<h1>section 3</h1>
+<div id="same-day-distinct-double-dip-episodes-by-age-and-year" class="section level2">
+<h2>same day distinct double dip episodes by age and year</h2>
+<pre><code>Joining, by = &quot;pin&quot;</code></pre>
+<pre><code># A tibble: 8 x 6
+  supply_year type    `0-19` `20-44` `45-64`   `65+`
+  &lt;chr&gt;       &lt;chr&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+1 2013        n       104    17478   41199   40153  
+2 2013        percent   0.11    17.7    41.6    40.6
+3 2014        n       140    20050   41691   39264  
+4 2014        percent   0.14    19.8    41.2    38.8
+5 2015        n       161    21743   42133   36928  
+6 2015        percent   0.16    21.5    41.7    36.6
+7 2016        n       213    22890   41238   34756  
+8 2016        percent   0.21    23.1    41.6    35.1</code></pre>
+</div>
+<div id="same-day-distinct-double-dip-episodes-by-age-totals" class="section level2">
+<h2>same day distinct double dip episodes by age totals</h2>
+<pre><code>Joining, by = &quot;pin&quot;</code></pre>
+<pre><code># A tibble: 4 x 3
+  age        n percent
+  &lt;fct&gt;  &lt;int&gt;   &lt;dbl&gt;
+1 0-19     618    0.15
+2 20-44  82161   20.5 
+3 45-64 166261   41.6 
+4 65+   151101   37.8 </code></pre>
+</div>
+</div>
+<div id="section-3-1" class="section level1">
+<h1>section 3</h1>
+<div id="same-day-distinct-double-dip-people-by-sex" class="section level2">
+<h2>same day distinct double dip people by sex</h2>
+<pre><code>Joining, by = &quot;pin&quot;</code></pre>
+<pre><code># A tibble: 8 x 4
+  supply_year type          F       M
+  &lt;chr&gt;       &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;
+1 2013        n       18281   12457  
+2 2013        percent    59.5    40.5
+3 2014        n       18371   12795  
+4 2014        percent    59.0    41.0
+5 2015        n       18234   12756  
+6 2015        percent    58.8    41.2
+7 2016        n       18231   12579  
+8 2016        percent    59.2    40.8</code></pre>
+</div>
+</div>
+<div id="section-4" class="section level1">
+<h1>section 4</h1>
+<div id="nextday-dispensing---not-done" class="section level2">
+<h2>Nextday dispensing - not done</h2>
+</div>
+</div>
+<div id="section-5" class="section level1">
+<h1>section 5</h1>
+<div id="distinct-double-dippers-sameday-and-ddd-overlap" class="section level2">
+<h2>Distinct double dippers (sameday and ddd overlap)</h2>
+<div id="totals-by-year" class="section level3">
+<h3>totals by year</h3>
+<pre><code># A tibble: 4 x 2
+  supply_year     n
+  &lt;chr&gt;       &lt;int&gt;
+1 2013        40714
+2 2014        41875
+3 2015        41587
+4 2016        41534</code></pre>
+<pre><code>[1] 165710</code></pre>
+</div>
+<div id="distinct-individuals" class="section level3">
+<h3>distinct individuals</h3>
+<pre><code># A tibble: 1 x 1
+      n
+  &lt;int&gt;
+1 98764</code></pre>
+</div>
+<div id="distinct-individuals-by-sex" class="section level3">
+<h3>distinct individuals by sex</h3>
+<pre><code># A tibble: 4 x 3
+  supply_year     F     M
+  &lt;chr&gt;       &lt;int&gt; &lt;int&gt;
+1 2013        24274 16440
+2 2014        24868 17007
+3 2015        24698 16889
+4 2016        24652 16882</code></pre>
+</div>
+<div id="distinct-individuals-by-age-and-sex" class="section level3">
+<h3>distinct individuals by age and sex</h3>
+<pre><code># A tibble: 4 x 9
+  supply_year `F-0-19` `F-20-44` `F-45-64` `F-65+` `M-0-19` `M-20-44` `M-45-64` `M-65+`
+  &lt;chr&gt;          &lt;int&gt;     &lt;int&gt;     &lt;int&gt;   &lt;int&gt;    &lt;int&gt;     &lt;int&gt;     &lt;int&gt;   &lt;int&gt;
+1 2013              68      4309      7853   12044       56      3613      6021    6750
+2 2014              82      4746      8110   11930       67      4017      6221    6702
+3 2015              91      4926      8143   11538       76      4119      6232    6462
+4 2016             120      5259      8217   11056       89      4389      6119    6285</code></pre>
+</div>
+<div id="distinct-male-and-female-by-state" class="section level3">
+<h3>distinct male and female by state</h3>
+<pre><code># A tibble: 4 x 11
+  supply_year   ACT  `NA`   NSW    NT   QLD    SA   TAS   UNK   VIC    WA
+  &lt;chr&gt;       &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;
+1 2013          439   527 10892   103  9299  3693  1314    NA 10743  3704
+2 2014          447   510 11243   112  9657  3785  1329    NA 11012  3780
+3 2015          452   527 10945   124  9821  3786  1301     1 10934  3696
+4 2016          457   451 10974    96  9902  3784  1281     2 10871  3716</code></pre>
+</div>
+</div>
+</div>
+<div id="section-6" class="section level1">
+<h1>section 6</h1>
+<div id="total-episode-of-utilisation" class="section level2">
+<h2>Total episode of utilisation</h2>
+<div id="totals-scripts-overall" class="section level3">
+<h3>totals scripts overall</h3>
+<pre><code># A tibble: 2 x 3
+  drug_type            n   pct
+  &lt;chr&gt;            &lt;int&gt; &lt;dbl&gt;
+1 benzodiazepine 2449918  30.7
+2 opioid         5522150  69.3</code></pre>
+</div>
+<div id="drug-of-preference" class="section level3">
+<h3>drug of preference</h3>
+<pre><code># A tibble: 3 x 2
+  dt1                        n
+  &lt;chr&gt;                  &lt;int&gt;
+1 benzodiazepine        121275
+2 benzodiazepine,opioid 204185
+3 opioid                470119</code></pre>
+</div>
+</div>
+</div>
+<div id="section-7" class="section level1">
+<h1>section 7</h1>
+<div id="step-standardised-dd-people-per-1000" class="section level3">
+<h3>2 step standardised dd people per 1000</h3>
+<p>Standardized double dippers from Dennis (through two step standandization) that is standdizing the LGAs first and then taking the average</p>
+<pre><code>Warning: Column `age` joining character vector and factor, coercing into character vector</code></pre>
+<pre><code>Joining, by = &quot;lga&quot;</code></pre>
+<pre><code># A tibble: 4 x 10
+# Groups:   supply_year [4]
+  supply_year   ACT   NSW    NT   QLD    SA   TAS   UNK   VIC    WA
+  &lt;chr&gt;       &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1 2013         60.8  81.6  28.8  88.2  97.2  127. NA     105.  92.5
+2 2014         69.4  86.2  20.3 105.  105.   134. NA     104.  89.6
+3 2015         59.8  82.1  24.5 100.  110.   127.  1.74  106.  87.4
+4 2016         56.1  79.9  23.0 103.  110.   124.  2.23  101.  84.1</code></pre>
+</div>
+</div>
+<div id="section-8" class="section level1">
+<h1>section 8</h1>
+<div id="these-are-yearwise-episode-taking-ddd-and-oneday-together-pls-double-check" class="section level2">
+<h2>These are yearwise episode (taking DDD and oneday together)?? Pls double check</h2>
+<pre><code># A tibble: 4 x 7
+  supply_year     n total_days  mean    sd   min   max
+  &lt;chr&gt;       &lt;int&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1 2013        40714    1917000  47.1  82.1     1  1214
+2 2014        41875    2051397  49.0  87.7     1  1095
+3 2015        41587    2043878  49.1  87.9     1   730
+4 2016        41534    1959573  47.2  84.1     1   366</code></pre>
+</div>
+<div id="section" class="section level2">
+<h2></h2>
+</div>
+<div id="section-2" class="section level2">
+<h2></h2>
+<pre><code>R version 3.4.4 (2018-03-15)
+Platform: x86_64-pc-linux-gnu (64-bit)
+Running under: Ubuntu 17.10
+
+Matrix products: default
+BLAS: /usr/lib/x86_64-linux-gnu/openblas/libblas.so.3
+LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.2.20.so
+
+locale:
+ [1] LC_CTYPE=en_AU.UTF-8       LC_NUMERIC=C               LC_TIME=en_AU.UTF-8        LC_COLLATE=en_AU.UTF-8     LC_MONETARY=en_AU.UTF-8    LC_MESSAGES=en_AU.UTF-8    LC_PAPER=en_AU.UTF-8      
+ [8] LC_NAME=C                  LC_ADDRESS=C               LC_TELEPHONE=C             LC_MEASUREMENT=en_AU.UTF-8 LC_IDENTIFICATION=C       
+
+attached base packages:
+[1] stats4    parallel  stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] bindrcpp_0.2.2        foreign_0.8-70        keyring_1.1.0         RPostgreSQL_0.6-2     DBI_1.0.0             tictoc_1.0            forcats_0.3.0         dplyr_0.7.8          
+ [9] purrr_0.2.5           readr_1.1.1           tidyr_0.8.1           tibble_1.4.2          ggplot2_2.2.1         tidyverse_1.2.1       multidplyr_0.0.0.9000 IRanges_2.12.0       
+[17] S4Vectors_0.16.0      BiocGenerics_0.24.0   fuzzyjoin_0.1.4       DataCache_0.9         wrapr_1.5.1           readstata13_0.9.2     lubridate_1.7.4       knitr_1.20           
+[25] stringr_1.3.1         magrittr_1.5          seas_0.5-2            MASS_7.3-50           workflowr_1.1.1       nvimcom_0.9-75       
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_1.0.0        lattice_0.20-35   utf8_1.1.4        assertthat_0.2.0  rprojroot_1.3-2   digest_0.6.15     R6_2.3.0          cellranger_1.1.0  plyr_1.8.4        backports_1.1.2  
+[11] evaluate_0.10.1   httr_1.3.1        pillar_1.3.0      rlang_0.3.0.1     lazyeval_0.2.1    readxl_1.1.0      rstudioapi_0.7    whisker_0.3-2     R.utils_2.6.0     R.oo_1.22.0      
+[21] rmarkdown_1.10    munsell_0.5.0     broom_0.5.0       compiler_3.4.4    modelr_0.1.2      pkgconfig_2.0.2   htmltools_0.3.6   tidyselect_0.2.5  fansi_0.2.3       crayon_1.3.4     
+[31] R.methodsS3_1.7.1 grid_3.4.4        nlme_3.1-137      jsonlite_1.5      gtable_0.2.0      git2r_0.23.0      scales_1.0.0      cli_1.0.0         stringi_1.2.3     xml2_1.2.0       
+[41] tools_3.4.4       glue_1.3.0        hms_0.4.2         yaml_2.1.19       colorspace_1.3-2  rvest_0.3.2       bindr_0.1.1       haven_1.1.2      </code></pre>
+</div>
+</div>
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+<hr>
+<p>
+  This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a>
+  analysis was created with
+  <a href="https://github.com/jdblischak/workflowr">workflowr</a> 1.1.1
+</p>
+<hr>
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
