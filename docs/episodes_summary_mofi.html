@@ -231,11 +231,12 @@ div.section {
 </div>
 
 
-<p><strong>Last updated:</strong> 2018-11-22</p>
+<p><strong>Last updated:</strong> 2018-11-23</p>
 <strong>workflowr checks:</strong> <small>(Click a bullet for more information)</small>
 <ul>
 <li>
-<p><details> <summary> <strong style="color:red;">✖</strong> <strong>R Markdown file:</strong> uncommitted changes </summary> The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>R Markdown file:</strong> up-to-date </summary></p>
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
 </details>
 </li>
 <li>
@@ -254,7 +255,7 @@ div.section {
 </details>
 </li>
 <li>
-<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/tree/c5fe22cc00cb40c03faecaf5e4cb38025780fff3" target="_blank">c5fe22c</a> </summary></p>
+<p><details> <summary> <strong style="color:blue;">✔</strong> <strong>Repository version:</strong> <a href="https://github.com/dewoller/benzodiazepine_opioid_usage/tree/44f2c1eafe1300e828708fc2c001166ed5e9a42b" target="_blank">44f2c1e</a> </summary></p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
 <pre><code>
 Ignored files:
@@ -262,7 +263,9 @@ Ignored files:
     Ignored:    data/nobackup/
 
 Unstaged changes:
-    Modified:   analysis/episodes_summary_mofi.Rmd
+    Modified:   analysis/episode_explore_and_compare_with_continuing_users.Rmd
+    Modified:   lib/findOverlap_simplified_episodes.R
+    Modified:   lib/generate_data_frames.R
 
 </code></pre>
 Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes. </details>
@@ -291,6 +294,57 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/44f2c1eafe1300e828708fc2c001166ed5e9a42b/analysis/episodes_summary_mofi.Rmd" target="_blank">44f2c1e</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-11-23
+</td>
+<td style="text-align:left;">
+wflow_publish(“analysis/episodes_summary_mofi.Rmd”)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rmd
+</td>
+<td style="text-align:left;">
+<a href="https://github.com/dewoller/benzodiazepine_opioid_usage/blob/96ac48bd19d58f841552094bcae2d7138b0a05da/analysis/episodes_summary_mofi.Rmd" target="_blank">96ac48b</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-11-22
+</td>
+<td style="text-align:left;">
+summary v.1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+html
+</td>
+<td style="text-align:left;">
+<a href="https://cdn.rawgit.com/dewoller/benzodiazepine_opioid_usage/96ac48bd19d58f841552094bcae2d7138b0a05da/docs/episodes_summary_mofi.html" target="_blank">96ac48b</a>
+</td>
+<td style="text-align:left;">
+Dennis Wollersheim
+</td>
+<td style="text-align:left;">
+2018-11-22
+</td>
+<td style="text-align:left;">
+summary v.1
+</td>
+</tr>
 <tr>
 <td style="text-align:left;">
 Rmd
@@ -325,11 +379,11 @@ regenerate mofis base output part 1
 <pre><code># A tibble: 8 x 4
   supply_year type          F       M
   &lt;chr&gt;       &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;
-1 2013        n       58370   40564  
+1 2013        n       58370   40567  
 2 2013        percent    59      41  
 3 2014        n       59305   41840  
 4 2014        percent    58.6    41.4
-5 2015        n       59209   41756  
+5 2015        n       59209   41758  
 6 2015        percent    58.6    41.4
 7 2016        n       58289   40808  
 8 2016        percent    58.8    41.2</code></pre>
@@ -340,9 +394,9 @@ regenerate mofis base output part 1
 <pre><code># A tibble: 4 x 2
   supply_year      n
   &lt;chr&gt;        &lt;int&gt;
-1 2013         98934
+1 2013         98937
 2 2014        101145
-3 2015        100965
+3 2015        100967
 4 2016         99097</code></pre>
 </div>
 <div id="same-day-distinct-double-dip-episodes-by-sex-totals" class="section level2">
@@ -352,7 +406,7 @@ regenerate mofis base output part 1
   sex        n percent
   &lt;chr&gt;  &lt;int&gt;   &lt;dbl&gt;
 1 F     235173    58.8
-2 M     164968    41.2</code></pre>
+2 M     164973    41.2</code></pre>
 </div>
 </div>
 <div id="section-3" class="section level1">
@@ -363,11 +417,11 @@ regenerate mofis base output part 1
 <pre><code># A tibble: 8 x 6
   supply_year type    `0-19` `20-44` `45-64`   `65+`
   &lt;chr&gt;       &lt;chr&gt;    &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;
-1 2013        n       104    17478   41199   40153  
+1 2013        n       104    17478   41199   40156  
 2 2013        percent   0.11    17.7    41.6    40.6
 3 2014        n       140    20050   41691   39264  
 4 2014        percent   0.14    19.8    41.2    38.8
-5 2015        n       161    21743   42133   36928  
+5 2015        n       161    21743   42133   36930  
 6 2015        percent   0.16    21.5    41.7    36.6
 7 2016        n       213    22890   41238   34756  
 8 2016        percent   0.21    23.1    41.6    35.1</code></pre>
@@ -381,7 +435,7 @@ regenerate mofis base output part 1
 1 0-19     618    0.15
 2 20-44  82161   20.5 
 3 45-64 166261   41.6 
-4 65+   151101   37.8 </code></pre>
+4 65+   151106   37.8 </code></pre>
 </div>
 </div>
 <div id="section-3-1" class="section level1">
@@ -392,11 +446,11 @@ regenerate mofis base output part 1
 <pre><code># A tibble: 8 x 4
   supply_year type          F       M
   &lt;chr&gt;       &lt;chr&gt;     &lt;dbl&gt;   &lt;dbl&gt;
-1 2013        n       18281   12457  
+1 2013        n       18281   12458  
 2 2013        percent    59.5    40.5
 3 2014        n       18371   12795  
 4 2014        percent    59.0    41.0
-5 2015        n       18234   12756  
+5 2015        n       18234   12757  
 6 2015        percent    58.8    41.2
 7 2016        n       18231   12579  
 8 2016        percent    59.2    40.8</code></pre>
@@ -417,11 +471,11 @@ regenerate mofis base output part 1
 <pre><code># A tibble: 4 x 2
   supply_year     n
   &lt;chr&gt;       &lt;int&gt;
-1 2013        40714
+1 2013        40715
 2 2014        41875
-3 2015        41587
-4 2016        41534</code></pre>
-<pre><code>[1] 165710</code></pre>
+3 2015        41588
+4 2016        41535</code></pre>
+<pre><code>[1] 165713</code></pre>
 </div>
 <div id="distinct-individuals" class="section level3">
 <h3>distinct individuals</h3>
@@ -435,30 +489,30 @@ regenerate mofis base output part 1
 <pre><code># A tibble: 4 x 3
   supply_year     F     M
   &lt;chr&gt;       &lt;int&gt; &lt;int&gt;
-1 2013        24274 16440
+1 2013        24274 16441
 2 2014        24868 17007
-3 2015        24698 16889
-4 2016        24652 16882</code></pre>
+3 2015        24698 16890
+4 2016        24652 16883</code></pre>
 </div>
 <div id="distinct-individuals-by-age-and-sex" class="section level3">
 <h3>distinct individuals by age and sex</h3>
 <pre><code># A tibble: 4 x 9
   supply_year `F-0-19` `F-20-44` `F-45-64` `F-65+` `M-0-19` `M-20-44` `M-45-64` `M-65+`
   &lt;chr&gt;          &lt;int&gt;     &lt;int&gt;     &lt;int&gt;   &lt;int&gt;    &lt;int&gt;     &lt;int&gt;     &lt;int&gt;   &lt;int&gt;
-1 2013              68      4309      7853   12044       56      3613      6021    6750
+1 2013              68      4309      7853   12044       56      3613      6021    6751
 2 2014              82      4746      8110   11930       67      4017      6221    6702
-3 2015              91      4926      8143   11538       76      4119      6232    6462
-4 2016             120      5259      8217   11056       89      4389      6119    6285</code></pre>
+3 2015              91      4926      8143   11538       76      4119      6232    6463
+4 2016             120      5259      8217   11056       89      4389      6119    6286</code></pre>
 </div>
 <div id="distinct-male-and-female-by-state" class="section level3">
 <h3>distinct male and female by state</h3>
 <pre><code># A tibble: 4 x 11
   supply_year   ACT  `NA`   NSW    NT   QLD    SA   TAS   UNK   VIC    WA
   &lt;chr&gt;       &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;
-1 2013          439   527 10892   103  9299  3693  1314    NA 10743  3704
+1 2013          439   527 10892   103  9299  3693  1314    NA 10744  3704
 2 2014          447   510 11243   112  9657  3785  1329    NA 11012  3780
-3 2015          452   527 10945   124  9821  3786  1301     1 10934  3696
-4 2016          457   451 10974    96  9902  3784  1281     2 10871  3716</code></pre>
+3 2015          452   527 10945   124  9821  3786  1301     1 10935  3696
+4 2016          457   451 10974    96  9902  3784  1281     2 10872  3716</code></pre>
 </div>
 </div>
 </div>
@@ -496,10 +550,27 @@ regenerate mofis base output part 1
 # Groups:   supply_year [4]
   supply_year   ACT   NSW    NT   QLD    SA   TAS   UNK   VIC    WA
   &lt;chr&gt;       &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-1 2013         60.8  81.6  28.8  88.2  97.2  127. NA     105.  92.5
-2 2014         69.4  86.2  20.3 105.  105.   134. NA     104.  89.6
-3 2015         59.8  82.1  24.5 100.  110.   127.  1.74  106.  87.4
-4 2016         56.1  79.9  23.0 103.  110.   124.  2.23  101.  84.1</code></pre>
+1 2013         13.1  17.0  5.38  18.7  19.5  23.5 NA     21.2  18.2
+2 2014         12.8  17.1  4.88  19.0  20.6  23.8 NA     21.2  18.8
+3 2015         12.5  16.1  5.32  19.1  20.8  22.3  4.35  20.7  18.9
+4 2016         12.3  16.0  5.35  19.3  19.9  22.9  6.57  20.3  17.9</code></pre>
+</div>
+</div>
+<div id="section-7-1" class="section level1">
+<h1>section 7</h1>
+<div id="step-standardised-dd-number-of-days-per-1000-people" class="section level3">
+<h3>2 step standardised dd number of days per 1000 people</h3>
+<p>Standardized double dippers from Dennis (through two step standandization) that is standdizing the LGAs first and then taking the average</p>
+<pre><code>Warning: Column `age` joining character vector and factor, coercing into character vector</code></pre>
+<pre><code>Joining, by = &quot;lga&quot;</code></pre>
+<pre><code># A tibble: 4 x 10
+# Groups:   supply_year [4]
+  supply_year   ACT   NSW    NT   QLD    SA   TAS   UNK   VIC    WA
+  &lt;chr&gt;       &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+1 2013         608.  816.  288.  882.  972. 1269.  NA   1053.  925.
+2 2014         694.  862.  203. 1054. 1047. 1342.  NA   1040.  896.
+3 2015         598.  821.  245. 1000. 1099. 1272.  17.4 1063.  874.
+4 2016         561.  799.  230. 1026. 1103. 1240.  22.3 1013.  841.</code></pre>
 </div>
 </div>
 <div id="section-8" class="section level1">
@@ -509,10 +580,10 @@ regenerate mofis base output part 1
 <pre><code># A tibble: 4 x 7
   supply_year     n total_days  mean    sd   min   max
   &lt;chr&gt;       &lt;int&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
-1 2013        40714    1917000  47.1  82.1     1  1214
+1 2013        40714    1917055  47.1  82.1     1  1214
 2 2014        41875    2051397  49.0  87.7     1  1095
-3 2015        41587    2043878  49.1  87.9     1   730
-4 2016        41534    1959573  47.2  84.1     1   366</code></pre>
+3 2015        41587    2043904  49.1  87.9     1   730
+4 2016        41534    1959626  47.2  84.1     1   366</code></pre>
 </div>
 <div id="section" class="section level2">
 <h2></h2>
@@ -532,20 +603,25 @@ locale:
  [8] LC_NAME=C                  LC_ADDRESS=C               LC_TELEPHONE=C             LC_MEASUREMENT=en_AU.UTF-8 LC_IDENTIFICATION=C       
 
 attached base packages:
-[1] stats4    parallel  stats     graphics  grDevices utils     datasets  methods   base     
+ [1] grid      stats4    parallel  stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] bindrcpp_0.2.2        foreign_0.8-70        keyring_1.1.0         RPostgreSQL_0.6-2     DBI_1.0.0             tictoc_1.0            forcats_0.3.0         dplyr_0.7.8          
- [9] purrr_0.2.5           readr_1.1.1           tidyr_0.8.1           tibble_1.4.2          ggplot2_2.2.1         tidyverse_1.2.1       multidplyr_0.0.0.9000 IRanges_2.12.0       
-[17] S4Vectors_0.16.0      BiocGenerics_0.24.0   fuzzyjoin_0.1.4       DataCache_0.9         wrapr_1.5.1           readstata13_0.9.2     lubridate_1.7.4       knitr_1.20           
-[25] stringr_1.3.1         magrittr_1.5          seas_0.5-2            MASS_7.3-50           workflowr_1.1.1       nvimcom_0.9-75       
+ [1] bindrcpp_0.2.2        spbabel_0.4.8         sp_1.3-1              mapview_2.4.0         tmaptools_2.0         tmap_2.0              keyring_1.1.0         RPostgreSQL_0.6-2    
+ [9] DBI_1.0.0             tictoc_1.0            forcats_0.3.0         dplyr_0.7.8           purrr_0.2.5           readr_1.1.1           tidyr_0.8.1           tibble_1.4.2         
+[17] ggplot2_2.2.1         tidyverse_1.2.1       multidplyr_0.0.0.9000 IRanges_2.12.0        S4Vectors_0.16.0      BiocGenerics_0.24.0   fuzzyjoin_0.1.4       DataCache_0.9        
+[25] wrapr_1.5.1           readstata13_0.9.2     lubridate_1.7.4       knitr_1.20            stringr_1.3.1         magrittr_1.5          seas_0.5-2            MASS_7.3-50          
+[33] workflowr_1.1.1       nvimcom_0.9-75       
 
 loaded via a namespace (and not attached):
- [1] Rcpp_1.0.0        lattice_0.20-35   utf8_1.1.4        assertthat_0.2.0  rprojroot_1.3-2   digest_0.6.15     R6_2.3.0          cellranger_1.1.0  plyr_1.8.4        backports_1.1.2  
-[11] evaluate_0.10.1   httr_1.3.1        pillar_1.3.0      rlang_0.3.0.1     lazyeval_0.2.1    readxl_1.1.0      rstudioapi_0.7    whisker_0.3-2     R.utils_2.6.0     R.oo_1.22.0      
-[21] rmarkdown_1.10    munsell_0.5.0     broom_0.5.0       compiler_3.4.4    modelr_0.1.2      pkgconfig_2.0.2   htmltools_0.3.6   tidyselect_0.2.5  fansi_0.2.3       crayon_1.3.4     
-[31] R.methodsS3_1.7.1 grid_3.4.4        nlme_3.1-137      jsonlite_1.5      gtable_0.2.0      git2r_0.23.0      scales_1.0.0      cli_1.0.0         stringi_1.2.3     xml2_1.2.0       
-[41] tools_3.4.4       glue_1.3.0        hms_0.4.2         yaml_2.1.19       colorspace_1.3-2  rvest_0.3.2       bindr_0.1.1       haven_1.1.2      </code></pre>
+ [1] colorspace_1.3-2    class_7.3-14        gdalUtils_2.0.1.14  leaflet_2.0.1       rgdal_1.3-3         rprojroot_1.3-2     satellite_1.0.1     base64enc_0.1-3     dichromat_2.0-0    
+[10] rstudioapi_0.7      fansi_0.2.3         xml2_1.2.0          codetools_0.2-15    R.methodsS3_1.7.1   jsonlite_1.5        broom_0.5.0         png_0.1-7           R.oo_1.22.0        
+[19] rgeos_0.3-28        shiny_1.1.0         compiler_3.4.4      httr_1.3.1          backports_1.1.2     assertthat_0.2.0    lazyeval_0.2.1      cli_1.0.0           later_0.7.3        
+[28] htmltools_0.3.6     tools_3.4.4         gtable_0.2.0        glue_1.3.0          Rcpp_1.0.0          cellranger_1.1.0    raster_2.6-7        nlme_3.1-137        iterators_1.0.10   
+[37] crosstalk_1.0.0     lwgeom_0.1-4        rvest_0.3.2         mime_0.5            XML_3.98-1.12       scales_1.0.0        hms_0.4.2           promises_1.0.1      RColorBrewer_1.1-2 
+[46] yaml_2.1.19         stringi_1.2.3       foreach_1.4.4       spDataLarge_0.2.7.3 e1071_1.6-8         spData_0.2.9.0      rlang_0.3.0.1       pkgconfig_2.0.2     evaluate_0.10.1    
+[55] lattice_0.20-35     bindr_0.1.1         sf_0.6-3            htmlwidgets_1.2     tidyselect_0.2.5    plyr_1.8.4          R6_2.3.0            foreign_0.8-70      pillar_1.3.0       
+[64] haven_1.1.2         whisker_0.3-2       units_0.6-0         modelr_0.1.2        crayon_1.3.4        utf8_1.1.4          KernSmooth_2.23-15  rmarkdown_1.10      readxl_1.1.0       
+[73] git2r_0.23.0        webshot_0.5.0       digest_0.6.15       classInt_0.2-3      xtable_1.8-2        httpuv_1.4.5        R.utils_2.6.0       munsell_0.5.0       viridisLite_0.3.0  </code></pre>
 </div>
 </div>
 
