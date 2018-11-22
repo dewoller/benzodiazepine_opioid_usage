@@ -39,26 +39,9 @@ dataset=""
 get_data_from_cache(dataset = dataset)
 #
 
-foreign::read.dta( 'data/nobackup/match.dta' ) %>%
+foreign::read.dta( 'data/nobackup/match_multiyear.v2.dta' ) %>%
   as.tibble() %>% 
   { . } -> df_match
-
-
-df_match %>%
-  inner_join( select( df_patient_usage, -drug_type), by='pin'  ) %>%
-  inner_join( select( df_patient, pin, benzo_total_doses:doc_benzo_doses ), by='pin') %>% 
-  foreign::write.dta( '/tmp/match_multiyear.v2.dta')
-
-df_match %>%
-  ungroup() %>%
-  group_by( pin, sex, age,lga,lga_name,state_code,state_name,area_albers_sqkm,irsd_score_raw,seifa,class_type,class_name,urbanization,state ) %>%
-  summarise( ndays = sum( ndays )) %>%
-  ungroup() %>%
-  inner_join( select( df_patient, pin, benzo_total_doses:doc_benzo_doses ), by='pin') %>% 
-  left_join( select( df_patient_usage, -drug_type), by='pin'  ) %>%
-  foreign::write.dta( '/tmp/match_single_period.v1.dta')
-
-df_patient
 
 
 tic( 'join')
@@ -263,9 +246,30 @@ Standardized double dippers from Dennis (through two step standandization) that 
 df_match %>% 
   filter( ndays > 0 )  %>%
   filter( lga != '.' ) %>%
+  count( supply_year, lga, age, sex ) %>%  
+  simple_standardise_value( group_by_vars=qc(lga, supply_year) ,  count_var='n' ) %>%
+  mutate( rate = rate * 10 ) %>%
+  inner_join( select( df_population, lga, state )) %>%
+  group_by( supply_year, state ) %>%
+  summarise( rate = mean( rate )) %>%
+  spread( state, rate )
+
+
+```
+
+# section 7
+### 2 step standardised dd number of days per 1000 people
+Standardized double dippers from Dennis (through two step standandization) that is standdizing the LGAs first and then taking the average 
+
+```{r}
+
+df_match %>% 
+  filter( ndays > 0 )  %>%
+  filter( lga != '.' ) %>%
   group_by( supply_year, lga, age, sex ) %>%  
   summarise( ndays = sum( ndays ) ) %>%
   simple_standardise_value( group_by_vars=qc(lga, supply_year) ,  count_var='ndays' ) %>%
+  mutate( rate = rate * 10 ) %>%
   inner_join( select( df_population, lga, state )) %>%
   group_by( supply_year, state ) %>%
   summarise( rate = mean( rate )) %>%
