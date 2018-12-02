@@ -36,35 +36,9 @@ get_data_from_cache(dataset = dataset)
 ```{r generate_continuing_users }
 #
 
-expand.grid( supply_year = as.character( 2013:2016), pin = distinct( df_patient, pin )$pin) -> rows
-
-rows %>% as.tibble()
 
 
-df3_nrd %>% 
-  ungroup() %>%
-  rename ( ndays_overlap_noduplication  = nrd ) %>%
-  mutate( supply_year = as.character( year( supply_date ))) %>%
-  group_by(supply_year, pin) %>%
-  summarise( ndays = sum( ndays_overlap_noduplication )) %>%
-  full_join ( rows, by = qc( pin, supply_year) ) %>% 
-  mutate( ndays = ifelse( is.na( ndays ), 0, ndays )) %>%
-  arrange( pin ) %>%
-  inner_join( df_patient, by='pin' ) %>%
-  select(-state) %>%
-  left_join( df_population, by=qc(lga, age, sex, supply_year )) %>%
-  { . } -> df_match
-
-df_match  %>% write.csv( file='/tmp/overlaps.csv', row.names=F)
-
-df_match %>% ungroup () %>% distinct( substring( lga, 1,1 ), state_code, state_name)
-
-```
-
-
-replicate mofi's spreadsheet
 ```{r replicate }
-
 
 
 
@@ -207,20 +181,119 @@ varImp( rf_fit$finalModel )
 
 ```{r multilevel_modelling}
 
-df_match  %>%
+foreign::read.dta( 'data/nobackup/match_multiyear.v2.dta' ) %>%
+  as.tibble() %>% 
+  { . } -> df_match
+
+
+foreign::read.dta( 'data/nobackup/match_single_period.v1.dta' ) %>%
+  as.tibble() %>% 
+  { . } -> df_match_1
+
+
+df_match_1  %>%
   mutate( 
+         is_dd = ifelse( ndays ==0, 0, 1 ), 
          sex = factor( sex ), 
          age = factor( age ), 
          lga = factor( lga ), 
          state_name = factor( state_name ), 
          seifa = factor( seifa ), 
-         urbanization = factor( urbanization ) ) %>% 
-         { . } -> df_match
+         urbanization = factor( urbanization ), 
+         sex = relevel( sex, ref=2),
+         seifa = relevel( seifa, ref=4),
+         urbanization = relevel( urbanization, ref=2) ) %>% 
+  { . } -> df_match_1
 
 
-lme4::lmer( ndays ~ age + (1|state_name), data=df_match, family = binomial)
 
-lme4::lmer( ndays ~ age + sex + irsd_score_raw + urbanization + population + (1|lga/state_name), data=df_match, family = binomial)->a
+
+
+library( lme4 )
+    
+df_match_1 %>% 
+lme4::glmer( is_dd ~ age + sex + seifa + urbanization + (1|lga) + (1|state_name), 
+            data=., 
+            family = binomial,
+            control=glmerControl(optimizer="bobyqa")
+            )->d
+
+exp( fixef( d ))
+
+
+
 
 ```
 
+
+```{r multi_level_model_with_quantiity }
+
+df %>%
+  group_by( pin, drug_type ) %>%
+  summarise( n_dose = sum( n_dose ) ) %>% 
+  { . } -> df_doses
+
+
+df_doses %>%
+  spread( drug_type, n_dose ) %>%
+  mutate( b_dose  = ifelse( is.na( benzodiazepine ), 0, benzodiazepine ),
+         o_dose  = ifelse( is.na( opioid ), 0, opioid ) ) %>%
+  select( -benzodiazepine, -opioid ) %>% 
+  { . } -> df_dose1
+
+df_match_1 %>%
+  mutate( 
+         is_dd = ifelse( ndays ==0, 0, 1 ), 
+         sex = factor( sex ), 
+         age = factor( age ), 
+         lga = factor( lga ), 
+         state_name = factor( state_name ), 
+         seifa = factor( seifa ), 
+         urbanization = factor( urbanization ), 
+         sex = relevel( sex, ref=2),
+         seifa = relevel( seifa, ref=4),
+         urbanization = relevel( urbanization, ref=2) ) %>% 
+   inner_join( df_dose1, by='pin') %>%
+   mutate( doses = scale( o_dose + b_dose ) ) %>%
+   lme4::glmer( is_dd ~ doses+age + sex + seifa + urbanization + (1|lga) + (1|state_name), 
+              data=., 
+              family = binomial,
+              control=glmerControl(optimizer="bobyqa")
+              )->d
+
+
+
+```
+
+
+```{r xtmelogit_comparision}
+
+
+library(lme4)
+
+read.csv( url( "https://stats.idre.ucla.edu/stat/data/hdp.csv")) %>%
+  as.tibble() %>% 
+  { . } -> hdp
+
+hdp %>%
+  mutate( remission=factor( remission )) %>% 
+  { . } -> hdp
+
+
+glmer( remission ~ IL6+ CRP +CancerStage+LengthofStay+Experience+ (1|DID), 
+        data=hdp, 
+        family=binomial
+        ) %>% 
+        { . } -> glmer_hdp_remission1
+ 
+      exp( fixef( glmer_hdp_remission1))
+
+
+glmer( remission ~ Age + LengthofStay+ FamilyHx + IL6+ CRP +CancerStage+Experience+ (1|HID) + (1|DID), 
+      data=hdp, 
+      family=binomial
+      ) %>% 
+{ . } -> glmer_hdp_remission2
+
+ 
+```

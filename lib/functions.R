@@ -42,7 +42,8 @@ my_year_length <- function( year ) {
   sapply( year, function(year) { year.length(as.character(year )) })
 }
 
-
+#################################################################################
+really_is_numeric <- function(x) inherits(x, c("numeric","integer"))
 
 #################################################################################
 keep <- function(x, name) {assign(as.character(substitute(name)), x, pos = 1)}
@@ -360,7 +361,7 @@ find_pill_group = function( supply_date, difference, ndays, threshold  = .25) {
 
 xc = function (df ) {
   df %>% 
-    mutate_if( is_numeric, round, 2 ) %>%
+    mutate_if( really_is_numeric, round, 2 ) %>%
     tableHTML::tableHTML() %>% clipr::write_clip()
 } 
 

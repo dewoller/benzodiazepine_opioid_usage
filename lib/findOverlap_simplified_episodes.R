@@ -29,7 +29,6 @@ find_episode_overlap = function( df  ) {
   opioid_balance = data.frame( date_of_balance = NA, balance_dose=0)
   benzo_balance = data.frame( date_of_balance = NA, balance_dose=0)
   for (i in 1:df_n ) {
- #   pb$tick()
     row = df[i,]
 
     if (row$drug_type == 'opioid') {
@@ -56,8 +55,6 @@ cluster_copy(cl, find_episode_overlap  )
 
 
 df %>%
-  filter( pin == 1105039) %>%
-  head( 10000) %>%
   group_by( pin, supply_date, drug_type ) %>%
   summarise( n_dose = sum( n_dose )) %>%
   ungroup() %>%

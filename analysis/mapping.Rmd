@@ -61,37 +61,46 @@ df_dd_overlap_all %>%
 print_map( df_map, title="Double Dipping\nLevel", filename='/tmp/double_dipping_level.png', inset_states=c(1,2,4:6 ) ) -> a
 
 
-```
+my_f_join_population <- function( dataset, rollup_level = NA,  join_key = rollup_level ) {
+  return( f_join_population( dataset,  rollup_level, join_key,
+                            df_population %>% select( supply_year==2013 )))
+} 
 
-```{r  }
 
-df_dd_overlap_all %>%
-  mutate( supply_year = as.character( supply_year.opioid ) ) %>%
-  left_join( df_patient ) %>%
-  filter( lga != '.' ) %>%
-  distinct( age, sex, pin, lga, supply_year) %>%
+# concurrent users by lga, standardised 
+df_match %>%
+  filter( lga != '.'  & supply_year==2013 & ndays>0) %>%
   count( supply_year, lga, age, sex ) %>%
-  simple_standardise_value( group_by_vars=qc(lga, supply_year) ,  count_var='n' ) %>%
-  mutate( state = factor( get_state_code_from_lga( lga) )) %>%
-  group_by( state, supply_year ) %>%
-  summarise( rate = mean( rate * 10 )) %>% 
-  { . } -> two_step_standardise
+  simple_standardise_value( group_by_vars=qc(lga, supply_year) ,  count_var='n', localf_join_population = my_f_join_population ) %>%
+  mutate( rate = rate * 10 ) %>%
+  right_join( df_population %>% distinct( lga ) ) %>%
+  mutate( rate = ifelse( is.na( rate), 0, rate ),
+         value = cut( rate, 
+                     breaks=3,
+                     labels=qc( low, medium, high ))) %>%
+  mutate( value = factor( ifelse( is.na( value ), 1, value ),
+                         labels=qc( low, medium, high )
+                         )) %>% 
+  filter( lga != '99399') %>%
+  { . } -> df_map
 
-two_step_standardise  %>% write.csv( '/tmp/two_step_standardise.csv')
-
-
-df_dd_overlap_all %>%
-  mutate( supply_year = as.character( supply_year.opioid ) ) %>%
-  left_join( df_patient ) %>%
-  filter( lga != '.' ) %>%
-  mutate( state = factor( get_state_code_from_lga( lga) )) %>%
-  distinct( age, sex, pin, state, supply_year) %>%
-  count( supply_year, state, age, sex ) %>%
-  simple_standardise_value( group_by_vars=qc(state,supply_year) ,  count_var='n' ) %>%
-  mutate( rate =  rate * 10 ) %>% 
-  { . } -> one_step_standardise
-
-one_step_standardise %>% write.csv( '/tmp/one_step_standardise.csv')
-```
+print_map( df_map, title="Double Dipping\nLevel", filename='/tmp/double_dipping_level.png', inset_states=c(1,2,4:6 ) ) -> a
 
 
+
+df_map  %>% 
+  group_by( value) %>% 
+  summarise( min( rate ), max( rate ), range = max(rate) - min(rate)) %>% 
+  xc()
+
+df_map  %>% summarise( min( rate ), max( rate ))
+
+
+df_map %>% 
+  filter( rate == 0 ) %>%
+  select(lga )  %>%
+  inner_join( df_population %>% distinct( lga, lga_name, state_name )) %>%
+  arrange( lga ) %>%
+  xc()
+
+levels( df_map$value )
