@@ -196,8 +196,7 @@ df_test %>% group_by( bp ) %>% summarise( sum( pop))
 simple_standardise_value = function( df_standardise, 
                                     group_by_vars, 
                                     count_var,
-                                    localf_join_population = f_join_population
-                                    , 
+                                    df_population.=df_population, 
                                     standardisation_default = standardisation_default_population 
                                     ) {
 
@@ -229,7 +228,7 @@ simple_standardise_value = function( df_standardise,
       #
       # calculate rate for this count
       # join up with population on the maximal set of the same variables
-      localf_join_population ( c( group_by_vars, standardise_using)) %>%
+      f_join_population ( rollup_level = c( group_by_vars, standardise_using), df_population. = df_population. ) %>%
       group_by_( .dots=c( group_by_vars, standardise_using )) %>%
       #
       # calculate rate / 1000 pp at this level
@@ -350,7 +349,7 @@ function () {
 select_and_standardise_ddd <- function( df, 
                                        standardise_over, 
                                        join_with = c() , 
-                                       localf_join_population = f_join_population, 
+                                       df_population=df_population, 
                                        standardisation_default = standardisation_default_population 
                                        ) {
   # select out standardise_over and join_with from df,
@@ -381,7 +380,7 @@ select_and_standardise_ddd <- function( df,
         dplyr::summarise( n_dose = sum( n_dose ) ) %>%
         ungroup() %>%
         # join up with population on the maximal set of the same variables
-        localf_join_population ( c( standardise_over, join_with, standardise_using, 'supply_year' )) %>%
+        f_join_population ( c( standardise_over, join_with, standardise_using, 'supply_year' )) %>%
         group_by_( .dots=c( standardise_over, join_with, standardise_using )) %>%
         # calculate proportion at this level
         dplyr::summarise( proportion = sum((n_dose * 1000 * 10)) / sum(population * my_year_length( supply_year ) )) %>%  

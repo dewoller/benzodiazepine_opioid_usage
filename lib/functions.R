@@ -360,7 +360,7 @@ find_pill_group = function( supply_date, difference, ndays, threshold  = .25) {
 
 xc = function (df ) {
   df %>% 
-    mutate_if( is_numeric, round, 2 ) %>%
+    mutate_if(  function(x) inherits(x, c("numeric","integer")), round, 2 ) %>%
     tableHTML::tableHTML() %>% clipr::write_clip()
 } 
 

@@ -32,22 +32,25 @@ dataset=""
 get_data_from_cache(dataset = dataset)
 
 
-source('lib/findOverlap_simplified.R')
+#source('lib/findOverlap_simplified.R')
+
+tic( 'reading dta')
+foreign::read.dta( 'data/nobackup/match_multiyear.v2.dta' ) %>%
+  as.tibble() %>% 
+  { . } -> df_match
+toc()
 
 
-
-df_dd_overlap_all %>%
-  mutate( supply_year = as.character( supply_year.opioid ) ) %>%
-  rename( supply_date = supply_date.opioid ) %>%
-  left_join( df_patient ) %>%
-  filter( lga != '.' ) %>%
-  distinct( age, sex, pin, lga, supply_year, supply_date) %>%
-  count( supply_year, lga, age, sex ) %>%
-  simple_standardise_value( group_by_vars=qc(lga, supply_year) ,  count_var='n' ) %>%
+df_match %>%
+  filter( ndays >0 ) %>%
+  filter( lga != '.' & lga != '99399' ) %>%
+  distinct( age, sex, pin, lga) %>%
+  count( lga, age, sex ) %>%
+  simple_standardise_value( group_by_vars=qc(lga) ,  
+                           count_var='n' ,
+                           df_population. = filter( df_population, supply_year=='2013')
+                           ) %>%
   mutate( rate = rate * 10 ) %>%
-  group_by( lga ) %>%
-  summarise( rate = mean(rate ) ) %>%  
-  ungroup() %>%
   right_join( df_population %>% distinct( lga ) ) %>%
   mutate( rate = ifelse( is.na( rate), 0, rate ),
          value = cut( rate, 
@@ -58,40 +61,21 @@ df_dd_overlap_all %>%
   )) %>% 
   { . } -> df_map 
 
-print_map( df_map, title="Double Dipping\nLevel", filename='/tmp/double_dipping_level.png', inset_states=c(1,2,4:6 ) ) -> a
+print_map( df_map, title="Adjusted density\nof concurrent users", filename='/tmp/double_dipping_level.png', inset_states=c(1,2,4:6 ) ) -> a
 
 
 ```
 
-```{r  }
+```{r test_mapping_all_years  }
 
-df_dd_overlap_all %>%
-  mutate( supply_year = as.character( supply_year.opioid ) ) %>%
-  left_join( df_patient ) %>%
-  filter( lga != '.' ) %>%
-  distinct( age, sex, pin, lga, supply_year) %>%
-  count( supply_year, lga, age, sex ) %>%
-  simple_standardise_value( group_by_vars=qc(lga, supply_year) ,  count_var='n' ) %>%
-  mutate( state = factor( get_state_code_from_lga( lga) )) %>%
-  group_by( state, supply_year ) %>%
-  summarise( rate = mean( rate * 10 )) %>% 
-  { . } -> two_step_standardise
+df_map %>%
+  group_by( value ) %>%
+  summarise( min(rate), max( rate ), n()) %>%
+  xc()
 
-two_step_standardise  %>% write.csv( '/tmp/two_step_standardise.csv')
+hist( df_map$rate)
 
 
-df_dd_overlap_all %>%
-  mutate( supply_year = as.character( supply_year.opioid ) ) %>%
-  left_join( df_patient ) %>%
-  filter( lga != '.' ) %>%
-  mutate( state = factor( get_state_code_from_lga( lga) )) %>%
-  distinct( age, sex, pin, state, supply_year) %>%
-  count( supply_year, state, age, sex ) %>%
-  simple_standardise_value( group_by_vars=qc(state,supply_year) ,  count_var='n' ) %>%
-  mutate( rate =  rate * 10 ) %>% 
-  { . } -> one_step_standardise
-
-one_step_standardise %>% write.csv( '/tmp/one_step_standardise.csv')
 ```
 
 
