@@ -41,54 +41,144 @@ foreign::read.dta( 'data/nobackup/match_multiyear.v2.dta' ) %>%
 toc()
 
 
+
+supply_year.=2014
+LGA_dd_frequency <- function( df_match., supply_year. ) {
+
+  df_population %>%
+    group_by( lga ) %>%
+    filter( supply_year==supply_year.) %>%
+    summarise( population=sum( population )) %>% 
+    { . } -> df_population.
+
+
+  df_match. %>%
+    filter( ndays >0 ) %>%
+    filter( lga != '.' & lga != '99399' ) %>%
+    filter( supply_year==supply_year.)  %>%
+    distinct( pin, lga ) %>% 
+    count( lga ) %>% 
+    inner_join ( df_population. ) %>% 
+    mutate( rate = n/population*10000) 
+
+}
+
+
+
+#I took the matches, counted the number of distinct patients per year, merged in overall oz population, and X 10000 to get pp/1000 population
+
 df_match %>%
   filter( ndays >0 ) %>%
-  filter( lga != '.' & lga != '99399' ) %>%
-  distinct( age, sex, pin, lga) %>%
-  count( lga, age, sex ) %>%
-  simple_standardise_value( group_by_vars=qc(lga) ,  
-                           count_var='n' ,
-                           df_population. = filter( df_population, supply_year=='2013')
-                           ) %>%
-  mutate( rate = rate * 10 ) %>%
-  right_join( df_population %>% distinct( lga ) ) %>%
-  mutate( rate = ifelse( is.na( rate), 0, rate ),
-         value = cut( rate, 
-                      breaks=quantile( rate, probs=seq(0,1,1/3) ), 
-                      labels=qc( low, medium, high ))) %>%
-  mutate( value = factor( ifelse( is.na( value ), 1, value ),
-                         labels=qc( low, medium, high )
-  )) %>% 
+  distinct( supply_year, pin ) %>%
+  count( supply_year ) %>%
+  f_join_population( 'supply_year') %>%
+  mutate ( rate = n / population * 10000 ) %>%
+  xc()
+
+
+  r
+  df_population %>%
+    filter( supply_year==supply_year.) %>%
+    summarise( population=sum( population )) %>% 
+    { . } -> df_population.
+
+
+  df_match %>%
+    filter( ndays >0 ) %>%
+    filter( supply_year==supply_year.)  %>%
+    distinct( pin ) %>% 
+    count( ) %>% 
+    inner_join ( df_population., by='1' ) %>% 
+    mutate( rate = n/population*10000) 
+
+}
+
+df_match %>%
+  Aus_dd_frequency()
+
+
+########################################
+########################################
+# standardise by year, average / year , population / year 
+
+# find individual year
+lga_dd_frequency_standardised<- function( df_match., 
+                                     supply_year. = df_match. %>% distinct( supply_year ) %$% supply_year
+                                     ) {
+
+  df_match. %>%
+    filter( ndays >0 ) %>%
+    filter( lga != '.' & lga != '99399' ) %>%
+    distinct( age, sex, pin, lga) %>%
+    count( lga, age, sex ) %>%
+    simple_standardise_value( group_by_vars=qc(lga) ,  
+                             count_var='n' ,
+                             df_population. = filter( df_population, supply_year==supply_year.)
+                             ) %>%
+    mutate( rate = rate * 10 ) %>%
+    right_join( df_population %>% distinct( lga ) , by='lga') %>%
+    mutate( rate = ifelse( is.na( rate), 0, rate ))
+
+}
+
+df_match %>%
+  group_by( supply_year)  %>%
+  do( year_freq = lga_dd_frequency_standardised( . ) ) %>%
+  unnest( year_freq )  %>%
+  group_by( lga ) %>%
+  summarise( rate = mean( rate) ) %>%
+  ungroup() %>%
+  mutate( value = cut( rate, 
+                        breaks=quantile( rate, probs=seq(0,1,1/3) ), 
+                        labels=qc( low, medium, high ))) %>%
+     mutate( value = factor( ifelse( is.na( value ), 1, value ),
+                            labels=qc( low, medium, high )
+                            )) %>% 
+     { . } -> df_map 
+
+########################################
+########################################
+
+#df_match. = df_match  %>% filter( supply_year=='2014')
+
+# send mofi per year matches as well
+# figure make font bigger for legend
+
+# 10year dataset in cloudstor
+# prediciton variables
+
+if (FALSE) {   # v1;  all 4 years
+  df_match %>%
+    filter( ndays >0 ) %>%
+    filter( lga != '.' & lga != '99399' ) %>%
+    distinct( age, sex, pin, lga) %>%
+    count( lga, age, sex ) %>%
+    simple_standardise_value( group_by_vars=qc(lga) ,  
+                            count_var='n' ,
+                            df_population. = filter( df_population, supply_year=='2013')
+                            ) %>%
+    mutate( rate = rate * 10 ) %>%
+    right_join( df_population %>% distinct( lga ) ) %>%
+    mutate( rate = ifelse( is.na( rate), 0, rate ),
+          value = cut( rate, 
+                        breaks=quantile( rate, probs=seq(0,1,1/3) ), 
+                        labels=qc( low, medium, high ))) %>%
+    mutate( value = factor( ifelse( is.na( value ), 1, value ),
+                          labels=qc( low, medium, high )
+    )) %>% 
   { . } -> df_map 
+}
 
 print_map( df_map, title="Adjusted density\nof concurrent users", filename='/tmp/double_dipping_level.png', inset_states=c(1,2,4:6 ) ) -> a
 
 
-my_f_join_population <- function( dataset, rollup_level = NA,  join_key = rollup_level ) {
-  return( f_join_population( dataset,  rollup_level, join_key,
-                            df_population %>% select( supply_year==2013 )))
-} 
+
+# What is your year-wise overall double dipper for Australia? (unstandardized)
 
 
-# concurrent users by lga, standardised 
-df_match %>%
-  filter( lga != '.'  & supply_year==2013 & ndays>0) %>%
-  count( supply_year, lga, age, sex ) %>%
-  simple_standardise_value( group_by_vars=qc(lga, supply_year) ,  count_var='n', localf_join_population = my_f_join_population ) %>%
-  mutate( rate = rate * 10 ) %>%
-  right_join( df_population %>% distinct( lga ) ) %>%
-  mutate( rate = ifelse( is.na( rate), 0, rate ),
-         value = cut( rate, 
-                     breaks=3,
-                     labels=qc( low, medium, high ))) %>%
-  mutate( value = factor( ifelse( is.na( value ), 1, value ),
-                         labels=qc( low, medium, high )
-                         )) %>% 
-  filter( lga != '99399') %>%
-  { . } -> df_map
 
-print_map( df_map, title="Double Dipping\nLevel", filename='/tmp/double_dipping_level.png', inset_states=c(1,2,4:6 ) ) -> a
 
+# Also can you please send me the highest double-dipper number for any individual year (after standardization)?
 
 ```{r test_mapping_all_years  }
 

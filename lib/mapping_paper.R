@@ -255,9 +255,12 @@ generate_legend_vp = function(  base_map, legend_direction='NW' ) {
     { . } -> vp_legend
 
   # create legend viewport from base map
-  base_map + tm_layout(frame=FALSE,
-                       bg.color="#FFFFFF",
-                       legend.only=TRUE) %>%
+  base_map + tm_layout( bg.color="#FFFFFF",
+                       legend.only=TRUE,
+                       legend.title.size = 1.1, 
+                       legend.text.size = 0.9,
+                       legend.frame = TRUE
+                       ) %>%
   { . } -> m_legend
 
 return( list(list( m_legend ), list( vp_legend )))

@@ -9,6 +9,26 @@ standardisation_default_population = structure(list(age = structure(c(1L, 1L, 2L
                                                     ), row.names = c(NA, -8L), .Names = c("age", "sex", "population"
                                                     ))
 
+
+if (FALSE ) {   # find out which lga has the closest population spread to entire Australia
+standardisation_default_population %>%
+  mutate( prop = population/sum(population)) %>%
+  select( -population ) %>%
+  inner_join ( df_population %>% 
+              filter( supply_year==2013) %>% 
+              group_by( lga, age, sex ) %>% 
+              summarise( population = sum(population)  ) %>%
+              group_by( lga ) %>%
+              mutate( lprop = population / sum(population )) %>%
+              select( -population ) 
+            , by=qc( age, sex)) %>%
+  group_by( lga ) %>%
+  summarise( totdiff = sum( ( prop - lprop )^2)) %>%
+  arrange( totdiff ) 
+ # 33430
+}
+
+
 ############################################################################################
 # standardisation_test 
 ############################################################################################
@@ -194,8 +214,8 @@ df_test %>% group_by( bp ) %>% summarise( sum( pop))
 # simple_standardise_value 
 ############################################################################################
 simple_standardise_value = function( df_standardise, 
-                                    group_by_vars, 
-                                    count_var,
+                                    group_by_vars = 'lga', 
+                                    count_var = 'n',
                                     df_population.=df_population, 
                                     standardisation_default = standardisation_default_population 
                                     ) {
