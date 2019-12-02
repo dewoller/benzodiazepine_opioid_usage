@@ -194,10 +194,8 @@ generate_data_frames = function( dataset='_rr' )
                           ordered_result=TRUE
                           ) ) %>%
     { . } -> df_patient_usage
-    
-
-
     toc()
+
     tic ("seperating out benzo/opioid usages")
     df %>% mutate( row=row_number()) %>%
       select (-sex, -age, -state, -lga) %>% 

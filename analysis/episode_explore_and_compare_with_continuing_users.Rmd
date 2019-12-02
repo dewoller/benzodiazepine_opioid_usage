@@ -136,7 +136,7 @@ rf_fit <- train(is_dd ~ .,
                 method = "gbm",
                 trControl=ctrl, 
                 verbose=TRUE,
-                metric='ROC'
+               metric='ROC'
                 )
 #
 #
