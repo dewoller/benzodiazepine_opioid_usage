@@ -1,5 +1,5 @@
-safe_load("RPostgreSQL")
-safe_load("keyring")
+library("RPostgreSQL")
+library("keyring")
 
 # -------------------------------------------------
 get_continuing_df <- function( 
@@ -19,7 +19,7 @@ get_continuing_df <- function(
                     )
 
   my_db_get_query( query ) %>%
-    as.tibble() %>%
+    as_tibble() %>%
     mutate( n_dose = (unit_wt * quantity / ddd_mg_factor ),
            agen=ifelse( age=='100+', 101, suppressWarnings( as.numeric( age ))),
            age = cut( agen, 
@@ -43,7 +43,7 @@ get_drugs <- function( ) {
       )
 
   my_db_get_query( query ) %>%
-    as.tibble() 
+    as_tibble() 
 }
 
 # -------------------------------------------------
@@ -61,7 +61,7 @@ get_usage_df <- function( ) {
       )
   my_db_get_query( query ) %>%
     # TODO mutate  - map ". " LGA to appropriate state 99 LGA
-    as.tibble() %>%
+    as_tibble() %>%
   return( . )
 }
 
@@ -105,7 +105,7 @@ get_lga_size_df<- function ( state_id ) {
   df_size <- my_db_get_query( query ) %>%
     mutate_at( c(  "lga" ), funs( factor(.) ) ) %>%
     ungroup() %>%
-    as.tibble()
+    as_tibble()
   return( df_size )
 }
 
@@ -154,7 +154,7 @@ get_population_df<- function ( state_id = 0 ) {
     left_join( df_seifa, by = "lga") %>%
     mutate( state = get_state_code_from_lga( lga ) ) %>%
     ungroup() %>%
-    as.tibble()
+    as_tibble()
   return( df_population )
 }
 
@@ -218,7 +218,7 @@ get_seifa_df <- function( state_id ) {
                            )
 
   df_seifa <- my_db_get_query( seifa_query ) %>%
-    as.tibble() %>%
+    as_tibble() %>%
     rename(irsd_score_raw = score ) %>%
     mutate(
            seifa  = 
@@ -281,7 +281,7 @@ get_state_geo_df <- function( state_id ) {
               , state_br_lon = min( state_br_lon )
               ) %>%
   mutate_at( c( "state_id", "capital"), funs( factor(.) ) ) %>%
-  as.tibble() %>%
+  as_tibble() %>%
   return( . )
 }
 

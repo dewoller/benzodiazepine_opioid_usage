@@ -1,30 +1,5 @@
 #!/usr/bin/env Rscript
 
-source( "lib/functions_preload.R")
-detach_all_packages()
-
-safe_load( 'workflowr')
-safe_load("seas")
-safe_load("magrittr")
-safe_load("stringr")
-safe_load("knitr")
-#safe_load("kableExtra")
-#safe_load("pander")
-safe_load("lubridate")
-
-safe_load("readstata13" )
-#safe_load("foreign" )
-safe_load("wrapr" )   # for the qc function
-
-#safe_load("ordinal" )
-safe_load("DataCache", dev='jbryer/DataCache' )
-safe_load( 'fuzzyjoin')
-library('IRanges')
-safe_load("multidplyr", dev = "hadley/multidplyr")
-safe_load("tidyverse")
-safe_load("tictoc")
-
-
 
 # one of these need the newest version of libgdal
 
@@ -445,7 +420,24 @@ lsos <- function(..., n=10) {
   .ls.objects(..., order.by="Size", decreasing=TRUE, head=TRUE, n=n)
 }
 
-lsos()
+#lsos()
 
 
 ################################################################################
+
+my_combine <- function(...) {
+  arg_symbols <- match.call(expand.dots = FALSE)$...
+  arg_names <- as.character(arg_symbols)
+  #browser()
+  out <- NULL
+  for (arg_name in arg_names) {
+    print( arg_name )
+    dataset <- readd(arg_name, character_only = TRUE) %>% mutate( source=arg_name )
+    out <- bind_rows(out, dataset)
+    #    gc() # Run garbage collection.
+  }
+  out
+}
+
+
+
