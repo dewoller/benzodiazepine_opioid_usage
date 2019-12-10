@@ -14,3 +14,18 @@ data/cache/*
 Rplots.pdf
 data/nobackup
 data/nobackup/*
+
+# ignore office backup files
+*.tmp
+
+# Word temporary
+~$*.doc*
+
+# Excel temporary
+~$*.xls*
+
+# Excel Backup File
+*.xlk
+
+# PowerPoint temporary
+~$*.ppt*
