@@ -15,6 +15,9 @@ Rplots.pdf
 data/nobackup
 data/nobackup/*
 
+.drake
+.drake
+
 # ignore office backup files
 *.tmp
 
@@ -29,3 +32,8 @@ data/nobackup/*
 
 # PowerPoint temporary
 ~$*.ppt*
+
+
+lib/keys.R
+.drake
+.future
