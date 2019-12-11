@@ -84,10 +84,10 @@ get_df_match_multiyear = function( df_input ) {
 # get_df_match_singleyear
 ########################################################################################
 
-df_match_singleyear = function( df_match_multiyear ) {
+get_df_match_singleyear = function( df_match_multiyear ) {
 
   df_match_multiyear %>%
-    group_by( pin, sex, age,lga,lga_name,state_code,state_name,area_albers_sqkm,irsd_score_raw,seifa,class_type,class_name,urbanization,state ) %>%
+    group_by( pin ) %>%
     summarise( ndays = sum( ndays )) %>%
     ungroup() 
 }
