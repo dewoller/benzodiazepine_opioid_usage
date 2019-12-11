@@ -88,7 +88,7 @@ get_df_match_singleyear = function( df_match_multiyear ) {
 
   df_match_multiyear %>%
     group_by( pin ) %>%
-    summarise( ndays = sum( ndays )) %>%
+    summarise( ndays_overlap_noduplication = sum( ndays_overlap_noduplication )) %>%
     ungroup() 
 }
 
