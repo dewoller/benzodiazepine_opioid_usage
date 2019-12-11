@@ -1,12 +1,6 @@
 #!/usr/bin/env Rscript
 
 
-# one of these need the newest version of libgdal
-
-# sudo add-apt-repository -y ppa:ubuntugis/ppa
-
-# agi libudunits2-dev libgdal-dev libudunits2-dev libgdal-dev libgeos-dev libproj-dev
-
 
 #################################################################################
 is_theme_complete = function (x)  {TRUE}  # fix up bug in current tricolore library

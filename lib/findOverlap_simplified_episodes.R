@@ -44,57 +44,52 @@ find_episode_overlap = function( df  ) {
   }
   df
 }
-  ########################################################################################
+########################################################################################
+# get_df_match_multiyear
+########################################################################################
 
 
+get_df_match_multiyear = function( df_input ) {
+  cl <- new_cluster(parallel::detectCores() )
+  cluster_copy(cl, c("update_balance",  "find_episode_overlap" ))
 
-cl <- create_cluster(11)
-set_default_cluster(cl)
-cluster_copy(cl, update_balance )    
-cluster_copy(cl, find_episode_overlap  )
+  df_input %>%
+    group_by( pin, supply_date, drug_type ) %>%
+    summarise( n_dose = sum( n_dose )) %>%
+    ungroup() %>%
+    #
+    #  group_by( pin, drug_type ) %>%
+    #  filter( n() > 2 ) %>%
+    #  ungroup() %>%
+    #
+    #  mutate( ndays_overlap = 0 ) %>%
+    arrange(pin, supply_date) %>%
+    group_by( pin ) %>%
+    partition( cluster = cl) %>% 
+    do( find_episode_overlap(.) ) %>%
+    collect() %>%
+    filter( ndays_overlap  > 0 ) %>%
+    mutate( supply_year = as.character( year( supply_date ))) %>%
+    mutate( ndays_overlap_noduplication = ifelse ( is.na( lead( supply_date )), ndays_overlap,
+                                ifelse( supply_date == lead( supply_date ), 0, 
+                                        pmin( ndays_overlap, lead( supply_date ) - supply_date)
+            ))) %>%
+    ungroup()  %>% 
+    { . } -> df_match_multiyear
 
+  df_match_multiyear
+}
 
-df %>%
-  group_by( pin, supply_date, drug_type ) %>%
-  summarise( n_dose = sum( n_dose )) %>%
-  ungroup() %>%
-  #
-  #  group_by( pin, drug_type ) %>%
-  #  filter( n() > 2 ) %>%
-  #  ungroup() %>%
-  #
-  #  mutate( ndays_overlap = 0 ) %>%
-  arrange(pin, supply_date) %>%
-  partition( pin ) %>% 
-  group_by( pin ) %>%
-  do( find_episode_overlap(.) ) %>%
-  collect() %>%
-  filter( ndays_overlap  > 0 ) 
-  mutate( supply_year = as.character( year( supply_date ))) %>%
-  mutate( ndays_overlap_noduplication = ifelse ( is.na( lead( supply_date )), ndays_overlap,
-                               ifelse( supply_date == lead( supply_date ), 0, 
-                                       pmin( ndays_overlap, lead( supply_date ) - supply_date)
-          ))) -> df_match
+########################################################################################
+# get_df_match_singleyear
+########################################################################################
 
-#df_match  %>% 
-#  ungroup() %>%
-#  write.csv( row.names=F, file= 'data/overlaps.csv')
+df_match_singleyear = function( df_match_multiyear ) {
 
-
-df_match %>%
-  inner_join(  df_patient_usage, by='pin'  ) %>%
-  inner_join( select( df_patient, pin, benzo_total_doses:doc_benzo_doses ), by='pin') %>% 
-  foreign::write.dta( '/tmp/match_multiyear.v2.dta')
-
-df_match %>%
-  ungroup() %>%
-  group_by( pin, sex, age,lga,lga_name,state_code,state_name,area_albers_sqkm,irsd_score_raw,seifa,class_type,class_name,urbanization,state ) %>%
-  summarise( ndays = sum( ndays )) %>%
-  ungroup() %>%
-  inner_join( select( df_patient, pin, benzo_total_doses:doc_benzo_doses ), by='pin') %>% 
-  left_join(  df_patient_usage, by='pin'  ) %>%
-  foreign::write.dta( '/tmp/match_single_period.v1.dta')
-
-df_patient
+  df_match_multiyear %>%
+    group_by( pin, sex, age,lga,lga_name,state_code,state_name,area_albers_sqkm,irsd_score_raw,seifa,class_type,class_name,urbanization,state ) %>%
+    summarise( ndays = sum( ndays )) %>%
+    ungroup() 
+}
 
 
