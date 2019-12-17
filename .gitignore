@@ -15,7 +15,7 @@ Rplots.pdf
 data/nobackup
 data/nobackup/*
 
-.drake
+*tmp.R
 .drake
 
 # ignore office backup files
@@ -35,5 +35,4 @@ data/nobackup/*
 
 
 lib/keys.R
-.drake
 .future
