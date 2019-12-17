@@ -1,5 +1,3 @@
-library("RPostgreSQL")
-library("keyring")
 
 # -------------------------------------------------
 get_continuing_df <- function( 
@@ -10,9 +8,10 @@ get_continuing_df <- function(
   type_code_limit = ifelse( benzo, 10, 9 )
   query  <-  paste0( "
                     SELECT pin, gender, age, state, lga, item_code, type_code, generic_name  ,
-                    type_name, supply_date, quantity, unit_wt, ddd_mg_factor 
+                    type_name, supply_date, quantity, unit_wt, 
+                    ddd_mg_factor, ashton_mg_factor, ome_mg_factor
                     FROM continuing." , base_table , " r 
-                    JOIN continuing.item i USING (item_code) 
+                    JOIN continuing.item_ome i USING (item_code) 
                     JOIN public.generictype USING (type_code)
                     WHERE (EXTRACT( YEAR FROM supply_date ) != '2017') ",
                     ifelse( benzo, '', " AND (type_code <> 10)") 
@@ -21,6 +20,8 @@ get_continuing_df <- function(
   my_db_get_query( query ) %>%
     as_tibble() %>%
     mutate( n_dose = (unit_wt * quantity / ddd_mg_factor ),
+           n_dose_equivalent = calculate_equivalence_factor( unit_wt, quantity, 
+                                                               ddd_mg_factor, ome_mg_factor, ashton_mg_factor, type_code) ,
            agen=ifelse( age=='100+', 101, suppressWarnings( as.numeric( age ))),
            age = cut( agen, 
                      c(0,19,44,64,9999), 
@@ -31,7 +32,16 @@ get_continuing_df <- function(
     rename(sex=gender) 
 }
 
+# -------------------------------------------------
+calculate_equivalence_factor = function( unit_wt, quantity, ddd_mg_factor, ome_mg_factor, ashton_mg_factor, type_code) {
 
+morphine_ddd = 100
+diazepine_ddd = 10
+
+drug_scale = ifelse( is_benzo(type_code), ashton_mg_factor / diazepine_ddd, ome_mg_factor / morphine_ddd)
+unit_wt * quantity * drug_scale
+
+}
 # -------------------------------------------------
 get_drugs <- function( ) {
 

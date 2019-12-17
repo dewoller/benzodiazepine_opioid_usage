@@ -11,6 +11,7 @@ load_function = function() {
 load_library = function() {
   #
 
+  library(keyring)
   library(RPostgreSQL)
   library(tidyverse)
   library(lubridate)
@@ -39,6 +40,8 @@ drakeplan <- drake::drake_plan (
  df_patient_dose =target( get_df_patient_dose( df )) ,
  df_match_multiyear = target( get_df_match_multiyear (df)),
  df_match_singleyear = target( get_df_match_singleyear (df_match_multiyear )),
+ df_match_multiyear_equivalent = target( get_df_match_multiyear (df, "n_dose_equivalent")),
+ df_match_singleyear_equivalent = target( get_df_match_singleyear (df_match_multiyear_equivalent )),
 trace=TRUE
 )
 

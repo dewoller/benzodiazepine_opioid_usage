@@ -49,13 +49,13 @@ find_episode_overlap = function( df  ) {
 ########################################################################################
 
 
-get_df_match_multiyear = function( df_input ) {
+get_df_match_multiyear = function( df_input, which_dose = "n_dose" ) {
   cl <- new_cluster(parallel::detectCores() )
   cluster_copy(cl, c("update_balance",  "find_episode_overlap" ))
 
   df_input %>%
     group_by( pin, supply_date, drug_type ) %>%
-    summarise( n_dose = sum( n_dose )) %>%
+    summarise( n_dose = sum( !!sym( which_dose))) %>%
     ungroup() %>%
     #
     #  group_by( pin, drug_type ) %>%
